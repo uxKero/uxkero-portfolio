@@ -58,15 +58,15 @@ const BlogModal: React.FC<BlogModalProps> = ({
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           transition={{ duration: 0.3 }}
-          className="relative w-full h-full md:w-[90%] md:h-[90%] md:max-w-5xl md:max-h-[90vh] bg-black border border-zinc-800 rounded-2xl md:rounded-2xl overflow-hidden flex flex-col shadow-2xl"
+          className="relative w-full h-full md:w-[90%] md:h-[90%] md:max-w-5xl md:max-h-[90vh] bg-black border-0 md:border border-zinc-800 rounded-none md:rounded-2xl overflow-hidden flex flex-col shadow-2xl"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header del Modal */}
-          <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-900 bg-zinc-950/50 backdrop-blur-sm shrink-0">
-            <div className="flex items-center gap-3">
+          <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-zinc-900 bg-zinc-950/50 backdrop-blur-sm shrink-0">
+            <div className="flex items-center gap-2 sm:gap-3">
               <button
                 onClick={onClose}
-                className="p-2 hover:bg-zinc-800 rounded-lg transition-colors text-zinc-400 hover:text-white"
+                className="p-1.5 sm:p-2 hover:bg-zinc-800 rounded-lg transition-colors text-zinc-400 hover:text-white"
                 aria-label="Cerrar"
               >
                 <CloseIcon className="w-5 h-5" />
@@ -83,10 +83,11 @@ const BlogModal: React.FC<BlogModalProps> = ({
                   onExpand();
                 }
               }}
-              className="flex items-center gap-2 px-4 py-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 rounded-lg text-sm font-medium text-white transition-colors"
+              className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 rounded-lg text-xs sm:text-sm font-medium text-white transition-colors"
             >
-              <OpenInFullIcon className="w-4 h-4" />
-              <span>{language === 'es' ? 'Expandir a vista completa' : 'Expand to full view'}</span>
+              <OpenInFullIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline">{language === 'es' ? 'Expandir a vista completa' : 'Expand to full view'}</span>
+              <span className="sm:hidden">{language === 'es' ? 'Expandir' : 'Expand'}</span>
             </button>
           </div>
 

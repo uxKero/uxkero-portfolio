@@ -54,33 +54,33 @@ export const BlogPreview: React.FC<BlogPreviewProps> = ({
         </div>
       )}
       
-      <div className="relative p-6 md:p-8 space-y-4">
+      <div className="relative p-4 sm:p-6 md:p-8 space-y-3 sm:space-y-4">
         {/* Category and Date */}
-        <div className="flex items-center justify-between text-xs text-zinc-500 mb-2">
-          <span className="font-medium tracking-wide uppercase">{category}</span>
-          <div className="flex items-center gap-1.5">
+        <div className="flex items-center justify-between text-[10px] sm:text-xs text-zinc-500 mb-2">
+          <span className="font-medium tracking-wide uppercase truncate pr-2">{category}</span>
+          <div className="flex items-center gap-1 sm:gap-1.5 flex-shrink-0">
             <CalendarTodayIcon className="w-3 h-3" />
-            <span>{date}</span>
+            <span className="whitespace-nowrap">{date}</span>
           </div>
         </div>
 
         {/* Title */}
-        <h3 className="text-lg md:text-xl font-semibold text-white leading-snug tracking-tight group-hover:text-zinc-100 transition-colors duration-300 line-clamp-2">
+        <h3 className="text-base sm:text-lg md:text-xl font-semibold text-white leading-snug tracking-tight group-hover:text-zinc-100 transition-colors duration-300 line-clamp-2">
           {title}
         </h3>
 
         {/* Excerpt */}
-        <p className="text-sm md:text-base text-zinc-400 leading-relaxed line-clamp-2 font-light">
+        <p className="text-xs sm:text-sm md:text-base text-zinc-400 leading-relaxed line-clamp-2 font-light">
           {excerpt}
         </p>
 
         {/* Footer */}
         <div className="flex items-center justify-between pt-2 border-t border-zinc-800/30">
-          <span className="text-xs text-zinc-500 font-light">{readTime}</span>
+          <span className="text-[10px] sm:text-xs text-zinc-500 font-light">{readTime}</span>
           {isAvailable && (
-            <div className="flex items-center gap-1.5 text-zinc-500 group-hover:text-zinc-300 transition-colors duration-300">
-              <span className="text-xs font-medium">Leer</span>
-              <ArrowForwardIcon className="w-3.5 h-3.5 transform group-hover:translate-x-0.5 transition-transform duration-300" />
+            <div className="flex items-center gap-1 sm:gap-1.5 text-zinc-500 group-hover:text-zinc-300 transition-colors duration-300">
+              <span className="text-[10px] sm:text-xs font-medium">Leer</span>
+              <ArrowForwardIcon className="w-3 h-3 sm:w-3.5 sm:h-3.5 transform group-hover:translate-x-0.5 transition-transform duration-300" />
             </div>
           )}
         </div>
@@ -113,7 +113,7 @@ export const BlogPreviewList: React.FC<BlogPreviewListProps> = ({
   };
 
   return (
-    <div className={`w-full space-y-4 ${className}`}>
+    <div className={`w-full space-y-4 sm:space-y-5 md:space-y-6 ${className}`}>
       {blogs.map((blog, index) => {
         const isAvailable = isFirstBlogAvailable(blog.slug);
         return (
