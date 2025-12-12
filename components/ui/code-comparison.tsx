@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { GripVertical } from "lucide-react";
+import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 
 interface CodeComparisonProps {
   beforeContent: React.ReactNode;
@@ -104,7 +104,7 @@ export const CodeComparison: React.FC<CodeComparisonProps> = ({
         onTouchStart={handleMouseDown}
       >
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 bg-zinc-800 border border-zinc-600 rounded-full flex items-center justify-center shadow-lg">
-          <GripVertical className="w-4 h-4 text-zinc-400" />
+          <DragIndicatorIcon className="w-4 h-4 text-zinc-400" />
         </div>
       </div>
       

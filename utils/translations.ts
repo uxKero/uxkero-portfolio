@@ -16,15 +16,32 @@ export const translations = {
         string_pattern: "'Streamlined_Checkout'",
         string_baseline: "'Maintain_Baseline'"
       },
-      visual: {
-        protocol: "Protocol: Active",
-        cpu_label: "Code_Viability",
-        cpu_value: "OPTIMAL",
-        trend_label: "Conversion_Delta",
-        trend_tag: "Post_Deploy",
-        identity_role: "Product Architect",
-        cta_linkedin: "Connect_LinkedIn"
-      }
+      blogs: [
+        {
+          title: "UI Principles: From Theory to Real Impact",
+          date: "Dec 10, 2025",
+          category: "Design Strategy",
+          excerpt: "Why a 'pretty' interface isn't enough and how strategic UI design increases conversions, retention, and user satisfaction.",
+          readTime: "15 min read",
+          slug: "ui-principles-real-impact"
+        },
+        {
+          title: "Design Systems at Scale: Building for Growth",
+          date: "Dec 8, 2025",
+          category: "Design Strategy",
+          excerpt: "Exploring how to create scalable design systems that support product growth while maintaining consistency and reducing technical debt.",
+          readTime: "8 min read",
+          slug: "design-systems-scale"
+        },
+        {
+          title: "The Psychology of User Decision Making",
+          date: "Dec 5, 2025",
+          category: "UX Research",
+          excerpt: "Understanding cognitive biases and behavioral patterns to design more effective user experiences that guide users toward desired actions.",
+          readTime: "10 min read",
+          slug: "psychology-user-decisions"
+        }
+      ]
     },
     experience: {
       headers: {
@@ -123,15 +140,32 @@ export const translations = {
         string_pattern: "'Checkout_Optimizado'",
         string_baseline: "'Mantener_Base'"
       },
-      visual: {
-        protocol: "Protocolo: Activo",
-        cpu_label: "Viabilidad_Código",
-        cpu_value: "ÓPTIMO",
-        trend_label: "Delta_Conversión",
-        trend_tag: "Post_Deploy",
-        identity_role: "Arquitecto de Producto",
-        cta_linkedin: "Conectar_LinkedIn"
-      }
+      blogs: [
+        {
+          title: "Principios de UI: De la Teoría al Impacto Real",
+          date: "10 Dic 2025",
+          category: "Design Strategy",
+          excerpt: "Por qué una interfaz 'bonita' no es suficiente y cómo el diseño UI estratégico aumenta conversiones, retención y satisfacción del usuario.",
+          readTime: "15 min lectura",
+          slug: "principios-ui-impacto-real"
+        },
+        {
+          title: "Sistemas de Diseño a Escala: Construyendo para el Crecimiento",
+          date: "8 Dic 2025",
+          category: "Estrategia de Diseño",
+          excerpt: "Explorando cómo crear sistemas de diseño escalables que apoyen el crecimiento del producto mientras mantienen consistencia y reducen deuda técnica.",
+          readTime: "8 min lectura",
+          slug: "sistemas-diseno-escala"
+        },
+        {
+          title: "La Psicología de la Toma de Decisiones del Usuario",
+          date: "5 Dic 2025",
+          category: "Investigación UX",
+          excerpt: "Comprendiendo sesgos cognitivos y patrones de comportamiento para diseñar experiencias de usuario más efectivas que guíen hacia acciones deseadas.",
+          readTime: "10 min lectura",
+          slug: "psicologia-decisiones-usuario"
+        }
+      ]
     },
     experience: {
       headers: {

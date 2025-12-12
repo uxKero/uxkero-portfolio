@@ -1,8 +1,10 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import AboutSection from './sections/AboutSection';
 import ExperienceSection from './sections/ExperienceSection';
 import ContactSection from './sections/ContactSection';
+import BlogPost from './blog/BlogPost';
+import BlogModal from './blog/BlogModal';
 import { translations } from '../utils/translations';
 
 type PanelId = 'about' | 'experience' | 'contact';
@@ -19,7 +21,7 @@ const panels: PanelConfig[] = [
   {
     id: 'about',
     label: (lang) => lang === 'en' ? 'ABOUT' : 'PERFIL',
-    bgImage: "/yo2.jpg", 
+    bgImage: "/yo2.png", 
     // Lighter overlay to ensure the face is visible
     overlayColor: 'from-black/40 via-black/20 to-black/90', 
   },
@@ -27,14 +29,14 @@ const panels: PanelConfig[] = [
     id: 'experience',
     label: (lang) => lang === 'en' ? 'EXPERIENCE' : 'EXPERIENCIA',
     // Code / Tech / Execution
-    bgImage: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=70&w=600&auto=format&fit=crop&fm=webp",
+    bgImage: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=2070&auto=format&fit=crop",
     overlayColor: 'from-blue-950/30 via-black/50 to-black/90',
   },
   {
     id: 'contact',
     label: (lang) => lang === 'en' ? 'CONTACT' : 'CONTACTO',
     // Network / Connections
-    bgImage: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=70&w=600&auto=format&fit=crop&fm=webp",
+    bgImage: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop",
     overlayColor: 'from-emerald-950/30 via-black/50 to-black/90',
   }
 ];
@@ -42,29 +44,9 @@ const panels: PanelConfig[] = [
 const HeroSection: React.FC = () => {
   const [activePanel, setActivePanel] = useState<PanelId>('about');
   const [language, setLanguage] = useState<Language>('en');
-  const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set(['/yo2.jpg']));
-
-  // Preload images when component mounts
-  useEffect(() => {
-    const preloadImage = (src: string) => {
-      if (loadedImages.has(src)) return;
-      
-      const img = new Image();
-      img.src = src;
-      img.onload = () => {
-        setLoadedImages(prev => new Set([...prev, src]));
-      };
-    };
-
-    // Preload images for all panels (lazy load in background)
-    panels.forEach(panel => {
-      if (panel.bgImage && !panel.bgImage.startsWith('/')) {
-        // Small delay to prioritize main image
-        setTimeout(() => preloadImage(panel.bgImage!), 100);
-      }
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const [activeBlog, setActiveBlog] = useState<string | null>(null);
+  const [isBlogModalOpen, setIsBlogModalOpen] = useState(false);
+  const [isBlogExpanded, setIsBlogExpanded] = useState(false);
 
   const handlePanelClick = (id: PanelId) => {
     if (activePanel !== id) {
@@ -79,7 +61,41 @@ const HeroSection: React.FC = () => {
   // Get current translations based on state
   const t = translations[language];
 
+  // Si el blog está expandido, mostrar vista completa
+  if (isBlogExpanded && activeBlog) {
+    return (
+      <div className="w-full h-screen overflow-y-auto">
+        <BlogPost
+          onBack={() => {
+            setIsBlogExpanded(false);
+            setIsBlogModalOpen(false);
+            setActiveBlog(null);
+          }}
+          language={language}
+          slug={activeBlog}
+          onToggleLanguage={toggleLanguage}
+        />
+      </div>
+    );
+  }
+
   return (
+    <>
+      {/* Modal del Blog */}
+      <BlogModal
+        isOpen={isBlogModalOpen}
+        onClose={() => {
+          setIsBlogModalOpen(false);
+          setActiveBlog(null);
+        }}
+        slug={activeBlog || undefined}
+        language={language}
+        onToggleLanguage={toggleLanguage}
+        onExpand={() => {
+          setIsBlogExpanded(true);
+          setIsBlogModalOpen(false);
+        }}
+      />
     <section className="flex flex-col md:flex-row w-full h-screen bg-black text-white overflow-hidden font-sans">
       
       {panels.map((panel) => {
@@ -102,27 +118,13 @@ const HeroSection: React.FC = () => {
             {/* Image Background (only for panels with images) */}
             {panel.bgImage && (
               <div 
-                className={`absolute inset-0 bg-cover transition-all duration-1000 ease-out z-0
+                className={`absolute inset-0 bg-cover bg-center transition-all duration-1000 ease-out z-0
                   ${isActive 
                     ? 'opacity-0 scale-110' // Hide when active
                     : 'opacity-80 grayscale group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-105' // High visibility (80%) when inactive
                   }
                 `}
-                style={{ 
-                  backgroundImage: loadedImages.has(panel.bgImage) ? `url(${panel.bgImage})` : 'none',
-                  backgroundPosition: panel.id === 'about' ? '70% center' : 'center center',
-                  backgroundSize: 'cover',
-                  willChange: 'transform, opacity'
-                }}
-                onMouseEnter={() => {
-                  if (panel.bgImage && !loadedImages.has(panel.bgImage)) {
-                    const img = new Image();
-                    img.src = panel.bgImage;
-                    img.onload = () => {
-                      setLoadedImages(prev => new Set([...prev, panel.bgImage!]));
-                    };
-                  }
-                }}
+                style={{ backgroundImage: `url(${panel.bgImage})` }}
               />
             )}
 
@@ -162,6 +164,10 @@ const HeroSection: React.FC = () => {
                   content={t.about} 
                   language={language}
                   onToggleLanguage={toggleLanguage}
+                  onBlogClick={(slug) => {
+                    setActiveBlog(slug);
+                    setIsBlogModalOpen(true);
+                  }}
                 />
               )}
               {panel.id === 'experience' && (
@@ -176,6 +182,7 @@ const HeroSection: React.FC = () => {
         );
       })}
     </section>
+    </>
   );
 };
 

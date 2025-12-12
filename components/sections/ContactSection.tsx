@@ -1,5 +1,9 @@
 import React, { useRef, useEffect } from 'react';
-import { Mail, Linkedin, Twitter, Building2, ArrowUpRight } from 'lucide-react';
+import EmailIcon from '@mui/icons-material/Email';
+import LinkedInIcon from '@mui/icons-material/LinkedIn';
+import XIcon from '@mui/icons-material/X';
+import BusinessIcon from '@mui/icons-material/Business';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 
 interface ContactSectionProps {
   content: any; // Using dynamic content prop
@@ -45,14 +49,14 @@ const ContactSection: React.FC<ContactSectionProps> = ({ content }) => {
         >
           <div className="flex items-center gap-4 md:gap-5">
             <div className="p-2 md:p-3 rounded-sm bg-zinc-900 group-hover:bg-emerald-500/10 text-zinc-500 group-hover:text-emerald-400 transition-colors">
-               <Mail size={20} className="md:w-6 md:h-6" strokeWidth={1.5} />
+               <EmailIcon className="w-5 h-5 md:w-6 md:h-6" />
             </div>
             <div className="text-left">
               <div className="text-[9px] md:text-[10px] text-zinc-500 uppercase tracking-widest mb-1 group-hover:text-emerald-500/70 transition-colors">{content.labels.email_sub}</div>
               <div className="text-white text-sm md:text-lg font-medium tracking-tight break-all">alan@aurorabookapp.com</div>
             </div>
           </div>
-          <ArrowUpRight size={16} className="text-zinc-700 group-hover:text-emerald-400 group-hover:rotate-45 transition-all duration-300 md:w-[18px] md:h-[18px]" />
+          <OpenInNewIcon className="w-4 h-4 text-zinc-700 group-hover:text-emerald-400 group-hover:rotate-45 transition-all duration-300 md:w-[18px] md:h-[18px]" />
         </a>
 
         {/* LinkedIn */}
@@ -64,14 +68,14 @@ const ContactSection: React.FC<ContactSectionProps> = ({ content }) => {
         >
           <div className="flex items-center gap-4 md:gap-5">
              <div className="p-2 md:p-3 rounded-sm bg-zinc-900 group-hover:bg-blue-500/10 text-zinc-500 group-hover:text-blue-400 transition-colors">
-               <Linkedin size={20} className="md:w-6 md:h-6" strokeWidth={1.5} />
+               <LinkedInIcon className="w-5 h-5 md:w-6 md:h-6" />
             </div>
             <div className="text-left">
               <div className="text-[9px] md:text-[10px] text-zinc-500 uppercase tracking-widest mb-1 group-hover:text-blue-500/70 transition-colors">{content.labels.linkedin_sub}</div>
               <div className="text-white text-sm md:text-lg font-medium tracking-tight">/in/ab-alanponce</div>
             </div>
           </div>
-          <ArrowUpRight size={16} className="text-zinc-700 group-hover:text-blue-400 group-hover:rotate-45 transition-all duration-300 md:w-[18px] md:h-[18px]" />
+          <OpenInNewIcon className="w-4 h-4 text-zinc-700 group-hover:text-blue-400 group-hover:rotate-45 transition-all duration-300 md:w-[18px] md:h-[18px]" />
         </a>
 
         {/* X / Twitter */}
@@ -83,14 +87,14 @@ const ContactSection: React.FC<ContactSectionProps> = ({ content }) => {
         >
           <div className="flex items-center gap-4 md:gap-5">
              <div className="p-2 md:p-3 rounded-sm bg-zinc-900 group-hover:bg-zinc-800 text-zinc-500 group-hover:text-white transition-colors">
-               <Twitter size={20} className="md:w-6 md:h-6" strokeWidth={1.5} />
+               <XIcon className="w-5 h-5 md:w-6 md:h-6" />
             </div>
             <div className="text-left">
               <div className="text-[9px] md:text-[10px] text-zinc-500 uppercase tracking-widest mb-1 group-hover:text-zinc-400 transition-colors">{content.labels.x_sub}</div>
               <div className="text-white text-sm md:text-lg font-medium tracking-tight">@uxKero</div>
             </div>
           </div>
-          <ArrowUpRight size={16} className="text-zinc-700 group-hover:text-white group-hover:rotate-45 transition-all duration-300 md:w-[18px] md:h-[18px]" />
+          <OpenInNewIcon className="w-4 h-4 text-zinc-700 group-hover:text-white group-hover:rotate-45 transition-all duration-300 md:w-[18px] md:h-[18px]" />
         </a>
 
         {/* Company Ref */}
@@ -102,14 +106,14 @@ const ContactSection: React.FC<ContactSectionProps> = ({ content }) => {
         >
           <div className="flex items-center gap-4 md:gap-5">
              <div className="p-2 md:p-3 rounded-sm bg-zinc-900 group-hover:bg-purple-500/10 text-zinc-500 group-hover:text-purple-400 transition-colors">
-               <Building2 size={20} className="md:w-6 md:h-6" strokeWidth={1.5} />
+               <BusinessIcon className="w-5 h-5 md:w-6 md:h-6" />
             </div>
             <div className="text-left">
               <div className="text-[9px] md:text-[10px] text-zinc-500 uppercase tracking-widest mb-1 group-hover:text-purple-500/70 transition-colors">{content.labels.company_sub}</div>
               <div className="text-white text-sm md:text-lg font-medium tracking-tight">Company Reference</div>
             </div>
           </div>
-          <ArrowUpRight size={16} className="text-zinc-700 group-hover:text-purple-400 group-hover:rotate-45 transition-all duration-300 md:w-[18px] md:h-[18px]" />
+          <OpenInNewIcon className="w-4 h-4 text-zinc-700 group-hover:text-purple-400 group-hover:rotate-45 transition-all duration-300 md:w-[18px] md:h-[18px]" />
         </a>
 
       </div>
