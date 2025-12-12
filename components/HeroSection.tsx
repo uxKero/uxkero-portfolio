@@ -1,11 +1,13 @@
 
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import AboutSection from './sections/AboutSection';
 import ExperienceSection from './sections/ExperienceSection';
 import ContactSection from './sections/ContactSection';
 import BlogPost from './blog/BlogPost';
 import BlogModal from './blog/BlogModal';
 import { translations } from '../utils/translations';
+import { getUrlSlug } from '../utils/blog-slugs';
 
 type PanelId = 'about' | 'experience' | 'contact';
 type Language = 'en' | 'es';
@@ -42,6 +44,7 @@ const panels: PanelConfig[] = [
 ];
 
 const HeroSection: React.FC = () => {
+  const navigate = useNavigate();
   const [activePanel, setActivePanel] = useState<PanelId>('about');
   const [language, setLanguage] = useState<Language>('en');
   const [activeBlog, setActiveBlog] = useState<string | null>(null);
@@ -61,22 +64,11 @@ const HeroSection: React.FC = () => {
   // Get current translations based on state
   const t = translations[language];
 
-  // Si el blog está expandido, mostrar vista completa
+  // Si el blog está expandido, navegar a la ruta del blog
   if (isBlogExpanded && activeBlog) {
-    return (
-      <div className="w-full h-screen overflow-y-auto">
-        <BlogPost
-          onBack={() => {
-            setIsBlogExpanded(false);
-            setIsBlogModalOpen(false);
-            setActiveBlog(null);
-          }}
-          language={language}
-          slug={activeBlog}
-          onToggleLanguage={toggleLanguage}
-        />
-      </div>
-    );
+    const urlSlug = getUrlSlug(activeBlog);
+    navigate(`/${urlSlug}`, { replace: true });
+    return null;
   }
 
   return (
@@ -167,6 +159,10 @@ const HeroSection: React.FC = () => {
                   onBlogClick={(slug) => {
                     setActiveBlog(slug);
                     setIsBlogModalOpen(true);
+                  }}
+                  onBlogOpenInNewTab={(slug) => {
+                    const urlSlug = getUrlSlug(slug);
+                    window.open(`/${urlSlug}`, '_blank');
                   }}
                 />
               )}

@@ -10,9 +10,10 @@ interface AboutSectionProps {
   language: 'en' | 'es';
   onToggleLanguage: () => void;
   onBlogClick?: (slug: string) => void;
+  onBlogOpenInNewTab?: (slug: string) => void;
 }
 
-const AboutSection: React.FC<AboutSectionProps> = ({ onNavigate, content, language, onToggleLanguage, onBlogClick }) => {
+const AboutSection: React.FC<AboutSectionProps> = ({ onNavigate, content, language, onToggleLanguage, onBlogClick, onBlogOpenInNewTab }) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Reset scroll position on mount

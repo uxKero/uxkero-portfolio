@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import CloseIcon from '@mui/icons-material/Close';
 import OpenInFullIcon from '@mui/icons-material/OpenInFull';
 import LanguageIcon from '@mui/icons-material/Language';
 import BlogPost from './BlogPost';
+import { getUrlSlug } from '../../utils/blog-slugs';
 
 interface BlogModalProps {
   isOpen: boolean;
@@ -22,6 +24,7 @@ const BlogModal: React.FC<BlogModalProps> = ({
   onToggleLanguage,
   onExpand,
 }) => {
+  const navigate = useNavigate();
   const [isExpanded, setIsExpanded] = useState(false);
 
   useEffect(() => {
@@ -71,8 +74,14 @@ const BlogModal: React.FC<BlogModalProps> = ({
             </div>
             <button
               onClick={() => {
-                setIsExpanded(true);
-                onExpand();
+                if (slug) {
+                  const urlSlug = getUrlSlug(slug);
+                  navigate(`/${urlSlug}`);
+                  onClose();
+                } else {
+                  setIsExpanded(true);
+                  onExpand();
+                }
               }}
               className="flex items-center gap-2 px-4 py-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 rounded-lg text-sm font-medium text-white transition-colors"
             >
