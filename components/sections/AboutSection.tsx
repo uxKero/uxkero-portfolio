@@ -196,6 +196,7 @@ const AboutSection: React.FC<AboutSectionProps> = ({ onNavigate, content, langua
                   blogs={realBlogs}
                   className="mb-8"
                   onBlogClick={onBlogClick}
+                  language={language}
                 />
               ) : (
                 <div className="text-center text-zinc-500 py-8">
@@ -281,9 +282,9 @@ const AboutSection: React.FC<AboutSectionProps> = ({ onNavigate, content, langua
                              {blog.readTime}
                            </span>
                          </div>
-                         <h3 className="text-base sm:text-lg md:text-xl font-semibold text-white leading-snug tracking-tight group-hover:text-zinc-100 transition-colors duration-300 mb-2">
-                           {blog.title}
-                         </h3>
+                       <h3 className={`${language === 'es' ? 'text-sm sm:text-base md:text-lg' : 'text-base sm:text-lg md:text-xl'} font-semibold text-white leading-snug tracking-tight group-hover:text-zinc-100 transition-colors duration-300 mb-2`}>
+                         {blog.title}
+                       </h3>
                          <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed font-light line-clamp-2">
                            {blog.excerpt}
                          </p>

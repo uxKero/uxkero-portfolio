@@ -12,6 +12,7 @@ interface BlogPreviewProps {
   onClick?: () => void;
   slug?: string;
   isAvailable?: boolean;
+  language?: 'es' | 'en';
 }
 
 export const BlogPreview: React.FC<BlogPreviewProps> = ({
@@ -24,6 +25,7 @@ export const BlogPreview: React.FC<BlogPreviewProps> = ({
   onClick,
   slug,
   isAvailable = true,
+  language = 'en',
 }) => {
   const handleClick = () => {
     if (isAvailable && onClick) {
@@ -65,7 +67,7 @@ export const BlogPreview: React.FC<BlogPreviewProps> = ({
         </div>
 
         {/* Title */}
-        <h3 className="text-base sm:text-lg md:text-xl font-semibold text-white leading-snug tracking-tight group-hover:text-zinc-100 transition-colors duration-300 line-clamp-2">
+        <h3 className={`${language === 'es' ? 'text-sm sm:text-base md:text-lg' : 'text-base sm:text-lg md:text-xl'} font-semibold text-white leading-snug tracking-tight group-hover:text-zinc-100 transition-colors duration-300 line-clamp-2`}>
           {title}
         </h3>
 
@@ -98,12 +100,14 @@ interface BlogPreviewListProps {
   }>;
   className?: string;
   onBlogClick?: (slug?: string) => void;
+  language?: 'es' | 'en';
 }
 
 export const BlogPreviewList: React.FC<BlogPreviewListProps> = ({
   blogs,
   className = "",
   onBlogClick,
+  language = 'en',
 }) => {
   // Todos los blogs están disponibles ahora
   return (
@@ -119,6 +123,7 @@ export const BlogPreviewList: React.FC<BlogPreviewListProps> = ({
             readTime={blog.readTime}
             slug={blog.slug}
             isAvailable={true}
+            language={language}
             onClick={() => {
               onBlogClick?.(blog.slug || `blog-${index}`);
             }}

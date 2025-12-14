@@ -441,7 +441,7 @@ const BlogPost: React.FC<BlogPostProps> = ({ onBack, language = 'es', slug, onTo
                   {category}
               </span>
               )}
-              <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight mb-2 sm:mb-4">
+              <h1 className={`${language === 'es' ? 'text-xl sm:text-2xl md:text-4xl lg:text-5xl' : 'text-2xl sm:text-3xl md:text-5xl lg:text-6xl'} font-bold tracking-tight leading-tight mb-2 sm:mb-4`}>
                 {title}
               </h1>
               {subtitle && (
