@@ -9,6 +9,8 @@ export const translations = {
       btn_experience: "Experience",
       btn_contact: "Contact",
       btn_case_studies: "View Case Studies",
+      btn_view_all: "View all blogs",
+      blog_list_title: "All blogs",
       code: {
         comment_arch: "/* --- The Architect of Viability --- */",
         comment_analysis: "// Analyzes friction to maximize ROI",
@@ -133,6 +135,8 @@ export const translations = {
       btn_experience: "Experiencia",
       btn_contact: "Contacto",
       btn_case_studies: "Ver Casos de Estudio",
+      btn_view_all: "Ver todos los blogs",
+      blog_list_title: "Todos los blogs",
       code: {
         comment_arch: "/* --- El Arquitecto de Viabilidad --- */",
         comment_analysis: "// Analiza fricción para maximizar ROI",

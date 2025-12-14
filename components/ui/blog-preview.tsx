@@ -77,12 +77,10 @@ export const BlogPreview: React.FC<BlogPreviewProps> = ({
         {/* Footer */}
         <div className="flex items-center justify-between pt-2 border-t border-zinc-800/30">
           <span className="text-[10px] sm:text-xs text-zinc-500 font-light">{readTime}</span>
-          {isAvailable && (
-            <div className="flex items-center gap-1 sm:gap-1.5 text-zinc-500 group-hover:text-zinc-300 transition-colors duration-300">
-              <span className="text-[10px] sm:text-xs font-medium">Leer</span>
-              <ArrowForwardIcon className="w-3 h-3 sm:w-3.5 sm:h-3.5 transform group-hover:translate-x-0.5 transition-transform duration-300" />
-            </div>
-          )}
+          <div className="flex items-center gap-1 sm:gap-1.5 text-zinc-500 group-hover:text-zinc-300 transition-colors duration-300">
+            <span className="text-[10px] sm:text-xs font-medium">Leer</span>
+            <ArrowForwardIcon className="w-3 h-3 sm:w-3.5 sm:h-3.5 transform group-hover:translate-x-0.5 transition-transform duration-300" />
+          </div>
         </div>
       </div>
     </article>
@@ -107,15 +105,10 @@ export const BlogPreviewList: React.FC<BlogPreviewListProps> = ({
   className = "",
   onBlogClick,
 }) => {
-  // El primer blog es el que existe (principios-ui-impacto-real o ui-principles-real-impact)
-  const isFirstBlogAvailable = (slug?: string) => {
-    return slug === 'principios-ui-impacto-real' || slug === 'ui-principles-real-impact';
-  };
-
+  // Todos los blogs están disponibles ahora
   return (
     <div className={`w-full space-y-4 sm:space-y-5 md:space-y-6 ${className}`}>
       {blogs.map((blog, index) => {
-        const isAvailable = isFirstBlogAvailable(blog.slug);
         return (
           <BlogPreview
             key={index}
@@ -125,11 +118,9 @@ export const BlogPreviewList: React.FC<BlogPreviewListProps> = ({
             excerpt={blog.excerpt}
             readTime={blog.readTime}
             slug={blog.slug}
-            isAvailable={isAvailable}
+            isAvailable={true}
             onClick={() => {
-              if (isAvailable) {
-                onBlogClick?.(blog.slug || `blog-${index}`);
-              }
+              onBlogClick?.(blog.slug || `blog-${index}`);
             }}
           />
         );

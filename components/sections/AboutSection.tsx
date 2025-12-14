@@ -1,7 +1,9 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import LanguageIcon from '@mui/icons-material/Language';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import ListIcon from '@mui/icons-material/List';
+import CloseIcon from '@mui/icons-material/Close';
 import { BlogPreviewList } from '../ui/blog-preview';
 
 interface AboutSectionProps {
@@ -15,6 +17,7 @@ interface AboutSectionProps {
 
 const AboutSection: React.FC<AboutSectionProps> = ({ onNavigate, content, language, onToggleLanguage, onBlogClick, onBlogOpenInNewTab }) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [showListView, setShowListView] = useState(false);
 
   // Reset scroll position on mount
   useEffect(() => {
@@ -112,26 +115,120 @@ const AboutSection: React.FC<AboutSectionProps> = ({ onNavigate, content, langua
          {/* Subtle Grid Background */}
          <div className="absolute inset-0 bg-[linear-gradient(to_right,#18181b_1px,transparent_1px),linear-gradient(to_bottom,#18181b_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-20 pointer-events-none"></div>
 
-         <div className="max-w-2xl w-full flex flex-col z-10 py-12 sm:py-16 md:py-20">
-            
-            {/* BLOG PREVIEW LIST */}
-            <BlogPreviewList
-              blogs={content.blogs}
-              className="mb-8"
-              onBlogClick={onBlogClick}
-            />
+         {!showListView ? (
+           <div className="max-w-2xl w-full flex flex-col z-10 py-12 sm:py-16 md:py-20">
+              
+              {/* BLOG PREVIEW LIST */}
+              <BlogPreviewList
+                blogs={content.blogs}
+                className="mb-8"
+                onBlogClick={onBlogClick}
+              />
 
-            {/* CTA */}
-             <button 
-               onClick={(e) => { e.stopPropagation(); onNavigate('experience'); }}
-               className="group flex items-center gap-3 text-zinc-400 hover:text-white transition-colors mt-4 self-center"
-             >
+              {/* Ver más button */}
+              <button 
+                onClick={(e) => { 
+                  e.stopPropagation(); 
+                  setShowListView(true);
+                }}
+                className="group flex items-center gap-3 text-zinc-400 hover:text-white transition-colors mt-4 self-center mb-6"
+              >
+                <ListIcon className="w-4 h-4" />
                 <span className="text-xs font-bold tracking-[0.2em] uppercase border-b border-zinc-800 group-hover:border-white pb-1 transition-all">
-                  {content.btn_case_studies}
+                  {content.btn_view_all || (language === 'es' ? 'Ver todos los blogs' : 'View all blogs')}
                 </span>
                 <ArrowForwardIcon className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
+              </button>
+
+              {/* CTA */}
+               <button 
+                 onClick={(e) => { e.stopPropagation(); onNavigate('experience'); }}
+                 className="group flex items-center gap-3 text-zinc-400 hover:text-white transition-colors mt-4 self-center"
+               >
+                  <span className="text-xs font-bold tracking-[0.2em] uppercase border-b border-zinc-800 group-hover:border-white pb-1 transition-all">
+                    {content.btn_case_studies}
+                  </span>
+                  <ArrowForwardIcon className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
+               </button>
+           </div>
+         ) : (
+           <div className="max-w-4xl w-full flex flex-col z-10 py-12 sm:py-16 md:py-20">
+             {/* Header de la vista de lista */}
+             <div className="flex items-center justify-between mb-8">
+               <h2 className="text-2xl md:text-3xl font-bold text-white">
+                 {content.blog_list_title || (language === 'es' ? 'Todos los blogs' : 'All blogs')}
+               </h2>
+               <button
+                 onClick={(e) => {
+                   e.stopPropagation();
+                   setShowListView(false);
+                 }}
+                 className="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors px-4 py-2 rounded-lg hover:bg-zinc-900/50"
+                 aria-label={language === 'es' ? 'Cerrar vista de lista' : 'Close list view'}
+               >
+                 <CloseIcon className="w-5 h-5" />
+                 <span className="text-sm font-medium">
+                   {language === 'es' ? 'Cerrar' : 'Close'}
+                 </span>
+               </button>
+             </div>
+
+             {/* Lista de blogs en estilo lista */}
+             <div className="space-y-3">
+               {content.blogs.map((blog: any, index: number) => (
+                 <article
+                   key={index}
+                   onClick={() => onBlogClick?.(blog.slug || `blog-${index}`)}
+                   className="group relative bg-zinc-900/50 backdrop-blur-sm rounded-xl border border-zinc-800/50 transition-all duration-300 overflow-hidden hover:border-zinc-700/50 cursor-pointer p-4 sm:p-6"
+                 >
+                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+                     <div className="flex-1 min-w-0">
+                       <div className="flex items-center gap-3 mb-2">
+                         <span className="text-[10px] sm:text-xs text-zinc-500 font-medium tracking-wide uppercase">
+                           {blog.category}
+                         </span>
+                         <span className="text-[10px] sm:text-xs text-zinc-600">•</span>
+                         <span className="text-[10px] sm:text-xs text-zinc-500">
+                           {blog.date}
+                         </span>
+                         <span className="text-[10px] sm:text-xs text-zinc-600">•</span>
+                         <span className="text-[10px] sm:text-xs text-zinc-500">
+                           {blog.readTime}
+                         </span>
+                       </div>
+                       <h3 className="text-base sm:text-lg md:text-xl font-semibold text-white leading-snug tracking-tight group-hover:text-zinc-100 transition-colors duration-300 mb-2">
+                         {blog.title}
+                       </h3>
+                       <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed font-light line-clamp-2">
+                         {blog.excerpt}
+                       </p>
+                     </div>
+                     <div className="flex items-center gap-2 text-zinc-500 group-hover:text-zinc-300 transition-colors duration-300 flex-shrink-0">
+                       <span className="text-xs font-medium">
+                         {language === 'es' ? 'Leer' : 'Read'}
+                       </span>
+                       <ArrowForwardIcon className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
+                     </div>
+                   </div>
+                 </article>
+               ))}
+             </div>
+
+             {/* Botón para volver */}
+             <button
+               onClick={(e) => {
+                 e.stopPropagation();
+                 setShowListView(false);
+               }}
+               className="group flex items-center gap-3 text-zinc-400 hover:text-white transition-colors mt-8 self-center"
+             >
+               <span className="text-xs font-bold tracking-[0.2em] uppercase border-b border-zinc-800 group-hover:border-white pb-1 transition-all">
+                 {language === 'es' ? 'Volver' : 'Back'}
+               </span>
+               <ArrowForwardIcon className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
              </button>
-         </div>
+           </div>
+         )}
       </div>
     </div>
   );
