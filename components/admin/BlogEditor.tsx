@@ -67,11 +67,13 @@ const BlogEditor: React.FC<BlogEditorProps> = ({ blog, onSave, onCancel }) => {
   const [showImageDialog, setShowImageDialog] = useState(false);
   const [showVideoDialog, setShowVideoDialog] = useState(false);
   const [showLinkDialog, setShowLinkDialog] = useState(false);
+  const [showVimeoDialog, setShowVimeoDialog] = useState(false);
   const [imageUrl, setImageUrl] = useState('');
   const [videoUrl, setVideoUrl] = useState('');
   const [linkUrl, setLinkUrl] = useState('');
   const [linkText, setLinkText] = useState('');
-  const [pendingQuillAction, setPendingQuillAction] = useState<{ type: 'image' | 'video' | 'link'; quill: Quill | null; index: number; length?: number } | null>(null);
+  const [vimeoHtml, setVimeoHtml] = useState('');
+  const [pendingQuillAction, setPendingQuillAction] = useState<{ type: 'image' | 'video' | 'link' | 'vimeo'; quill: Quill | null; index: number; length?: number } | null>(null);
 
   // Calcular tiempo de lectura automáticamente
   const readTimeEs = calculateReadTime(contentEs, 'es');
@@ -424,6 +426,25 @@ const BlogEditor: React.FC<BlogEditorProps> = ({ blog, onSave, onCancel }) => {
     }
   };
 
+  const handleInsertVimeo = () => {
+    if (pendingQuillAction && vimeoHtml.trim()) {
+      const range = pendingQuillAction.quill.getSelection(true);
+      const index = range ? range.index : pendingQuillAction.index;
+      
+      // Insertar el HTML de Vimeo directamente
+      const delta = pendingQuillAction.quill.clipboard.convert({ html: vimeoHtml.trim() });
+      pendingQuillAction.quill.updateContents(delta, 'user');
+      
+      // Mover el cursor después del contenido insertado
+      const length = delta.length();
+      pendingQuillAction.quill.setSelection(index + length);
+      
+      setVimeoHtml('');
+      setShowVimeoDialog(false);
+      setPendingQuillAction(null);
+    }
+  };
+
   const handleInsertLink = () => {
     if (pendingQuillAction && linkUrl.trim()) {
       const quill = pendingQuillAction.quill;
@@ -710,16 +731,36 @@ const BlogEditor: React.FC<BlogEditorProps> = ({ blog, onSave, onCancel }) => {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <Label className="text-sm text-zinc-300">Contenido</Label>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => toggleHtmlEditor('es')}
-                      className="border-zinc-700 bg-zinc-800/50 hover:bg-zinc-700 text-white text-xs"
-                    >
-                      <CodeIcon className="w-3 h-3 mr-1" />
-                      {showHtmlEditor.es ? 'Editor Visual' : 'Editar HTML'}
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          const quill = activeTab === 'es' ? quillRefEs.current : quillRefEn.current;
+                          if (quill) {
+                            const range = quill.getSelection(true);
+                            const index = range ? range.index : quill.getLength();
+                            setPendingQuillAction({ type: 'vimeo', quill, index });
+                            setShowVimeoDialog(true);
+                          }
+                        }}
+                        className="border-zinc-700 bg-zinc-800/50 hover:bg-zinc-700 text-white text-xs"
+                      >
+                        <VideoLibraryIcon className="w-3 h-3 mr-1" />
+                        Insertar Vimeo
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => toggleHtmlEditor('es')}
+                        className="border-zinc-700 bg-zinc-800/50 hover:bg-zinc-700 text-white text-xs"
+                      >
+                        <CodeIcon className="w-3 h-3 mr-1" />
+                        {showHtmlEditor.es ? 'Editor Visual' : 'Editar HTML'}
+                      </Button>
+                    </div>
                   </div>
                   {showHtmlEditor.es ? (
                     <Textarea
@@ -805,16 +846,36 @@ const BlogEditor: React.FC<BlogEditorProps> = ({ blog, onSave, onCancel }) => {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <Label className="text-sm text-zinc-300">Content</Label>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => toggleHtmlEditor('en')}
-                      className="border-zinc-700 bg-zinc-800/50 hover:bg-zinc-700 text-white text-xs"
-                    >
-                      <CodeIcon className="w-3 h-3 mr-1" />
-                      {showHtmlEditor.en ? 'Visual Editor' : 'Edit HTML'}
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          const quill = activeTab === 'es' ? quillRefEs.current : quillRefEn.current;
+                          if (quill) {
+                            const range = quill.getSelection(true);
+                            const index = range ? range.index : quill.getLength();
+                            setPendingQuillAction({ type: 'vimeo', quill, index });
+                            setShowVimeoDialog(true);
+                          }
+                        }}
+                        className="border-zinc-700 bg-zinc-800/50 hover:bg-zinc-700 text-white text-xs"
+                      >
+                        <VideoLibraryIcon className="w-3 h-3 mr-1" />
+                        Insert Vimeo
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => toggleHtmlEditor('en')}
+                        className="border-zinc-700 bg-zinc-800/50 hover:bg-zinc-700 text-white text-xs"
+                      >
+                        <CodeIcon className="w-3 h-3 mr-1" />
+                        {showHtmlEditor.en ? 'Visual Editor' : 'Edit HTML'}
+                      </Button>
+                    </div>
                   </div>
                   {showHtmlEditor.en ? (
                     <Textarea
@@ -1018,6 +1079,54 @@ const BlogEditor: React.FC<BlogEditorProps> = ({ blog, onSave, onCancel }) => {
             <Button
               onClick={handleInsertVideo}
               disabled={!videoUrl.trim()}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white"
+            >
+              Insertar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Diálogo para insertar HTML de Vimeo */}
+      <Dialog open={showVimeoDialog} onOpenChange={setShowVimeoDialog}>
+        <DialogContent className="bg-zinc-900 border-zinc-800">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-white">
+              <VideoLibraryIcon className="w-5 h-5 text-emerald-500" />
+              Insertar HTML de Vimeo
+            </DialogTitle>
+            <DialogDescription className="text-zinc-400 pt-2">
+              Pega el código HTML completo de Vimeo (incluyendo el div, iframe y script)
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Textarea
+              value={vimeoHtml}
+              onChange={(e) => setVimeoHtml(e.target.value)}
+              placeholder='<div style="padding:56.25% 0 0 0;position:relative;"><iframe src="https://player.vimeo.com/video/..." frameborder="0" ...></iframe></div><script src="https://player.vimeo.com/api/player.js"></script>'
+              rows={8}
+              className="bg-zinc-800/50 border-zinc-700/50 text-white placeholder:text-zinc-500 focus:border-emerald-500/50 focus:ring-emerald-500/20 font-mono text-sm"
+              autoFocus
+            />
+            <p className="text-xs text-zinc-500 mt-2">
+              Pega el código HTML completo que Vimeo proporciona, incluyendo el div, iframe y el script.
+            </p>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowVimeoDialog(false);
+                setVimeoHtml('');
+                setPendingQuillAction(null);
+              }}
+              className="border-zinc-700 bg-zinc-800/50 hover:bg-zinc-700 text-white"
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={handleInsertVimeo}
+              disabled={!vimeoHtml.trim()}
               className="bg-emerald-600 hover:bg-emerald-700 text-white"
             >
               Insertar

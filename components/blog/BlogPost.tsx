@@ -81,6 +81,22 @@ const BlogPost: React.FC<BlogPostProps> = ({ onBack, language = 'es', slug, onTo
     loadBlog();
   }, [slug]);
 
+  // Cargar script de Vimeo si hay contenido de Vimeo
+  React.useEffect(() => {
+    if (blogData) {
+      const content = language === 'es' ? blogData.content_es : blogData.content_en;
+      if (content && content.includes('player.vimeo.com')) {
+        // Verificar si el script ya está cargado
+        if (!document.querySelector('script[src="https://player.vimeo.com/api/player.js"]')) {
+          const script = document.createElement('script');
+          script.src = 'https://player.vimeo.com/api/player.js';
+          script.async = true;
+          document.body.appendChild(script);
+        }
+      }
+    }
+  }, [blogData, language]);
+
   // useEffect para manejar clicks fuera del menú de compartir
   React.useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
