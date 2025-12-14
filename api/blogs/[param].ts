@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getPool } from '../_lib/db';
-import { getAuthToken, verifyToken } from '../_lib/auth';
+import { getPool } from '../lib/db';
+import { getAuthToken, verifyToken } from '../lib/auth';
 
 // Función para obtener slug interno desde slug de URL (duplicada para evitar problemas de importación)
 const getInternalSlug = (urlSlug: string): string | null => {

@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getPool } from './_lib/db';
+import { getPool } from './lib/db';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
@@ -37,7 +37,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Intentar conectar a la base de datos
     let dbStatus = 'unknown';
     let dbError = null;
-    let tablesStatus = { admin_users: false, blogs: false };
+    let tablesStatus: {
+      admin_users: boolean | { exists: boolean; hasPassword?: boolean; hashLength?: number; error?: string };
+      blogs: boolean;
+    } = { admin_users: false, blogs: false };
     
     try {
       const pool = getPool();
@@ -65,7 +68,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               tablesStatus.admin_users = { exists: false };
             }
           } catch (userError: any) {
-            tablesStatus.admin_users = { error: userError.message };
+            tablesStatus.admin_users = { exists: false, error: userError.message };
           }
         }
       } catch (tableError: any) {
@@ -115,10 +118,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         tablesStatus.blogs === false 
           ? '❌ La tabla blogs no existe. Ejecuta el SQL de creación en Railway.'
           : null,
-        typeof tablesStatus.admin_users === 'object' && !tablesStatus.admin_users.exists
+        (typeof tablesStatus.admin_users === 'object' && tablesStatus.admin_users && !('exists' in tablesStatus.admin_users) === false && !tablesStatus.admin_users.exists)
           ? '❌ El usuario admin no existe. Crea el usuario admin en Railway.'
           : null,
-        typeof tablesStatus.admin_users === 'object' && tablesStatus.admin_users.exists && !tablesStatus.admin_users.hasPassword
+        (typeof tablesStatus.admin_users === 'object' && tablesStatus.admin_users && 'exists' in tablesStatus.admin_users && tablesStatus.admin_users.exists && !tablesStatus.admin_users.hasPassword)
           ? '❌ El usuario admin no tiene password_hash. Ejecuta el SQL para crear/actualizar el usuario.'
           : null,
       ].filter(Boolean),

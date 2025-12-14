@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import bcrypt from 'bcryptjs';
-import { getPool } from './_lib/db';
+import { getPool } from './lib/db';
 
 // Endpoint para crear usuario admin
 // Uso: POST /api/create-admin con { username, password }
