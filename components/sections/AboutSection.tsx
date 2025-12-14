@@ -5,6 +5,7 @@ import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import ListIcon from '@mui/icons-material/List';
 import CloseIcon from '@mui/icons-material/Close';
 import { BlogPreviewList } from '../ui/blog-preview';
+import { api } from '../utils/api';
 
 interface AboutSectionProps {
   onNavigate: (panel: 'experience' | 'contact') => void;
@@ -18,6 +19,15 @@ interface AboutSectionProps {
 const AboutSection: React.FC<AboutSectionProps> = ({ onNavigate, content, language, onToggleLanguage, onBlogClick, onBlogOpenInNewTab }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [showListView, setShowListView] = useState(false);
+  const [realBlogs, setRealBlogs] = useState<Array<{
+    title: string;
+    date: string;
+    category: string;
+    excerpt: string;
+    readTime: string;
+    slug?: string;
+  }>>([]);
+  const [loadingBlogs, setLoadingBlogs] = useState(true);
 
   // Reset scroll position on mount
   useEffect(() => {
@@ -25,6 +35,64 @@ const AboutSection: React.FC<AboutSectionProps> = ({ onNavigate, content, langua
       containerRef.current.scrollTop = 0;
     }
   }, []);
+
+  // Obtener blogs reales desde la API
+  useEffect(() => {
+    const loadRealBlogs = async () => {
+      try {
+        setLoadingBlogs(true);
+        const blogs = await api.getBlogs();
+        
+        // Formatear blogs de la API al formato esperado
+        const formattedBlogs = blogs
+          .filter((blog: any) => blog.published_at) // Solo blogs publicados
+          .map((blog: any) => {
+            // Formatear fecha
+            const publishedDate = new Date(blog.published_at);
+            const dateOptions: Intl.DateTimeFormatOptions = { 
+              year: 'numeric', 
+              month: 'short', 
+              day: 'numeric' 
+            };
+            const formattedDate = publishedDate.toLocaleDateString(
+              language === 'es' ? 'es-ES' : 'en-US',
+              dateOptions
+            );
+
+            // Obtener excerpt del subtitle o truncar contenido
+            let excerpt = '';
+            if (language === 'es' && blog.subtitle_es) {
+              excerpt = blog.subtitle_es;
+            } else if (language === 'en' && blog.subtitle_en) {
+              excerpt = blog.subtitle_en;
+            } else {
+              // Truncar contenido si no hay subtitle
+              const content = language === 'es' ? blog.content_es : blog.content_en;
+              excerpt = content.replace(/<[^>]*>/g, '').substring(0, 150) + '...';
+            }
+
+            return {
+              title: language === 'es' ? blog.title_es : blog.title_en,
+              date: formattedDate,
+              category: language === 'es' ? (blog.category_es || 'Blog') : (blog.category_en || 'Blog'),
+              excerpt: excerpt,
+              readTime: language === 'es' ? (blog.read_time_es || '5 min lectura') : (blog.read_time_en || '5 min read'),
+              slug: blog.slug,
+            };
+          });
+
+        setRealBlogs(formattedBlogs);
+      } catch (error: any) {
+        console.error('Error cargando blogs:', error);
+        // Si hay error, usar array vacío (no mostrar blogs estáticos)
+        setRealBlogs([]);
+      } finally {
+        setLoadingBlogs(false);
+      }
+    };
+
+    loadRealBlogs();
+  }, [language]);
 
   return (
     <div ref={containerRef} className="flex flex-col lg:flex-row w-full h-full bg-black overflow-y-auto lg:overflow-hidden">
@@ -119,26 +187,38 @@ const AboutSection: React.FC<AboutSectionProps> = ({ onNavigate, content, langua
            <div className="max-w-2xl w-full flex flex-col z-10 py-12 sm:py-16 md:py-20">
               
               {/* BLOG PREVIEW LIST */}
-              <BlogPreviewList
-                blogs={content.blogs}
-                className="mb-8"
-                onBlogClick={onBlogClick}
-              />
+              {loadingBlogs ? (
+                <div className="text-center text-zinc-500 py-8">
+                  {language === 'es' ? 'Cargando blogs...' : 'Loading blogs...'}
+                </div>
+              ) : realBlogs.length > 0 ? (
+                <BlogPreviewList
+                  blogs={realBlogs}
+                  className="mb-8"
+                  onBlogClick={onBlogClick}
+                />
+              ) : (
+                <div className="text-center text-zinc-500 py-8">
+                  {language === 'es' ? 'No hay blogs disponibles' : 'No blogs available'}
+                </div>
+              )}
 
-              {/* Ver más button */}
-              <button 
-                onClick={(e) => { 
-                  e.stopPropagation(); 
-                  setShowListView(true);
-                }}
-                className="group flex items-center gap-3 text-zinc-400 hover:text-white transition-colors mt-4 self-center mb-6"
-              >
-                <ListIcon className="w-4 h-4" />
-                <span className="text-xs font-bold tracking-[0.2em] uppercase border-b border-zinc-800 group-hover:border-white pb-1 transition-all">
-                  {content.btn_view_all || (language === 'es' ? 'Ver todos los blogs' : 'View all blogs')}
-                </span>
-                <ArrowForwardIcon className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
-              </button>
+              {/* Ver más button - solo mostrar si hay blogs */}
+              {realBlogs.length > 0 && (
+                <button 
+                  onClick={(e) => { 
+                    e.stopPropagation(); 
+                    setShowListView(true);
+                  }}
+                  className="group flex items-center gap-3 text-zinc-400 hover:text-white transition-colors mt-4 self-center mb-6"
+                >
+                  <ListIcon className="w-4 h-4" />
+                  <span className="text-xs font-bold tracking-[0.2em] uppercase border-b border-zinc-800 group-hover:border-white pb-1 transition-all">
+                    {content.btn_view_all || (language === 'es' ? 'Ver todos los blogs' : 'View all blogs')}
+                  </span>
+                  <ArrowForwardIcon className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
+                </button>
+              )}
 
               {/* CTA */}
                <button 
@@ -174,45 +254,55 @@ const AboutSection: React.FC<AboutSectionProps> = ({ onNavigate, content, langua
              </div>
 
              {/* Lista de blogs en estilo lista */}
-             <div className="space-y-3">
-               {content.blogs.map((blog: any, index: number) => (
-                 <article
-                   key={index}
-                   onClick={() => onBlogClick?.(blog.slug || `blog-${index}`)}
-                   className="group relative bg-zinc-900/50 backdrop-blur-sm rounded-xl border border-zinc-800/50 transition-all duration-300 overflow-hidden hover:border-zinc-700/50 cursor-pointer p-4 sm:p-6"
-                 >
-                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
-                     <div className="flex-1 min-w-0">
-                       <div className="flex items-center gap-3 mb-2">
-                         <span className="text-[10px] sm:text-xs text-zinc-500 font-medium tracking-wide uppercase">
-                           {blog.category}
-                         </span>
-                         <span className="text-[10px] sm:text-xs text-zinc-600">•</span>
-                         <span className="text-[10px] sm:text-xs text-zinc-500">
-                           {blog.date}
-                         </span>
-                         <span className="text-[10px] sm:text-xs text-zinc-600">•</span>
-                         <span className="text-[10px] sm:text-xs text-zinc-500">
-                           {blog.readTime}
-                         </span>
+             {loadingBlogs ? (
+               <div className="text-center text-zinc-500 py-8">
+                 {language === 'es' ? 'Cargando blogs...' : 'Loading blogs...'}
+               </div>
+             ) : realBlogs.length > 0 ? (
+               <div className="space-y-3">
+                 {realBlogs.map((blog, index) => (
+                   <article
+                     key={blog.slug || index}
+                     onClick={() => onBlogClick?.(blog.slug || `blog-${index}`)}
+                     className="group relative bg-zinc-900/50 backdrop-blur-sm rounded-xl border border-zinc-800/50 transition-all duration-300 overflow-hidden hover:border-zinc-700/50 cursor-pointer p-4 sm:p-6"
+                   >
+                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+                       <div className="flex-1 min-w-0">
+                         <div className="flex items-center gap-3 mb-2">
+                           <span className="text-[10px] sm:text-xs text-zinc-500 font-medium tracking-wide uppercase">
+                             {blog.category}
+                           </span>
+                           <span className="text-[10px] sm:text-xs text-zinc-600">•</span>
+                           <span className="text-[10px] sm:text-xs text-zinc-500">
+                             {blog.date}
+                           </span>
+                           <span className="text-[10px] sm:text-xs text-zinc-600">•</span>
+                           <span className="text-[10px] sm:text-xs text-zinc-500">
+                             {blog.readTime}
+                           </span>
+                         </div>
+                         <h3 className="text-base sm:text-lg md:text-xl font-semibold text-white leading-snug tracking-tight group-hover:text-zinc-100 transition-colors duration-300 mb-2">
+                           {blog.title}
+                         </h3>
+                         <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed font-light line-clamp-2">
+                           {blog.excerpt}
+                         </p>
                        </div>
-                       <h3 className="text-base sm:text-lg md:text-xl font-semibold text-white leading-snug tracking-tight group-hover:text-zinc-100 transition-colors duration-300 mb-2">
-                         {blog.title}
-                       </h3>
-                       <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed font-light line-clamp-2">
-                         {blog.excerpt}
-                       </p>
+                       <div className="flex items-center gap-2 text-zinc-500 group-hover:text-zinc-300 transition-colors duration-300 flex-shrink-0">
+                         <span className="text-xs font-medium">
+                           {language === 'es' ? 'Leer' : 'Read'}
+                         </span>
+                         <ArrowForwardIcon className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
+                       </div>
                      </div>
-                     <div className="flex items-center gap-2 text-zinc-500 group-hover:text-zinc-300 transition-colors duration-300 flex-shrink-0">
-                       <span className="text-xs font-medium">
-                         {language === 'es' ? 'Leer' : 'Read'}
-                       </span>
-                       <ArrowForwardIcon className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
-                     </div>
-                   </div>
-                 </article>
-               ))}
-             </div>
+                   </article>
+                 ))}
+               </div>
+             ) : (
+               <div className="text-center text-zinc-500 py-8">
+                 {language === 'es' ? 'No hay blogs disponibles' : 'No blogs available'}
+               </div>
+             )}
 
              {/* Botón para volver */}
              <button
