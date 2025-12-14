@@ -20,17 +20,43 @@ const getInternalSlug = (urlSlug: string): string | null => {
 // PUT - Actualizar blog por ID (requiere autenticación)
 // DELETE - Eliminar blog por ID (requiere autenticación)
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  const pool = getPool();
-  const { param } = req.query;
+  // Asegurar que siempre devolvemos JSON
+  res.setHeader('Content-Type', 'application/json');
+  
+  try {
+    // Verificar que tenemos el pool de base de datos
+    let pool;
+    try {
+      pool = getPool();
+    } catch (dbError: any) {
+      console.error('[API] Error obteniendo pool de BD:', dbError);
+      return res.status(500).json({ 
+        error: 'Error de conexión a la base de datos',
+        message: dbError.message || 'No se pudo conectar a la base de datos'
+      });
+    }
 
-  if (!param || typeof param !== 'string') {
-    return res.status(400).json({ error: 'Parámetro requerido' });
-  }
+    const { param } = req.query;
 
-  // Detectar si es un ID numérico o un slug
-  const isNumericId = /^\d+$/.test(param);
-  const blogId = isNumericId ? parseInt(param, 10) : null;
-  const slug = isNumericId ? null : param;
+    if (!param || typeof param !== 'string') {
+      return res.status(400).json({ error: 'Parámetro requerido' });
+    }
+
+    // Decodificar el parámetro (por si viene codificado)
+    // Intentar decodificar, si falla usar el original
+    let decodedParam: string;
+    try {
+      decodedParam = decodeURIComponent(param);
+    } catch (e) {
+      // Si falla la decodificación, usar el original
+      decodedParam = param;
+    }
+    console.log('[API] Blog request - param original:', param, 'decodificado:', decodedParam, 'method:', req.method);
+
+    // Detectar si es un ID numérico o un slug
+    const isNumericId = /^\d+$/.test(decodedParam);
+    const blogId = isNumericId ? parseInt(decodedParam, 10) : null;
+    const slug = isNumericId ? null : decodedParam;
 
   // GET - Obtener blog por slug (público)
   if (req.method === 'GET') {
@@ -54,14 +80,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     } else {
       // Si es un slug, buscar por slug
       try {
+        // Usar decodedParam como slug (no slug que puede ser null)
+        const searchSlug = decodedParam;
         let [rows] = await pool.query(
           'SELECT * FROM blogs WHERE slug = ?',
-          [slug]
+          [searchSlug]
         ) as any[];
 
         // Si no se encuentra por el slug directo, intentar con el mapeo inverso
         if (rows.length === 0) {
-          const internalSlug = getInternalSlug(slug);
+          const internalSlug = getInternalSlug(searchSlug);
           if (internalSlug) {
             [rows] = await pool.query(
               'SELECT * FROM blogs WHERE slug = ?',
@@ -75,15 +103,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
 
         return res.json(rows[0]);
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error obteniendo blog:', error);
-        return res.status(500).json({ error: 'Error obteniendo blog' });
+        return res.status(500).json({ 
+          error: 'Error obteniendo blog',
+          message: error.message || 'Error desconocido'
+        });
       }
     }
   }
 
-  // PUT y DELETE solo funcionan con IDs numéricos y requieren autenticación
-  if (isNumericId) {
+    // PUT y DELETE solo funcionan con IDs numéricos y requieren autenticación
+    if (isNumericId) {
     // Verificar autenticación
     const token = getAuthToken(req);
     if (!token) {
@@ -185,6 +216,26 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
   }
 
-  return res.status(405).json({ error: 'Método no permitido' });
+    return res.status(405).json({ error: 'Método no permitido' });
+  } catch (error: any) {
+    console.error('[API] Error inesperado en handler:', error);
+    // Asegurar que siempre devolvemos JSON incluso en caso de error
+    // Intentar devolver JSON, si falla, al menos intentar enviar un error básico
+    try {
+      return res.status(500).json({ 
+        error: 'Error interno del servidor',
+        message: error?.message || 'Error desconocido',
+        type: error?.name || 'UnknownError'
+      });
+    } catch (jsonError) {
+      // Si incluso esto falla, intentar enviar texto plano como último recurso
+      console.error('[API] Error crítico enviando respuesta JSON:', jsonError);
+      res.status(500);
+      res.end(JSON.stringify({ 
+        error: 'Error interno del servidor',
+        message: 'Error crítico al procesar la respuesta'
+      }));
+    }
+  }
 }
 

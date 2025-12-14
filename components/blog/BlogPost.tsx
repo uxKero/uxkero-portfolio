@@ -56,12 +56,23 @@ const BlogPost: React.FC<BlogPostProps> = ({ onBack, language = 'es', slug, onTo
 
       try {
         setLoading(true);
+        setError(null);
         // Convertir slug de URL a slug interno si es necesario
         const internalSlug = getInternalSlug(slug) || slug;
+        console.log('[BlogPost] Cargando blog con slug:', internalSlug);
         const data = await api.getBlog(internalSlug);
+        console.log('[BlogPost] Blog cargado:', data);
         setBlogData(data);
       } catch (err: any) {
-        setError(err.message || 'Error cargando blog');
+        console.error('[BlogPost] Error cargando blog:', err);
+        // Extraer mensaje de error más descriptivo
+        let errorMessage = 'Error cargando blog';
+        if (err.message) {
+          errorMessage = err.message;
+        } else if (err instanceof Error) {
+          errorMessage = err.message;
+        }
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }

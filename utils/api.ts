@@ -60,13 +60,36 @@ export const api = {
         headers,
       });
 
+      // Verificar primero el content-type antes de intentar parsear
+      const contentType = response.headers.get('content-type') || '';
+      const isHtml = contentType.includes('text/html');
+      
+      if (isHtml) {
+        // Si es HTML, probablemente es una página 404 o error de Vercel
+        const text = await response.text();
+        console.error('API devolvió HTML en lugar de JSON:', text.substring(0, 500));
+        console.error('URL solicitada:', `${API_URL}${endpoint}`);
+        throw new Error(`Error del servidor: La API devolvió una página HTML (${response.status}). La ruta "${endpoint}" no existe o hay un error en el servidor.`);
+      }
+
       if (!response.ok) {
+        
         // Si es 404, el servidor Express no está corriendo
         if (response.status === 404) {
           throw new Error('⚠️ El servidor API no está corriendo (404).\n\nSOLUCIÓN:\n\n1. Detén el servidor actual (Ctrl+C)\n2. Ejecuta: npm run dev\n3. Esto iniciará automáticamente el frontend Y el servidor API\n4. Espera a ver: "🚀 Servidor API corriendo en http://localhost:3001"\n5. Recarga esta página');
         }
-        const error = await response.json().catch(() => ({ error: 'Error desconocido' }));
-        throw new Error(error.error || `Error ${response.status}`);
+        
+        // Intentar parsear como JSON
+        let errorData;
+        try {
+          errorData = await response.json();
+        } catch {
+          // Si no es JSON, usar el texto de la respuesta
+          const text = await response.text();
+          errorData = { error: text || `Error ${response.status}` };
+        }
+        
+        throw new Error(errorData.error || `Error ${response.status}`);
       }
 
       return response.json();
@@ -110,6 +133,8 @@ export const api = {
   },
 
   async getBlog(slug: string) {
+    // Vercel maneja automáticamente la codificación de URLs en rutas dinámicas
+    // No codificar manualmente para evitar problemas con la ruta dinámica
     return this.request(`/blogs/${slug}`);
   },
 
