@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getPool } from '../lib/db';
-import { getAuthToken, verifyToken } from '../lib/auth';
+import { getPool } from '../lib/db.js';
+import { getAuthToken, verifyToken } from '../lib/auth.js';
 import bcrypt from 'bcryptjs';
 
 // GET - Obtener todos los blogs (público)
