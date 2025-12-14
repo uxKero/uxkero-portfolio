@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { api } from '@/utils/api';
+import { useSEO } from '@/utils/useSEO';
 import BlogEditor from './BlogEditor';
 
 const AdminPanel: React.FC = () => {
@@ -11,6 +12,12 @@ const AdminPanel: React.FC = () => {
   const [editingBlog, setEditingBlog] = useState<any | null>(null);
   const [showEditor, setShowEditor] = useState(false);
   const navigate = useNavigate();
+
+  // SEO para panel de admin
+  useSEO({
+    title: 'Admin Panel | UXKERO',
+    description: 'Administración de blogs y contenido',
+  });
 
   useEffect(() => {
     checkAuth();

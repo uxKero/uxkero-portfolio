@@ -13,6 +13,7 @@ import LanguageIcon from '@mui/icons-material/Language';
 import { TouchSizeComparison } from './visual-components';
 import { api } from '@/utils/api';
 import { getInternalSlug } from '@/utils/blog-slugs';
+import { useSEO } from '@/utils/useSEO';
 
 interface BlogPostProps {
   onBack?: () => void;
@@ -147,6 +148,31 @@ const BlogPost: React.FC<BlogPostProps> = ({ onBack, language = 'es', slug, onTo
   const category = language === 'es' ? blogData.category_es : blogData.category_en;
   const readTime = language === 'es' ? blogData.read_time_es : blogData.read_time_en;
 
+  // SEO para blogs
+  const shareUrl = typeof window !== 'undefined' 
+    ? `${window.location.origin}/${blogData.slug}`
+    : '';
+  
+  // Extraer texto limpio del contenido para description
+  const getPlainText = (html: string, maxLength: number = 160) => {
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = html;
+    const text = tempDiv.textContent || tempDiv.innerText || '';
+    return text.length > maxLength ? text.substring(0, maxLength).trim() + '...' : text.trim();
+  };
+
+  // Aplicar SEO solo cuando blogData está disponible
+  useSEO({
+    title: `${title} | UXKERO Blog`,
+    description: subtitle || getPlainText(content),
+    image: blogData.cover_image_url || undefined,
+    url: shareUrl,
+    type: 'article',
+    author: blogData.author || 'Alan Ponce',
+    publishedTime: blogData.published_at || undefined,
+    modifiedTime: blogData.updated_at || undefined,
+  });
+
   const formatDate = (dateString?: string) => {
     if (!dateString) return '';
     const date = new Date(dateString);
@@ -155,9 +181,6 @@ const BlogPost: React.FC<BlogPostProps> = ({ onBack, language = 'es', slug, onTo
       : date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
   };
 
-  const shareUrl = typeof window !== 'undefined' 
-    ? `${window.location.origin}/${blogData.slug}`
-    : '';
   const shareText = `${title} - ${subtitle || ''}`;
 
   const handleShare = (platform: 'twitter' | 'linkedin' | 'email' | 'copy') => {

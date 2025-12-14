@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { api } from '@/utils/api';
+import { useSEO } from '@/utils/useSEO';
 
 const Login: React.FC = () => {
   const [username, setUsername] = useState('');
@@ -12,6 +13,12 @@ const Login: React.FC = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  // SEO para login
+  useSEO({
+    title: 'Admin Login | UXKERO',
+    description: 'Acceso administrativo',
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

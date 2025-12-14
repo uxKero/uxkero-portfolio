@@ -5,6 +5,7 @@ import BlogPost from './components/blog/BlogPost';
 import AdminPanel from './components/admin/AdminPanel';
 import Login from './components/admin/Login';
 import { getInternalSlug } from './utils/blog-slugs';
+import { useSEO } from './utils/useSEO';
 
 const AppContent: React.FC = () => {
   const location = useLocation();
@@ -20,6 +21,15 @@ const AppContent: React.FC = () => {
   // Convertir slug de URL a slug interno si es necesario
   const blogPath = location.pathname.slice(1); // Remover el "/"
   const blogSlug = blogPath ? (getInternalSlug(blogPath) || blogPath) : null;
+
+  // SEO para página principal
+  const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+  useSEO({
+    title: 'Alan Ponce | Product Design & Strategy Lead | UXKERO',
+    description: 'Product Design & Strategy Lead specializing in Business Acumen and UX/UI Mastery. Transforming business vision into viable digital experiences.',
+    url: baseUrl,
+    type: 'website',
+  });
 
   const toggleLanguage = () => {
     setLanguage(prev => prev === 'en' ? 'es' : 'en');
