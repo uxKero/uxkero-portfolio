@@ -4,6 +4,7 @@ import HeroSection from './components/HeroSection';
 import BlogPost from './components/blog/BlogPost';
 import AdminPanel from './components/admin/AdminPanel';
 import Login from './components/admin/Login';
+import { getInternalSlug } from './utils/blog-slugs';
 
 const AppContent: React.FC = () => {
   const location = useLocation();
@@ -16,9 +17,9 @@ const AppContent: React.FC = () => {
   }
 
   // Detectar si estamos en una ruta de blog
-  // Ahora usamos directamente el slug de la URL (ya no necesitamos el mapeo)
+  // Convertir slug de URL a slug interno si es necesario
   const blogPath = location.pathname.slice(1); // Remover el "/"
-  const blogSlug = blogPath || null;
+  const blogSlug = blogPath ? (getInternalSlug(blogPath) || blogPath) : null;
 
   const toggleLanguage = () => {
     setLanguage(prev => prev === 'en' ? 'es' : 'en');

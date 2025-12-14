@@ -12,6 +12,7 @@ import EmailIcon from '@mui/icons-material/Email';
 import LanguageIcon from '@mui/icons-material/Language';
 import { TouchSizeComparison } from './visual-components';
 import { api } from '@/utils/api';
+import { getInternalSlug } from '@/utils/blog-slugs';
 
 interface BlogPostProps {
   onBack?: () => void;
@@ -55,7 +56,9 @@ const BlogPost: React.FC<BlogPostProps> = ({ onBack, language = 'es', slug, onTo
 
       try {
         setLoading(true);
-        const data = await api.getBlog(slug);
+        // Convertir slug de URL a slug interno si es necesario
+        const internalSlug = getInternalSlug(slug) || slug;
+        const data = await api.getBlog(internalSlug);
         setBlogData(data);
       } catch (err: any) {
         setError(err.message || 'Error cargando blog');
@@ -66,6 +69,24 @@ const BlogPost: React.FC<BlogPostProps> = ({ onBack, language = 'es', slug, onTo
 
     loadBlog();
   }, [slug]);
+
+  // useEffect para manejar clicks fuera del menú de compartir
+  React.useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (shareMenuOpen && !target.closest('[data-share-menu]')) {
+        setShareMenuOpen(false);
+      }
+    };
+
+    if (shareMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [shareMenuOpen]);
 
   if (loading) {
     return (
@@ -169,23 +190,6 @@ const BlogPost: React.FC<BlogPostProps> = ({ onBack, language = 'es', slug, onTo
       },
     },
   };
-
-  React.useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as HTMLElement;
-      if (shareMenuOpen && !target.closest('[data-share-menu]')) {
-        setShareMenuOpen(false);
-      }
-    };
-
-    if (shareMenuOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [shareMenuOpen]);
 
   return (
     <div className="w-full bg-black text-white">
@@ -406,17 +410,17 @@ const BlogPost: React.FC<BlogPostProps> = ({ onBack, language = 'es', slug, onTo
             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
             <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 md:p-12">
               {category && (
-                <span className="inline-block px-2.5 sm:px-3 py-0.5 sm:py-1 bg-emerald-500/20 text-emerald-400 text-[10px] sm:text-xs font-semibold rounded-full border border-emerald-500/30 mb-3 sm:mb-4">
+              <span className="inline-block px-2.5 sm:px-3 py-0.5 sm:py-1 bg-emerald-500/20 text-emerald-400 text-[10px] sm:text-xs font-semibold rounded-full border border-emerald-500/30 mb-3 sm:mb-4">
                   {category}
-                </span>
+              </span>
               )}
               <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight mb-2 sm:mb-4">
                 {title}
               </h1>
               {subtitle && (
-                <p className="text-sm sm:text-lg md:text-xl text-zinc-300 leading-relaxed max-w-3xl">
+              <p className="text-sm sm:text-lg md:text-xl text-zinc-300 leading-relaxed max-w-3xl">
                   {subtitle}
-                </p>
+              </p>
               )}
             </div>
           </div>
@@ -427,16 +431,16 @@ const BlogPost: React.FC<BlogPostProps> = ({ onBack, language = 'es', slug, onTo
           {/* Meta Info */}
           <div className="flex flex-wrap items-center gap-3 sm:gap-4 md:gap-6 text-xs sm:text-sm text-zinc-500 mb-6 sm:mb-8">
             {blogData.published_at && (
-              <div className="flex items-center gap-1.5 sm:gap-2">
-                <CalendarTodayIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <CalendarTodayIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 <span>{formatDate(blogData.published_at)}</span>
-              </div>
+            </div>
             )}
             {readTime && (
-              <div className="flex items-center gap-1.5 sm:gap-2">
-                <AccessTimeIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <AccessTimeIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 <span>{readTime}</span>
-              </div>
+            </div>
             )}
             <div className="flex items-center gap-1.5 sm:gap-2">
               <span>{language === 'es' ? 'Por' : 'By'}</span>
@@ -465,10 +469,10 @@ const BlogPost: React.FC<BlogPostProps> = ({ onBack, language = 'es', slug, onTo
           />
         </motion.section>
 
-        {/* CTA Final */}
+            {/* CTA Final */}
         {onBack && (
-          <motion.section variants={itemVariants} className="mt-20 pt-12 border-t border-zinc-900">
-            <div className="text-center">
+            <motion.section variants={itemVariants} className="mt-20 pt-12 border-t border-zinc-900">
+              <div className="text-center">
               <button
                 onClick={onBack}
                 className="inline-flex items-center gap-2 px-6 py-3 bg-[#635BFF] text-white rounded-lg font-medium hover:bg-[#5548FF] transition-colors"

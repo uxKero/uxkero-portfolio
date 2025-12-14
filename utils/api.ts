@@ -57,7 +57,7 @@ export const api = {
       if (!response.ok) {
         // Si es 404, el servidor Express no está corriendo
         if (response.status === 404) {
-          throw new Error('⚠️ El servidor API no está corriendo (404).\n\nSOLUCIÓN:\n\n1. Abre una nueva terminal\n2. Ejecuta: npm run dev:api\n3. Espera a ver: "🚀 Servidor API corriendo en http://localhost:3001"\n4. Recarga esta página');
+          throw new Error('⚠️ El servidor API no está corriendo (404).\n\nSOLUCIÓN:\n\n1. Detén el servidor actual (Ctrl+C)\n2. Ejecuta: npm run dev\n3. Esto iniciará automáticamente el frontend Y el servidor API\n4. Espera a ver: "🚀 Servidor API corriendo en http://localhost:3001"\n5. Recarga esta página');
         }
         const error = await response.json().catch(() => ({ error: 'Error desconocido' }));
         throw new Error(error.error || `Error ${response.status}`);
@@ -72,7 +72,7 @@ export const api = {
         error.message?.includes('NetworkError') ||
         error.name === 'TypeError'
       ) {
-        throw new Error('⚠️ El servidor API no está corriendo.\n\nSOLUCIÓN RÁPIDA:\n\n1. Abre una nueva terminal\n2. Ejecuta: npm run dev:api\n3. Espera a ver: "🚀 Servidor API corriendo en http://localhost:3001"\n4. Recarga esta página\n\nO ejecuta todo junto: npm run dev:all');
+        throw new Error('⚠️ El servidor API no está corriendo.\n\nSOLUCIÓN RÁPIDA:\n\n1. Detén el servidor actual (Ctrl+C)\n2. Ejecuta: npm run dev\n3. Esto iniciará automáticamente el frontend Y el servidor API\n4. Espera a ver: "🚀 Servidor API corriendo en http://localhost:3001"\n5. Recarga esta página\n\nSi solo quieres el API: npm run dev:api');
       }
       throw error;
     }

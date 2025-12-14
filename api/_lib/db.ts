@@ -28,7 +28,7 @@ const urlConfig = databaseUrl ? parseDatabaseUrl(databaseUrl) : null;
 
 const dbConfig = urlConfig || {
   host: process.env.MYSQLHOST || 'localhost',
-  port: parseInt(process.env.MYSQLPORT || '3306'),
+  port: parseInt(process.env.MYSQLPORT || '3308'), // Puerto por defecto 3308 para dbning
   user: process.env.MYSQLUSER || 'root',
   password: process.env.MYSQLPASSWORD || '',
   database: process.env.MYSQLDATABASE || 'uxkeroblog', // Mismo nombre en local y Railway

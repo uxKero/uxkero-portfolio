@@ -212,3 +212,73 @@ body {
   color: rgb(255 255 255);
 }
 
+/* Estilos para el editor Quill */
+.quill-editor-container {
+  position: relative;
+  z-index: 1;
+}
+
+.quill-editor-container .ql-container {
+  position: relative;
+  z-index: 1;
+  pointer-events: auto !important;
+  cursor: text;
+}
+
+.quill-editor-container .ql-editor {
+  min-height: 500px;
+  padding: 1rem;
+  font-size: 16px;
+  line-height: 1.6;
+  color: #000;
+  pointer-events: auto !important;
+  cursor: text;
+}
+
+.quill-editor-container .ql-toolbar {
+  position: relative;
+  z-index: 10;
+  background: #fff;
+  border-top: 1px solid #ccc;
+  border-left: 1px solid #ccc;
+  border-right: 1px solid #ccc;
+  border-bottom: none;
+  border-radius: 4px 4px 0 0;
+  padding: 8px;
+  pointer-events: auto !important;
+}
+
+.quill-editor-container .ql-toolbar button {
+  pointer-events: auto !important;
+  cursor: pointer;
+}
+
+.quill-editor-container .ql-toolbar button:hover {
+  color: #06c;
+}
+
+.quill-editor-container .ql-container {
+  border: 1px solid #ccc;
+  border-top: none;
+  border-radius: 0 0 4px 4px;
+  background: #fff;
+}
+
+.quill-editor-container .ql-snow .ql-stroke {
+  stroke: #444;
+}
+
+.quill-editor-container .ql-snow .ql-fill {
+  fill: #444;
+}
+
+.quill-editor-container .ql-snow.ql-toolbar button:hover .ql-stroke,
+.quill-editor-container .ql-snow.ql-toolbar button.ql-active .ql-stroke {
+  stroke: #06c;
+}
+
+.quill-editor-container .ql-snow.ql-toolbar button:hover .ql-fill,
+.quill-editor-container .ql-snow.ql-toolbar button.ql-active .ql-fill {
+  fill: #06c;
+}
+

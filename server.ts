@@ -5,6 +5,8 @@ import bcrypt from 'bcryptjs';
 import { getPool } from './api/_lib/db';
 import { generateToken, verifyToken, getAuthToken } from './api/_lib/auth';
 
+// Cargar variables de entorno desde .env.local primero, luego .env
+dotenv.config({ path: '.env.local' });
 dotenv.config();
 
 const app = express();
@@ -67,9 +69,32 @@ app.post('/api/auth/login', async (req, res) => {
         username: user.username,
       },
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error en login:', error);
-    res.status(500).json({ error: 'Error interno del servidor' });
+    
+    // Mensajes de error más específicos
+    if (error.code === 'ECONNREFUSED') {
+      return res.status(500).json({ 
+        error: 'No se puede conectar a la base de datos. Verifica que dbning esté corriendo en localhost:3308' 
+      });
+    }
+    
+    if (error.code === 'ER_BAD_DB_ERROR') {
+      return res.status(500).json({ 
+        error: `La base de datos 'uxkeroblog' no existe. Ejecuta EJECUTAR-AHORA-DESARROLLO.sql en TablePlus/DBeaver` 
+      });
+    }
+    
+    if (error.code === 'ER_NO_SUCH_TABLE') {
+      return res.status(500).json({ 
+        error: `La tabla 'admin_users' no existe. Ejecuta EJECUTAR-AHORA-DESARROLLO.sql en TablePlus/DBeaver` 
+      });
+    }
+    
+    res.status(500).json({ 
+      error: 'Error interno del servidor',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 });
 
@@ -104,20 +129,67 @@ app.get('/api/blogs/:slug', async (req, res) => {
       return res.status(400).json({ error: 'Slug requerido' });
     }
 
+    console.log(`[API] Buscando blog con slug: ${slug}`);
+
     const pool = getPool();
-    const [rows] = await pool.query(
+    
+    // Mapeo de slugs de URL a slugs internos
+    const slugMap: Record<string, string> = {
+      'ui-principles-real-impact': 'principios-ui-impacto-real',
+      'From-Theory-to-Real-Impact': 'principios-ui-impacto-real',
+      'design-systems-scale': 'sistemas-diseno-escala',
+      'Design-Systems-at-Scale': 'sistemas-diseno-escala',
+      'psychology-user-decisions': 'psicologia-decisiones-usuario',
+      'Psychology-of-User-Decision-Making': 'psicologia-decisiones-usuario',
+    };
+
+    // Intentar primero con el slug tal cual viene
+    let [rows] = await pool.query(
       'SELECT * FROM blogs WHERE slug = ?',
       [slug]
     ) as any[];
 
+    // Si no se encuentra, intentar con el slug mapeado
+    if (rows.length === 0 && slugMap[slug]) {
+      console.log(`[API] Intentando con slug mapeado: ${slugMap[slug]}`);
+      [rows] = await pool.query(
+        'SELECT * FROM blogs WHERE slug = ?',
+        [slugMap[slug]]
+      ) as any[];
+    }
+
+    // Si aún no se encuentra, buscar por coincidencia parcial
     if (rows.length === 0) {
-      return res.status(404).json({ error: 'Blog no encontrado' });
+      const [altRows] = await pool.query(
+        'SELECT * FROM blogs WHERE slug LIKE ? OR slug LIKE ?',
+        [`%${slug}%`, `%${slug.replace(/-/g, '')}%`]
+      ) as any[];
+      
+      if (altRows.length > 0) {
+        console.log(`[API] Encontrado blog similar: ${altRows[0].slug}`);
+        return res.json(altRows[0]);
+      }
+    }
+
+    console.log(`[API] Encontrados ${rows.length} blogs con slug: ${slug}`);
+
+    if (rows.length === 0) {
+      // Listar todos los slugs disponibles para debugging
+      const [allBlogs] = await pool.query('SELECT slug, title_es FROM blogs LIMIT 10') as any[];
+      const availableSlugs = allBlogs.map((b: any) => b.slug).join(', ');
+      return res.status(404).json({ 
+        error: `Blog con slug "${slug}" no encontrado`,
+        hint: availableSlugs ? `Slugs disponibles: ${availableSlugs}` : 'No hay blogs en la base de datos'
+      });
     }
 
     res.json(rows[0]);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error obteniendo blog:', error);
-    res.status(500).json({ error: 'Error obteniendo blog' });
+    if (error.code === 'ECONNREFUSED') {
+      return res.status(500).json({ error: 'No se puede conectar a la base de datos. Verifica que dbning esté corriendo.' });
+    }
+    res.status(500).json({ error: 'Error obteniendo blog', details: error.message });
   }
 });
 
@@ -273,12 +345,79 @@ app.delete('/api/blogs/:id', requireAuth, async (req, res) => {
 });
 
 // Health check
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', message: 'API funcionando correctamente' });
+app.get('/api/health', async (req, res) => {
+  try {
+    const pool = getPool();
+    await pool.query('SELECT 1');
+    res.json({ 
+      status: 'ok', 
+      message: 'API funcionando correctamente',
+      database: 'conectada'
+    });
+  } catch (error: any) {
+    res.status(500).json({ 
+      status: 'error', 
+      message: 'Error conectando a la base de datos',
+      error: error.message,
+      hint: 'Verifica que dbning esté corriendo y que la base de datos uxkeroblog exista'
+    });
+  }
 });
 
-// Iniciar servidor
-app.listen(PORT, () => {
+// Diagnóstico de conexión
+app.get('/api/diagnose', async (req, res) => {
+  const databaseUrl = process.env.DATABASE_URL || process.env.MYSQL_PUBLIC_URL;
+  
+  // Parsear URL si existe
+  const parseDatabaseUrl = (url: string) => {
+    if (!url) return null;
+    const match = url.match(/mysql:\/\/([^:@]+)(?::([^@]+))?@([^:]+):(\d+)\/(.+)/);
+    if (match) {
+      return {
+        host: match[3],
+        port: parseInt(match[4]),
+        user: match[1],
+        password: match[2] ? '***' : '',
+        database: match[5],
+      };
+    }
+    return null;
+  };
+  
+  const urlConfig = databaseUrl ? parseDatabaseUrl(databaseUrl) : null;
+  const dbConfig = urlConfig || {
+    host: process.env.MYSQLHOST || 'localhost',
+    port: parseInt(process.env.MYSQLPORT || '3308'),
+    user: process.env.MYSQLUSER || 'root',
+    database: process.env.MYSQLDATABASE || 'uxkeroblog',
+  };
+  
+  try {
+    const pool = getPool();
+    const [rows] = await pool.query('SELECT COUNT(*) as count FROM admin_users') as any[];
+    res.json({
+      config: dbConfig,
+      databaseUrl: databaseUrl ? databaseUrl.replace(/:[^:@]+@/, ':***@') : null,
+      database: 'conectada',
+      adminUsers: rows[0]?.count || 0,
+      message: 'Todo está bien configurado'
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      config: dbConfig,
+      databaseUrl: databaseUrl ? databaseUrl.replace(/:[^:@]+@/, ':***@') : null,
+      database: 'error',
+      error: error.message,
+      code: error.code,
+      hint: error.code === 'ECONNREFUSED' 
+        ? 'Verifica que dbning esté corriendo en localhost:3308 y que la base de datos uxkeroblog exista. Crea .env.local con: DATABASE_URL=mysql://root:@localhost:3308/uxkeroblog'
+        : error.message
+    });
+  }
+});
+
+// Iniciar servidor con manejo de errores
+const server = app.listen(PORT, () => {
   console.log(`🚀 Servidor API corriendo en http://localhost:${PORT}`);
   console.log(`📝 Endpoints disponibles:`);
   console.log(`   POST   /api/auth/login`);
@@ -288,5 +427,20 @@ app.listen(PORT, () => {
   console.log(`   POST   /api/blogs`);
   console.log(`   PUT    /api/blogs/:id`);
   console.log(`   DELETE /api/blogs/:id`);
+});
+
+server.on('error', (error: any) => {
+  if (error.code === 'EADDRINUSE') {
+    console.error(`\n❌ Error: El puerto ${PORT} ya está en uso.\n`);
+    console.error(`💡 Solución:`);
+    console.error(`   1. Detén el proceso que está usando el puerto ${PORT}`);
+    console.error(`   2. O ejecuta: netstat -ano | findstr :${PORT}`);
+    console.error(`   3. Luego: taskkill /PID <PID> /F`);
+    console.error(`\n   O simplemente cierra la terminal anterior y vuelve a ejecutar: npm run dev\n`);
+    process.exit(1);
+  } else {
+    console.error('Error iniciando servidor:', error);
+    process.exit(1);
+  }
 });
 

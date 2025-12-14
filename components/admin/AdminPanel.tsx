@@ -84,18 +84,6 @@ const AdminPanel: React.FC = () => {
     return (
       <div className="min-h-screen bg-black p-6">
         <div className="max-w-6xl mx-auto">
-          <div className="mb-6 flex justify-between items-center">
-            <h1 className="text-3xl font-bold text-white">
-              {editingBlog ? 'Editar Blog' : 'Nuevo Blog'}
-            </h1>
-            <Button
-              variant="outline"
-              onClick={handleLogout}
-              className="border-zinc-700 text-zinc-300 hover:bg-zinc-800"
-            >
-              Cerrar Sesión
-            </Button>
-          </div>
           <BlogEditor blog={editingBlog} onSave={handleSave} onCancel={handleCancel} />
         </div>
       </div>
@@ -115,9 +103,8 @@ const AdminPanel: React.FC = () => {
               Nuevo Blog
             </Button>
             <Button
-              variant="outline"
               onClick={handleLogout}
-              className="border-zinc-700 text-zinc-300 hover:bg-zinc-800"
+              className="bg-zinc-800 hover:bg-zinc-700 text-white border border-zinc-700 font-medium"
             >
               Cerrar Sesión
             </Button>
@@ -125,31 +112,49 @@ const AdminPanel: React.FC = () => {
         </div>
 
         {loading ? (
-          <div className="text-zinc-400">Cargando blogs...</div>
+          <div className="flex items-center justify-center py-12">
+            <div className="text-zinc-400">Cargando blogs...</div>
+          </div>
         ) : blogs.length === 0 && !loading ? (
-          <Card className="bg-zinc-900 border-zinc-800">
-            <CardContent className="p-6 text-center text-zinc-400">
-              No hay blogs aún. Crea tu primer blog.
+          <Card className="bg-zinc-900/50 border-zinc-800/50 backdrop-blur-sm shadow-xl">
+            <CardContent className="p-12 text-center">
+              <div className="text-zinc-400 text-lg mb-2">No hay blogs aún</div>
+              <div className="text-zinc-500 text-sm">Crea tu primer blog para comenzar</div>
             </CardContent>
           </Card>
         ) : (
           <div className="grid gap-4">
             {blogs.map((blog) => (
-              <Card key={blog.id} className="bg-zinc-900 border-zinc-800">
+              <Card key={blog.id} className="bg-zinc-900/50 border-zinc-800/50 backdrop-blur-sm shadow-xl hover:shadow-2xl transition-all duration-300 hover:border-zinc-700/50">
                 <CardHeader>
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <CardTitle className="text-white">{blog.title_es}</CardTitle>
-                      <CardDescription className="text-zinc-400">
-                        Slug: {blog.slug} | {blog.published_at ? new Date(blog.published_at).toLocaleDateString() : 'No publicado'}
+                  <div className="flex justify-between items-start gap-4">
+                    <div className="flex-1 min-w-0">
+                      <CardTitle className="text-white text-xl mb-2">{blog.title_es || blog.title_en || 'Sin título'}</CardTitle>
+                      <CardDescription className="text-zinc-400 text-sm flex flex-wrap gap-2 items-center">
+                        <span className="px-2 py-1 bg-zinc-800/50 rounded text-xs font-mono">{blog.slug}</span>
+                        {blog.category_es && (
+                          <span className="px-2 py-1 bg-emerald-500/10 text-emerald-400 rounded text-xs">
+                            {blog.category_es}
+                          </span>
+                        )}
+                        {blog.published_at ? (
+                          <span className="text-zinc-500">
+                            {new Date(blog.published_at).toLocaleDateString('es-ES', { 
+                              year: 'numeric', 
+                              month: 'long', 
+                              day: 'numeric' 
+                            })}
+                          </span>
+                        ) : (
+                          <span className="text-zinc-600 italic">No publicado</span>
+                        )}
                       </CardDescription>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 flex-shrink-0">
                       <Button
-                        variant="outline"
                         size="sm"
                         onClick={() => handleEdit(blog)}
-                        className="border-zinc-700 text-zinc-300 hover:bg-zinc-800"
+                        className="bg-zinc-800 hover:bg-zinc-700 text-white border border-zinc-700 font-medium"
                       >
                         Editar
                       </Button>
@@ -157,7 +162,7 @@ const AdminPanel: React.FC = () => {
                         variant="destructive"
                         size="sm"
                         onClick={() => handleDelete(blog.id)}
-                        className="bg-red-600 hover:bg-red-700"
+                        className="bg-red-600/80 hover:bg-red-700 text-white"
                       >
                         Eliminar
                       </Button>
