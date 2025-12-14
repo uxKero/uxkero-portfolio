@@ -52,16 +52,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         tablesStatus.blogs = blogsTable.length > 0;
         
         // Verificar usuario admin
-        if (tablesStatus.admin_users) {
-          const [users] = await pool.query('SELECT id, username, LENGTH(password_hash) as hash_length FROM admin_users WHERE username = ?', ['admin']) as any[];
-          if (users.length > 0) {
-            tablesStatus.admin_users = {
-              exists: true,
-              hasPassword: users[0].hash_length > 0,
-              hashLength: users[0].hash_length
-            };
-          } else {
-            tablesStatus.admin_users = { exists: false };
+        if (tablesStatus.admin_users === true) {
+          try {
+            const [users] = await pool.query('SELECT id, username, LENGTH(password_hash) as hash_length FROM admin_users WHERE username = ?', ['admin']) as any[];
+            if (users.length > 0) {
+              tablesStatus.admin_users = {
+                exists: true,
+                hasPassword: users[0].hash_length > 0,
+                hashLength: users[0].hash_length
+              };
+            } else {
+              tablesStatus.admin_users = { exists: false };
+            }
+          } catch (userError: any) {
+            tablesStatus.admin_users = { error: userError.message };
           }
         }
       } catch (tableError: any) {

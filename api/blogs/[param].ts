@@ -1,7 +1,20 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { getPool } from '../_lib/db';
 import { getAuthToken, verifyToken } from '../_lib/auth';
-import { getInternalSlug } from '../../utils/blog-slugs';
+
+// Función para obtener slug interno desde slug de URL (duplicada para evitar problemas de importación)
+const getInternalSlug = (urlSlug: string): string | null => {
+  const blogSlugMap: Record<string, string> = {
+    'principios-ui-impacto-real': 'From-Theory-to-Real-Impact',
+    'ui-principles-real-impact': 'From-Theory-to-Real-Impact',
+    'sistemas-diseno-escala': 'Design-Systems-at-Scale',
+    'design-systems-scale': 'Design-Systems-at-Scale',
+    'psicologia-decisiones-usuario': 'Psychology-of-User-Decision-Making',
+    'psychology-user-decisions': 'Psychology-of-User-Decision-Making',
+  };
+  const entry = Object.entries(blogSlugMap).find(([_, url]) => url === urlSlug);
+  return entry ? entry[0] : null;
+};
 
 // GET - Obtener un blog por slug (público)
 // PUT - Actualizar blog por ID (requiere autenticación)
