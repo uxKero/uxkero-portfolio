@@ -2,8 +2,8 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import bcrypt from 'bcryptjs';
-import { getPool } from './api/_lib/db';
-import { generateToken, verifyToken, getAuthToken } from './api/_lib/auth';
+import { getPool } from './api/lib/db';
+import { generateToken, verifyToken, getAuthToken } from './api/lib/auth';
 
 // Cargar variables de entorno desde .env.local primero, luego .env
 dotenv.config({ path: '.env.local' });

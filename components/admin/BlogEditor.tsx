@@ -7,11 +7,17 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { api } from '@/utils/api';
 import ArrowLeftIcon from '@mui/icons-material/ArrowLeft';
 import PreviewIcon from '@mui/icons-material/Preview';
 import SaveIcon from '@mui/icons-material/Save';
 import CloseIcon from '@mui/icons-material/Close';
+import CodeIcon from '@mui/icons-material/Code';
+import ImageIcon from '@mui/icons-material/Image';
+import VideoLibraryIcon from '@mui/icons-material/VideoLibrary';
+import WarningIcon from '@mui/icons-material/Warning';
+import LinkIcon from '@mui/icons-material/Link';
 
 interface BlogEditorProps {
   blog?: any;
@@ -38,6 +44,7 @@ const calculateReadTime = (htmlContent: string, language: 'es' | 'en'): string =
 const BlogEditor: React.FC<BlogEditorProps> = ({ blog, onSave, onCancel }) => {
   const [activeTab, setActiveTab] = useState('es');
   const [showPreview, setShowPreview] = useState(false);
+  const [showHtmlEditor, setShowHtmlEditor] = useState({ es: false, en: false });
   const [slug, setSlug] = useState('');
   const [titleEs, setTitleEs] = useState('');
   const [titleEn, setTitleEn] = useState('');
@@ -54,6 +61,17 @@ const BlogEditor: React.FC<BlogEditorProps> = ({ blog, onSave, onCancel }) => {
   const [error, setError] = useState('');
   const [hasChanges, setHasChanges] = useState(false);
   const [initialData, setInitialData] = useState<any>(null);
+  
+  // Estados para diálogos personalizados
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
+  const [showImageDialog, setShowImageDialog] = useState(false);
+  const [showVideoDialog, setShowVideoDialog] = useState(false);
+  const [showLinkDialog, setShowLinkDialog] = useState(false);
+  const [imageUrl, setImageUrl] = useState('');
+  const [videoUrl, setVideoUrl] = useState('');
+  const [linkUrl, setLinkUrl] = useState('');
+  const [linkText, setLinkText] = useState('');
+  const [pendingQuillAction, setPendingQuillAction] = useState<{ type: 'image' | 'video' | 'link'; quill: Quill | null; index: number; length?: number } | null>(null);
 
   // Calcular tiempo de lectura automáticamente
   const readTimeEs = calculateReadTime(contentEs, 'es');
@@ -120,10 +138,14 @@ const BlogEditor: React.FC<BlogEditorProps> = ({ blog, onSave, onCancel }) => {
 
   const handleCancel = () => {
     if (hasChanges) {
-      if (!confirm('¿Estás seguro de que quieres cancelar? Se perderán todos los cambios no guardados.')) {
-        return;
-      }
+      setShowCancelDialog(true);
+    } else {
+      onCancel();
     }
+  };
+
+  const handleConfirmCancel = () => {
+    setShowCancelDialog(false);
     onCancel();
   };
 
@@ -169,16 +191,54 @@ const BlogEditor: React.FC<BlogEditorProps> = ({ blog, onSave, onCancel }) => {
     }
   };
 
+  // Configuración mejorada de Quill con todas las opciones
   const quillModules = {
-    toolbar: [
-      [{ 'header': [1, 2, 3, false] }],
-      ['bold', 'italic', 'underline', 'strike'],
-      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-      [{ 'color': [] }, { 'background': [] }],
-      ['link', 'image'],
-      ['blockquote', 'code-block'],
-      ['clean']
-    ],
+    toolbar: {
+      container: [
+        [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+        [{ 'size': ['small', false, 'large', 'huge'] }],
+        [{ 'font': [] }],
+        ['bold', 'italic', 'underline', 'strike'],
+        [{ 'script': 'sub'}, { 'script': 'super' }],
+        [{ 'color': [] }, { 'background': [] }],
+        [{ 'align': [] }],
+        [{ 'list': 'ordered'}, { 'list': 'bullet' }, { 'indent': '-1'}, { 'indent': '+1' }],
+        ['blockquote', 'code-block'],
+        ['link', 'image', 'video'],
+        ['clean']
+      ],
+      handlers: {
+        image: function(this: any) {
+          const range = this.quill.getSelection(true);
+          const index = range ? range.index : this.quill.getLength();
+          setPendingQuillAction({ type: 'image', quill: this.quill, index });
+          setShowImageDialog(true);
+        },
+        video: function(this: any) {
+          const range = this.quill.getSelection(true);
+          const index = range ? range.index : this.quill.getLength();
+          setPendingQuillAction({ type: 'video', quill: this.quill, index });
+          setShowVideoDialog(true);
+        },
+        link: function(this: any) {
+          const range = this.quill.getSelection(true);
+          if (range) {
+            // Si hay texto seleccionado, obtener el texto y la posición
+            const text = this.quill.getText(range.index, range.length);
+            const index = range.index;
+            const length = range.length;
+            setLinkText(text || '');
+            setPendingQuillAction({ type: 'link', quill: this.quill, index, length });
+          } else {
+            // Si no hay selección, usar la posición actual
+            const index = this.quill.getLength();
+            setLinkText('');
+            setPendingQuillAction({ type: 'link', quill: this.quill, index, length: 0 });
+          }
+          setShowLinkDialog(true);
+        }
+      }
+    }
   };
 
   // Refs para los editores Quill
@@ -189,7 +249,7 @@ const BlogEditor: React.FC<BlogEditorProps> = ({ blog, onSave, onCancel }) => {
 
   // Inicializar Quill para español
   useEffect(() => {
-    if (editorRefEs.current && !quillRefEs.current) {
+    if (editorRefEs.current && !quillRefEs.current && !showHtmlEditor.es) {
       quillRefEs.current = new Quill(editorRefEs.current, {
         theme: 'snow',
         modules: quillModules,
@@ -207,11 +267,40 @@ const BlogEditor: React.FC<BlogEditorProps> = ({ blog, onSave, onCancel }) => {
         }
       });
     }
-  }, []);
+  }, [showHtmlEditor.es]);
+
+  // Reinicializar Quill para español cuando se vuelve de HTML a visual
+  useEffect(() => {
+    if (!showHtmlEditor.es && editorRefEs.current && !quillRefEs.current) {
+      // Pequeño delay para asegurar que el DOM esté listo
+      const timeoutId = setTimeout(() => {
+        if (editorRefEs.current && !quillRefEs.current) {
+          quillRefEs.current = new Quill(editorRefEs.current, {
+            theme: 'snow',
+            modules: quillModules,
+            placeholder: 'Escribe el contenido de tu blog aquí...',
+          });
+          
+          if (contentEs) {
+            quillRefEs.current.root.innerHTML = contentEs;
+          }
+          
+          quillRefEs.current.on('text-change', () => {
+            if (quillRefEs.current) {
+              const html = quillRefEs.current.root.innerHTML;
+              setContentEs(html);
+            }
+          });
+        }
+      }, 50);
+      
+      return () => clearTimeout(timeoutId);
+    }
+  }, [showHtmlEditor.es, contentEs]);
 
   // Inicializar Quill para inglés
   useEffect(() => {
-    if (editorRefEn.current && !quillRefEn.current) {
+    if (editorRefEn.current && !quillRefEn.current && !showHtmlEditor.en) {
       quillRefEn.current = new Quill(editorRefEn.current, {
         theme: 'snow',
         modules: quillModules,
@@ -229,7 +318,74 @@ const BlogEditor: React.FC<BlogEditorProps> = ({ blog, onSave, onCancel }) => {
         }
       });
     }
-  }, []);
+  }, [showHtmlEditor.en]);
+
+  // Reinicializar Quill para inglés cuando se vuelve de HTML a visual
+  useEffect(() => {
+    if (!showHtmlEditor.en && editorRefEn.current && !quillRefEn.current) {
+      // Pequeño delay para asegurar que el DOM esté listo
+      const timeoutId = setTimeout(() => {
+        if (editorRefEn.current && !quillRefEn.current) {
+          quillRefEn.current = new Quill(editorRefEn.current, {
+            theme: 'snow',
+            modules: quillModules,
+            placeholder: 'Write your blog content here...',
+          });
+          
+          if (contentEn) {
+            quillRefEn.current.root.innerHTML = contentEn;
+          }
+          
+          quillRefEn.current.on('text-change', () => {
+            if (quillRefEn.current) {
+              const html = quillRefEn.current.root.innerHTML;
+              setContentEn(html);
+            }
+          });
+        }
+      }, 50);
+      
+      return () => clearTimeout(timeoutId);
+    }
+  }, [showHtmlEditor.en, contentEn]);
+
+  // Sincronizar contenido cuando se vuelve de HTML a visual (ES)
+  useEffect(() => {
+    if (!showHtmlEditor.es && quillRefEs.current && contentEs) {
+      // Esperar a que el DOM esté completamente renderizado
+      const timeoutId = setTimeout(() => {
+        if (quillRefEs.current && contentEs) {
+          const currentContent = quillRefEs.current.root.innerHTML.trim();
+          const newContent = contentEs.trim();
+          // Solo actualizar si el contenido es diferente y no está vacío
+          if (newContent && newContent !== '<p><br></p>' && newContent !== '<p></p>' && currentContent !== newContent) {
+            quillRefEs.current.root.innerHTML = newContent;
+          }
+        }
+      }, 200);
+      
+      return () => clearTimeout(timeoutId);
+    }
+  }, [showHtmlEditor.es, contentEs]);
+
+  // Sincronizar contenido cuando se vuelve de HTML a visual (EN)
+  useEffect(() => {
+    if (!showHtmlEditor.en && quillRefEn.current && contentEn) {
+      // Esperar a que el DOM esté completamente renderizado
+      const timeoutId = setTimeout(() => {
+        if (quillRefEn.current && contentEn) {
+          const currentContent = quillRefEn.current.root.innerHTML.trim();
+          const newContent = contentEn.trim();
+          // Solo actualizar si el contenido es diferente y no está vacío
+          if (newContent && newContent !== '<p><br></p>' && newContent !== '<p></p>' && currentContent !== newContent) {
+            quillRefEn.current.root.innerHTML = newContent;
+          }
+        }
+      }, 200);
+      
+      return () => clearTimeout(timeoutId);
+    }
+  }, [showHtmlEditor.en, contentEn]);
 
   // Actualizar contenido cuando cambia el blog
   useEffect(() => {
@@ -248,6 +404,88 @@ const BlogEditor: React.FC<BlogEditorProps> = ({ blog, onSave, onCancel }) => {
       }
     }
   }, [blog]);
+
+  // Funciones para manejar diálogos de imagen/video
+  const handleInsertImage = () => {
+    if (pendingQuillAction && imageUrl.trim()) {
+      pendingQuillAction.quill.insertEmbed(pendingQuillAction.index, 'image', imageUrl.trim(), 'user');
+      setImageUrl('');
+      setShowImageDialog(false);
+      setPendingQuillAction(null);
+    }
+  };
+
+  const handleInsertVideo = () => {
+    if (pendingQuillAction && videoUrl.trim()) {
+      pendingQuillAction.quill.insertEmbed(pendingQuillAction.index, 'video', videoUrl.trim(), 'user');
+      setVideoUrl('');
+      setShowVideoDialog(false);
+      setPendingQuillAction(null);
+    }
+  };
+
+  const handleInsertLink = () => {
+    if (pendingQuillAction && linkUrl.trim()) {
+      const quill = pendingQuillAction.quill;
+      const index = pendingQuillAction.index;
+      const length = pendingQuillAction.length || 0;
+      
+      if (length > 0) {
+        // Si hay texto seleccionado, convertir ese texto en enlace
+        quill.formatText(index, length, 'link', linkUrl.trim());
+      } else if (linkText.trim()) {
+        // Si hay texto ingresado pero no seleccionado, insertar el texto como enlace
+        quill.insertText(index, linkText.trim(), 'link', linkUrl.trim(), 'user');
+        quill.setSelection(index + linkText.trim().length);
+      } else {
+        // Si no hay texto, insertar la URL como texto enlazado
+        quill.insertText(index, linkUrl.trim(), 'link', linkUrl.trim(), 'user');
+        quill.setSelection(index + linkUrl.trim().length);
+      }
+      
+      setLinkUrl('');
+      setLinkText('');
+      setShowLinkDialog(false);
+      setPendingQuillAction(null);
+    }
+  };
+
+  // Función para alternar editor HTML
+  const toggleHtmlEditor = (lang: 'es' | 'en') => {
+    const isCurrentlyHtml = lang === 'es' ? showHtmlEditor.es : showHtmlEditor.en;
+    
+    if (lang === 'es') {
+      if (!isCurrentlyHtml) {
+        // Cambiar a HTML - guardar contenido de Quill primero
+        if (quillRefEs.current) {
+          const htmlContent = quillRefEs.current.root.innerHTML;
+          // Guardar el contenido antes de cambiar el estado
+          setContentEs(htmlContent);
+          // Destruir la instancia de Quill para liberar recursos
+          quillRefEs.current = null;
+        }
+        setShowHtmlEditor(prev => ({ ...prev, es: true }));
+      } else {
+        // Volver a Quill - el useEffect se encargará de reinicializar
+        setShowHtmlEditor(prev => ({ ...prev, es: false }));
+      }
+    } else {
+      if (!isCurrentlyHtml) {
+        // Cambiar a HTML - guardar contenido de Quill primero
+        if (quillRefEn.current) {
+          const htmlContent = quillRefEn.current.root.innerHTML;
+          // Guardar el contenido antes de cambiar el estado
+          setContentEn(htmlContent);
+          // Destruir la instancia de Quill para liberar recursos
+          quillRefEn.current = null;
+        }
+        setShowHtmlEditor(prev => ({ ...prev, en: true }));
+      } else {
+        // Volver a Quill - el useEffect se encargará de reinicializar
+        setShowHtmlEditor(prev => ({ ...prev, en: false }));
+      }
+    }
+  };
 
   // Preview del blog
   const renderPreview = () => {
@@ -470,18 +708,51 @@ const BlogEditor: React.FC<BlogEditorProps> = ({ blog, onSave, onCancel }) => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-sm text-zinc-300">Contenido</Label>
-                  <div className="bg-white rounded-lg border border-zinc-700/30 shadow-inner overflow-visible min-h-[500px]">
-                    <div 
-                      ref={editorRefEs} 
-                      className="quill-editor-container"
-                      style={{ 
-                        minHeight: '500px',
-                        position: 'relative',
-                        zIndex: 1
-                      }}
-                    />
+                  <div className="flex items-center justify-between">
+                    <Label className="text-sm text-zinc-300">Contenido</Label>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => toggleHtmlEditor('es')}
+                      className="border-zinc-700 bg-zinc-800/50 hover:bg-zinc-700 text-white text-xs"
+                    >
+                      <CodeIcon className="w-3 h-3 mr-1" />
+                      {showHtmlEditor.es ? 'Editor Visual' : 'Editar HTML'}
+                    </Button>
                   </div>
+                  {showHtmlEditor.es ? (
+                    <Textarea
+                      value={contentEs}
+                      onChange={(e) => setContentEs(e.target.value)}
+                      placeholder="Edita el HTML directamente..."
+                      rows={20}
+                      className="bg-zinc-900 border-zinc-700 text-white font-mono text-sm resize-none"
+                    />
+                  ) : (
+                    <div 
+                      className="bg-white rounded-lg border border-zinc-700/30 shadow-inner min-h-[600px]"
+                      style={{ 
+                        pointerEvents: 'auto', 
+                        zIndex: 1, 
+                        position: 'relative',
+                        overflow: 'visible',
+                        display: 'block'
+                      }}
+                    >
+                      <div 
+                        ref={editorRefEs} 
+                        className="quill-editor-container"
+                        style={{ 
+                          minHeight: '600px',
+                          position: 'relative',
+                          zIndex: 1,
+                          overflow: 'visible',
+                          display: 'block'
+                        }}
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
             </TabsContent>
@@ -532,18 +803,51 @@ const BlogEditor: React.FC<BlogEditorProps> = ({ blog, onSave, onCancel }) => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-sm text-zinc-300">Content</Label>
-                  <div className="bg-white rounded-lg border border-zinc-700/30 shadow-inner overflow-visible min-h-[500px]">
-                    <div 
-                      ref={editorRefEn} 
-                      className="quill-editor-container"
-                      style={{ 
-                        minHeight: '500px',
-                        position: 'relative',
-                        zIndex: 1
-                      }}
-                    />
+                  <div className="flex items-center justify-between">
+                    <Label className="text-sm text-zinc-300">Content</Label>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => toggleHtmlEditor('en')}
+                      className="border-zinc-700 bg-zinc-800/50 hover:bg-zinc-700 text-white text-xs"
+                    >
+                      <CodeIcon className="w-3 h-3 mr-1" />
+                      {showHtmlEditor.en ? 'Visual Editor' : 'Edit HTML'}
+                    </Button>
                   </div>
+                  {showHtmlEditor.en ? (
+                    <Textarea
+                      value={contentEn}
+                      onChange={(e) => setContentEn(e.target.value)}
+                      placeholder="Edit HTML directly..."
+                      rows={20}
+                      className="bg-zinc-900 border-zinc-700 text-white font-mono text-sm resize-none"
+                    />
+                  ) : (
+                    <div 
+                      className="bg-white rounded-lg border border-zinc-700/30 shadow-inner min-h-[600px]"
+                      style={{ 
+                        pointerEvents: 'auto', 
+                        zIndex: 1, 
+                        position: 'relative',
+                        overflow: 'visible',
+                        display: 'block'
+                      }}
+                    >
+                      <div 
+                        ref={editorRefEn} 
+                        className="quill-editor-container"
+                        style={{ 
+                          minHeight: '600px',
+                          position: 'relative',
+                          zIndex: 1,
+                          overflow: 'visible',
+                          display: 'block'
+                        }}
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
             </TabsContent>
@@ -586,6 +890,213 @@ const BlogEditor: React.FC<BlogEditorProps> = ({ blog, onSave, onCancel }) => {
           </div>
         </div>
       </div>
+
+      {/* Diálogo de confirmación para cancelar */}
+      <Dialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
+        <DialogContent className="bg-zinc-900 border-zinc-800">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-white">
+              <WarningIcon className="w-5 h-5 text-amber-500" />
+              ¿Descartar cambios?
+            </DialogTitle>
+            <DialogDescription className="text-zinc-400 pt-2">
+              Tienes cambios sin guardar. Si cancelas, se perderán todos los cambios no guardados.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              variant="outline"
+              onClick={() => setShowCancelDialog(false)}
+              className="border-zinc-700 bg-zinc-800/50 hover:bg-zinc-700 text-white"
+            >
+              Continuar editando
+            </Button>
+            <Button
+              onClick={handleConfirmCancel}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              Descartar cambios
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Diálogo para insertar imagen */}
+      <Dialog open={showImageDialog} onOpenChange={setShowImageDialog}>
+        <DialogContent className="bg-zinc-900 border-zinc-800">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-white">
+              <ImageIcon className="w-5 h-5 text-emerald-500" />
+              Insertar Imagen
+            </DialogTitle>
+            <DialogDescription className="text-zinc-400 pt-2">
+              Ingresa la URL de la imagen que deseas insertar
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Input
+              value={imageUrl}
+              onChange={(e) => setImageUrl(e.target.value)}
+              placeholder="https://ejemplo.com/imagen.jpg"
+              className="bg-zinc-800/50 border-zinc-700/50 text-white placeholder:text-zinc-500 focus:border-emerald-500/50 focus:ring-emerald-500/20"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  handleInsertImage();
+                }
+              }}
+              autoFocus
+            />
+            {imageUrl && (
+              <div className="mt-4 rounded-lg overflow-hidden border border-zinc-700/50">
+                <img src={imageUrl} alt="Preview" className="w-full h-48 object-cover" onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = 'none';
+                }} />
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowImageDialog(false);
+                setImageUrl('');
+                setPendingQuillAction(null);
+              }}
+              className="border-zinc-700 bg-zinc-800/50 hover:bg-zinc-700 text-white"
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={handleInsertImage}
+              disabled={!imageUrl.trim()}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white"
+            >
+              Insertar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Diálogo para insertar video */}
+      <Dialog open={showVideoDialog} onOpenChange={setShowVideoDialog}>
+        <DialogContent className="bg-zinc-900 border-zinc-800">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-white">
+              <VideoLibraryIcon className="w-5 h-5 text-emerald-500" />
+              Insertar Video
+            </DialogTitle>
+            <DialogDescription className="text-zinc-400 pt-2">
+              Ingresa la URL del video (YouTube, Vimeo, etc.)
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Input
+              value={videoUrl}
+              onChange={(e) => setVideoUrl(e.target.value)}
+              placeholder="https://www.youtube.com/watch?v=..."
+              className="bg-zinc-800/50 border-zinc-700/50 text-white placeholder:text-zinc-500 focus:border-emerald-500/50 focus:ring-emerald-500/20"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  handleInsertVideo();
+                }
+              }}
+              autoFocus
+            />
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowVideoDialog(false);
+                setVideoUrl('');
+                setPendingQuillAction(null);
+              }}
+              className="border-zinc-700 bg-zinc-800/50 hover:bg-zinc-700 text-white"
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={handleInsertVideo}
+              disabled={!videoUrl.trim()}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white"
+            >
+              Insertar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Diálogo para insertar enlace */}
+      <Dialog open={showLinkDialog} onOpenChange={setShowLinkDialog}>
+        <DialogContent className="bg-zinc-900 border-zinc-800">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-white">
+              <LinkIcon className="w-5 h-5 text-emerald-500" />
+              Insertar Enlace
+            </DialogTitle>
+            <DialogDescription className="text-zinc-400 pt-2">
+              Ingresa la URL del enlace y opcionalmente el texto a mostrar
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4 space-y-4">
+            <div className="space-y-2">
+              <Label className="text-sm text-zinc-300">URL del enlace</Label>
+              <Input
+                value={linkUrl}
+                onChange={(e) => setLinkUrl(e.target.value)}
+                placeholder="https://ejemplo.com"
+                className="bg-zinc-800/50 border-zinc-700/50 text-white placeholder:text-zinc-500 focus:border-emerald-500/50 focus:ring-emerald-500/20"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && linkUrl.trim()) {
+                    handleInsertLink();
+                  }
+                }}
+                autoFocus
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-sm text-zinc-300">Texto del enlace (opcional)</Label>
+              <Input
+                value={linkText}
+                onChange={(e) => setLinkText(e.target.value)}
+                placeholder="Texto a mostrar"
+                className="bg-zinc-800/50 border-zinc-700/50 text-white placeholder:text-zinc-500 focus:border-emerald-500/50 focus:ring-emerald-500/20"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && linkUrl.trim()) {
+                    handleInsertLink();
+                  }
+                }}
+              />
+              {pendingQuillAction && pendingQuillAction.length && pendingQuillAction.length > 0 && (
+                <p className="text-xs text-zinc-500 mt-1">
+                  Texto seleccionado: "{linkText}"
+                </p>
+              )}
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowLinkDialog(false);
+                setLinkUrl('');
+                setLinkText('');
+                setPendingQuillAction(null);
+              }}
+              className="border-zinc-700 bg-zinc-800/50 hover:bg-zinc-700 text-white"
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={handleInsertLink}
+              disabled={!linkUrl.trim()}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white"
+            >
+              Insertar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

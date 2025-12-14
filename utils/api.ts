@@ -1,7 +1,13 @@
 // En desarrollo local, usar servidor Express en puerto 3001
 // En producción, usar las rutas de Vercel automáticamente
+// Detectar si estamos en localhost
+const isLocalhost = typeof window !== 'undefined' && 
+  (window.location.hostname === 'localhost' || 
+   window.location.hostname === '127.0.0.1' ||
+   window.location.hostname === '');
+
 const API_URL = import.meta.env.VITE_API_URL || 
-  (import.meta.env.DEV ? 'http://localhost:3001/api' : '/api');
+  (isLocalhost ? 'http://localhost:3001/api' : '/api');
 
 // Helper para acceder a localStorage de forma segura
 const getStorageItem = (key: string): string | null => {
