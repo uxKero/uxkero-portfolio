@@ -119,6 +119,39 @@ const BlogPost: React.FC<BlogPostProps> = ({ onBack, language = 'es', slug, onTo
     };
   }, [shareMenuOpen]);
 
+  // Extraer texto limpio del contenido para description
+  const getPlainText = (html: string, maxLength: number = 160) => {
+    if (!html) return '';
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = html;
+    const text = tempDiv.textContent || tempDiv.innerText || '';
+    return text.length > maxLength ? text.substring(0, maxLength).trim() + '...' : text.trim();
+  };
+
+  // SEO - debe estar antes de los early returns para cumplir las reglas de hooks
+  const title = blogData ? (language === 'es' ? blogData.title_es : blogData.title_en) : '';
+  const subtitle = blogData ? (language === 'es' ? blogData.subtitle_es : blogData.subtitle_en) : '';
+  const content = blogData ? (language === 'es' ? blogData.content_es : blogData.content_en) : '';
+  const shareUrl = blogData && typeof window !== 'undefined' 
+    ? `${window.location.origin}/${blogData.slug}`
+    : '';
+  const ogImage = blogData?.cover_image_url 
+    ? (blogData.cover_image_url.startsWith('http') 
+        ? blogData.cover_image_url 
+        : `${typeof window !== 'undefined' ? window.location.origin : ''}${blogData.cover_image_url.startsWith('/') ? blogData.cover_image_url : '/' + blogData.cover_image_url}`)
+    : undefined;
+
+  useSEO({
+    title: title || 'UXKERO Blog',
+    description: subtitle || getPlainText(content),
+    image: ogImage,
+    url: shareUrl,
+    type: blogData ? 'article' : 'website',
+    author: blogData?.author || 'Alan Ponce',
+    publishedTime: blogData?.published_at || undefined,
+    modifiedTime: blogData?.updated_at || undefined,
+  });
+
   if (loading) {
     return (
       <div className="w-full bg-black text-white min-h-screen flex items-center justify-center">
@@ -145,43 +178,8 @@ const BlogPost: React.FC<BlogPostProps> = ({ onBack, language = 'es', slug, onTo
     );
   }
 
-  const title = language === 'es' ? blogData.title_es : blogData.title_en;
-  const subtitle = language === 'es' ? blogData.subtitle_es : blogData.subtitle_en;
-  const content = language === 'es' ? blogData.content_es : blogData.content_en;
   const category = language === 'es' ? blogData.category_es : blogData.category_en;
   const readTime = language === 'es' ? blogData.read_time_es : blogData.read_time_en;
-
-  // SEO para blogs
-  const shareUrl = typeof window !== 'undefined' 
-    ? `${window.location.origin}/${blogData.slug}`
-    : '';
-  
-  // Extraer texto limpio del contenido para description
-  const getPlainText = (html: string, maxLength: number = 160) => {
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = html;
-    const text = tempDiv.textContent || tempDiv.innerText || '';
-    return text.length > maxLength ? text.substring(0, maxLength).trim() + '...' : text.trim();
-  };
-
-  // Aplicar SEO solo cuando blogData está disponible
-  // Asegurar que la imagen sea una URL absoluta
-  const ogImage = blogData.cover_image_url 
-    ? (blogData.cover_image_url.startsWith('http') 
-        ? blogData.cover_image_url 
-        : `${typeof window !== 'undefined' ? window.location.origin : ''}${blogData.cover_image_url.startsWith('/') ? blogData.cover_image_url : '/' + blogData.cover_image_url}`)
-    : undefined;
-
-  useSEO({
-    title: title, // Solo el título del blog, sin "| UXKERO Blog" para que sea más limpio en previews
-    description: subtitle || getPlainText(content),
-    image: ogImage,
-    url: shareUrl,
-    type: 'article',
-    author: blogData.author || 'Alan Ponce',
-    publishedTime: blogData.published_at || undefined,
-    modifiedTime: blogData.updated_at || undefined,
-  });
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return '';
