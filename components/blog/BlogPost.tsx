@@ -38,6 +38,7 @@ interface BlogData {
   published_at?: string;
   read_time_es?: string;
   read_time_en?: string;
+  share_count?: number;
 }
 
 const BlogPost: React.FC<BlogPostProps> = ({ onBack, language = 'es', slug, onToggleLanguage }) => {
@@ -47,6 +48,7 @@ const BlogPost: React.FC<BlogPostProps> = ({ onBack, language = 'es', slug, onTo
   const [blogData, setBlogData] = React.useState<BlogData | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
+  const [shareCount, setShareCount] = React.useState<number>(0);
 
   React.useEffect(() => {
     const loadBlog = async () => {
@@ -64,6 +66,7 @@ const BlogPost: React.FC<BlogPostProps> = ({ onBack, language = 'es', slug, onTo
         const data = await api.getBlog(internalSlug);
         console.log('[BlogPost] Blog cargado:', data);
         setBlogData(data);
+        setShareCount(data.share_count || 0);
       } catch (err: any) {
         console.error('[BlogPost] Error cargando blog:', err);
         // Extraer mensaje de error más descriptivo
@@ -162,10 +165,17 @@ const BlogPost: React.FC<BlogPostProps> = ({ onBack, language = 'es', slug, onTo
   };
 
   // Aplicar SEO solo cuando blogData está disponible
+  // Asegurar que la imagen sea una URL absoluta
+  const ogImage = blogData.cover_image_url 
+    ? (blogData.cover_image_url.startsWith('http') 
+        ? blogData.cover_image_url 
+        : `${typeof window !== 'undefined' ? window.location.origin : ''}${blogData.cover_image_url.startsWith('/') ? blogData.cover_image_url : '/' + blogData.cover_image_url}`)
+    : undefined;
+
   useSEO({
-    title: `${title} | UXKERO Blog`,
+    title: title, // Solo el título del blog, sin "| UXKERO Blog" para que sea más limpio en previews
     description: subtitle || getPlainText(content),
-    image: blogData.cover_image_url || undefined,
+    image: ogImage,
     url: shareUrl,
     type: 'article',
     author: blogData.author || 'Alan Ponce',
@@ -183,7 +193,20 @@ const BlogPost: React.FC<BlogPostProps> = ({ onBack, language = 'es', slug, onTo
 
   const shareText = `${title} - ${subtitle || ''}`;
 
-  const handleShare = (platform: 'twitter' | 'linkedin' | 'email' | 'copy') => {
+  const handleShare = async (platform: 'twitter' | 'linkedin' | 'email' | 'copy') => {
+    // Incrementar contador de compartidos (solo para compartir real, no para copiar)
+    if (platform !== 'copy' && blogData) {
+      try {
+        const result = await api.incrementShareCount(blogData.slug);
+        if (result && result.share_count !== undefined) {
+          setShareCount(result.share_count);
+        }
+      } catch (err) {
+        console.error('Error incrementando share count:', err);
+        // No mostrar error al usuario, solo log
+      }
+    }
+
     if (platform === 'twitter') {
       window.open(
         `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`,
@@ -290,11 +313,16 @@ const BlogPost: React.FC<BlogPostProps> = ({ onBack, language = 'es', slug, onTo
                     e.stopPropagation();
                     setShareMenuOpen(!shareMenuOpen);
                   }}
-                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 text-[10px] sm:text-xs font-medium text-zinc-400 hover:text-white hover:bg-zinc-900 rounded-lg transition-colors uppercase"
+                  className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 text-[10px] sm:text-xs font-medium text-zinc-400 hover:text-white hover:bg-zinc-900 rounded-lg transition-colors uppercase"
                 >
                   <ShareIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   <span className="hidden sm:inline">{language === 'es' ? 'Compartir' : 'Share'}</span>
                   <span className="sm:hidden">{language === 'es' ? 'Compartir' : 'Share'}</span>
+                  {shareCount > 0 && (
+                    <span className="ml-1 px-1.5 py-0.5 bg-emerald-500/20 text-emerald-400 text-[9px] sm:text-[10px] font-semibold rounded-full border border-emerald-500/30">
+                      {shareCount}
+                    </span>
+                  )}
                 </button>
                 {shareMenuOpen && (
                   <motion.div
@@ -392,11 +420,16 @@ const BlogPost: React.FC<BlogPostProps> = ({ onBack, language = 'es', slug, onTo
                     e.stopPropagation();
                     setShareMenuOpen(!shareMenuOpen);
                   }}
-                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 text-[10px] sm:text-xs font-medium text-zinc-400 hover:text-white hover:bg-zinc-900 rounded-lg transition-colors uppercase"
+                  className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 text-[10px] sm:text-xs font-medium text-zinc-400 hover:text-white hover:bg-zinc-900 rounded-lg transition-colors uppercase"
                 >
                   <ShareIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   <span className="hidden sm:inline">{language === 'es' ? 'Compartir' : 'Share'}</span>
                   <span className="sm:hidden">{language === 'es' ? 'Compartir' : 'Share'}</span>
+                  {shareCount > 0 && (
+                    <span className="ml-1 px-1.5 py-0.5 bg-emerald-500/20 text-emerald-400 text-[9px] sm:text-[10px] font-semibold rounded-full border border-emerald-500/30">
+                      {shareCount}
+                    </span>
+                  )}
                 </button>
                 {shareMenuOpen && (
                   <motion.div

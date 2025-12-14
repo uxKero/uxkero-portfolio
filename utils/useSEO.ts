@@ -50,13 +50,40 @@ export const useSEO = ({
       setMetaTag('og:url', url, 'property');
     }
     if (image) {
-      setMetaTag('og:image', image, 'property');
-      setMetaTag('twitter:image', image);
+      // Asegurar que la imagen sea una URL absoluta
+      const absoluteImageUrl = image.startsWith('http') 
+        ? image 
+        : `${typeof window !== 'undefined' ? window.location.origin : ''}${image.startsWith('/') ? image : '/' + image}`;
+      
+      setMetaTag('og:image', absoluteImageUrl, 'property');
+      setMetaTag('og:image:secure_url', absoluteImageUrl, 'property');
+      setMetaTag('og:image:type', 'image/jpeg', 'property');
+      setMetaTag('og:image:width', '1200', 'property');
+      setMetaTag('og:image:height', '630', 'property');
+      setMetaTag('og:image:alt', title, 'property');
+      
+      // Twitter Card
+      setMetaTag('twitter:image', absoluteImageUrl);
+      setMetaTag('twitter:image:alt', title);
+    } else {
+      // Si no hay imagen, usar una imagen por defecto
+      const defaultImage = typeof window !== 'undefined' 
+        ? `${window.location.origin}/favicon.svg`
+        : '';
+      if (defaultImage) {
+        setMetaTag('og:image', defaultImage, 'property');
+        setMetaTag('og:image:secure_url', defaultImage, 'property');
+        setMetaTag('og:image:type', 'image/svg+xml', 'property');
+        setMetaTag('og:image:width', '1200', 'property');
+        setMetaTag('og:image:height', '630', 'property');
+        setMetaTag('twitter:image', defaultImage);
+      }
     }
 
     // Twitter Card tags
     setMetaTag('twitter:card', 'summary_large_image');
     setMetaTag('twitter:title', title);
+    setMetaTag('twitter:site', '@uxkero');
 
     // Article tags (para blogs)
     if (type === 'article') {

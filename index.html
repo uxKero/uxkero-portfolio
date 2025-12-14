@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -10,14 +10,96 @@
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="UXKERO" />
+    <meta property="og:locale" content="es_ES" />
+    <meta property="og:locale:alternate" content="en_US" />
     
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:creator" content="@uxkero" />
+    <meta name="twitter:site" content="@uxkero" />
     
     <title>Alan Ponce | Product Design & Strategy Lead | UXKERO</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="stylesheet" href="/index.css">
+    
+    <!-- Script para cargar meta tags dinámicamente para bots (ejecuta antes de React) -->
+    <script>
+      (function() {
+        // Solo ejecutar si hay un path que no sea admin o raíz
+        const path = window.location.pathname.slice(1);
+        if (!path || path === 'admin' || path.startsWith('admin/') || path === '') return;
+        
+        // Detectar user agent
+        const userAgent = navigator.userAgent || '';
+        const isBot = /bot|crawler|spider|facebookexternalhit|twitterbot|whatsapp|linkedinbot|slackbot|telegrambot|googlebot|bingbot/i.test(userAgent);
+        
+        // Si es un bot, intentar cargar los datos del blog inmediatamente
+        if (isBot) {
+          // Hacer fetch síncrono usando XMLHttpRequest (para bots que no ejecutan async)
+          try {
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', '/api/blogs/' + encodeURIComponent(path), false); // false = síncrono
+            xhr.send();
+            
+            if (xhr.status === 200) {
+              const blog = JSON.parse(xhr.responseText);
+              if (blog && blog.title_es) {
+                const title = blog.title_es || blog.title_en;
+                const description = blog.subtitle_es || blog.subtitle_en || '';
+                const image = blog.cover_image_url 
+                  ? (blog.cover_image_url.startsWith('http') 
+                      ? blog.cover_image_url 
+                      : window.location.origin + (blog.cover_image_url.startsWith('/') ? blog.cover_image_url : '/' + blog.cover_image_url))
+                  : window.location.origin + '/favicon.svg';
+                const url = window.location.href;
+                
+                // Función para actualizar o crear meta tags
+                const updateMeta = (name, content, attr = 'name') => {
+                  let meta = document.querySelector('meta[' + attr + '="' + name + '"]');
+                  if (!meta) {
+                    meta = document.createElement('meta');
+                    meta.setAttribute(attr, name);
+                    document.head.appendChild(meta);
+                  }
+                  meta.setAttribute('content', content);
+                };
+                
+                // Actualizar todos los meta tags
+                document.title = title + ' | UXKERO Blog';
+                updateMeta('description', description);
+                updateMeta('og:title', title, 'property');
+                updateMeta('og:description', description, 'property');
+                updateMeta('og:image', image, 'property');
+                updateMeta('og:image:secure_url', image, 'property');
+                updateMeta('og:image:type', 'image/jpeg', 'property');
+                updateMeta('og:image:width', '1200', 'property');
+                updateMeta('og:image:height', '630', 'property');
+                updateMeta('og:image:alt', title, 'property');
+                updateMeta('og:url', url, 'property');
+                updateMeta('og:type', 'article', 'property');
+                updateMeta('og:site_name', 'UXKERO', 'property');
+                updateMeta('twitter:card', 'summary_large_image');
+                updateMeta('twitter:title', title);
+                updateMeta('twitter:description', description);
+                updateMeta('twitter:image', image);
+                updateMeta('twitter:image:alt', title);
+                
+                // Canonical URL
+                let canonical = document.querySelector('link[rel="canonical"]');
+                if (!canonical) {
+                  canonical = document.createElement('link');
+                  canonical.setAttribute('rel', 'canonical');
+                  document.head.appendChild(canonical);
+                }
+                canonical.setAttribute('href', url);
+              }
+            }
+          } catch (e) {
+            // Silenciar errores
+          }
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

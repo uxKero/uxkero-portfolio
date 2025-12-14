@@ -157,5 +157,11 @@ export const api = {
       method: 'DELETE',
     });
   },
+
+  async incrementShareCount(slug: string) {
+    return this.request(`/blogs/share/${slug}`, {
+      method: 'POST',
+    });
+  },
 };
 
