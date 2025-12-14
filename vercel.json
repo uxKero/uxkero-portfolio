@@ -8,11 +8,7 @@
   "trailingSlash": false,
   "rewrites": [
     {
-      "source": "/admin/:path*",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/((?!api|_next|assets|favicon).*)",
+      "source": "/((?!api|_next|assets|favicon\\.svg|favicon\\.ico).*)",
       "destination": "/index.html"
     }
   ]
