@@ -5,7 +5,7 @@ import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import ListIcon from '@mui/icons-material/List';
 import CloseIcon from '@mui/icons-material/Close';
 import { BlogPreviewList } from '../ui/blog-preview';
-import { api } from '../utils/api';
+import { api } from '../../utils/api';
 
 interface AboutSectionProps {
   onNavigate: (panel: 'experience' | 'contact') => void;
