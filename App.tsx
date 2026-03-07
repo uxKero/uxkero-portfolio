@@ -5,6 +5,7 @@ import BlogPost from './components/blog/BlogPost';
 import AdminPanel from './components/admin/AdminPanel';
 import Login from './components/admin/Login';
 import GuiaPage from './components/guide/GuiaPage';
+import GuidesIndexPage from './components/guide/GuidesIndexPage';
 import { getInternalSlug } from './utils/blog-slugs';
 import { useSEO } from './utils/useSEO';
 
@@ -22,8 +23,8 @@ const AppContent: React.FC = () => {
   // Convertir slug de URL a slug interno si es necesario
   const blogPath = location.pathname.slice(1); // Remover el "/"
   // Excluir rutas reservadas de la detección de blog slugs
-  const reservedPaths = ['guia', 'guide'];
-  const blogSlug = blogPath && !reservedPaths.includes(blogPath)
+  const reservedPaths = ['guia', 'guide', 'guides'];
+  const blogSlug = blogPath && !reservedPaths.some(p => blogPath === p || blogPath.startsWith(p + '/'))
     ? (getInternalSlug(blogPath) || blogPath)
     : null;
 
@@ -68,8 +69,11 @@ const App: React.FC = () => {
       <Routes>
         <Route path="/admin/login" element={<Login />} />
         <Route path="/admin" element={<AdminPanel />} />
-        <Route path="/guia" element={<div className="w-full min-h-screen overflow-y-auto"><GuiaPage /></div>} />
-        <Route path="/guide" element={<div className="w-full min-h-screen overflow-y-auto"><GuiaPage /></div>} />
+        <Route path="/guides" element={<GuidesIndexPage />} />
+        <Route path="/guides/openclaw" element={<div className="w-full h-screen overflow-hidden"><GuiaPage /></div>} />
+        {/* Legacy routes — kept for backwards compatibility */}
+        <Route path="/guia" element={<div className="w-full h-screen overflow-hidden"><GuiaPage /></div>} />
+        <Route path="/guide" element={<div className="w-full h-screen overflow-hidden"><GuiaPage /></div>} />
         <Route path="/*" element={<AppContent />} />
       </Routes>
     </BrowserRouter>

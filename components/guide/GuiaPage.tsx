@@ -1,9 +1,10 @@
 import React, { useState, useCallback, useEffect } from 'react';
+import { useNavigate as useRouterNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   CheckCircle2, Circle, ChevronRight, ChevronLeft, RotateCcw,
-  Copy, Check, AlertTriangle, Info, Lightbulb, X, BookOpen,
-  Lock, Home, ArrowRight,
+  Copy, Check, AlertTriangle, Info, Lightbulb, BookOpen,
+  Lock, Home, ArrowRight, ChevronLeft as BackIcon,
 } from 'lucide-react';
 
 // ─── TYPES ───────────────────────────────────────────────────────────────────
@@ -1285,9 +1286,12 @@ const ForwardWarningModal: React.FC<{ target: Module; onConfirm: () => void; onC
 
 // ─── WELCOME SCREEN ───────────────────────────────────────────────────────────
 
-const WelcomeScreen: React.FC<{ onStart: () => void; hasProgress: boolean; onResume: () => void }> = ({ onStart, hasProgress, onResume }) => (
+const WelcomeScreen: React.FC<{ onStart: () => void; hasProgress: boolean; onResume: () => void; onBackToGuides: () => void }> = ({ onStart, hasProgress, onResume, onBackToGuides }) => (
   <div className="flex-1 flex items-center justify-center p-8">
     <div className="max-w-lg w-full">
+      <button onClick={onBackToGuides} className="flex items-center gap-1.5 text-zinc-700 hover:text-zinc-400 transition-colors text-xs mb-8">
+        <BackIcon size={11} /> All guides
+      </button>
       <div className="mb-8">
         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.06] border border-white/[0.10] text-xs text-zinc-400 mb-6">
           <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
@@ -1334,11 +1338,15 @@ const Sidebar: React.FC<{
   onNavigate: (id: string) => void;
   onReset: () => void;
   onHome: () => void;
-}> = ({ progress, onNavigate, onReset, onHome }) => {
+  onBackToGuides: () => void;
+}> = ({ progress, onNavigate, onReset, onHome, onBackToGuides }) => {
   const currentIdx = MODULES.findIndex(m => m.id === progress.currentModuleId);
   return (
     <aside className="w-[220px] shrink-0 h-full flex flex-col border-r border-white/[0.07] bg-[#0d0d0d] overflow-y-auto">
-      <div className="px-4 py-4 border-b border-white/[0.07] shrink-0">
+      <div className="px-4 pt-3 pb-3 border-b border-white/[0.07] shrink-0 space-y-2">
+        <button onClick={onBackToGuides} className="flex items-center gap-1.5 text-zinc-700 hover:text-zinc-400 transition-colors">
+          <BackIcon size={11} /><span className="text-[11px]">All guides</span>
+        </button>
         <button onClick={onHome} className="flex items-center gap-2 text-zinc-500 hover:text-zinc-300 transition-colors">
           <Home size={13} /><span className="text-xs font-medium">OpenClaw Guide</span>
         </button>
@@ -1473,6 +1481,7 @@ const ModuleContent: React.FC<{
 // ─── MAIN ─────────────────────────────────────────────────────────────────────
 
 const GuiaPage: React.FC = () => {
+  const routerNavigate = useRouterNavigate();
   const [progress, setProgress] = useState<Progress>(() => {
     try { const s = localStorage.getItem(STORAGE_KEY); if (s) return JSON.parse(s); } catch {}
     return defaultProgress();
@@ -1567,7 +1576,13 @@ const GuiaPage: React.FC = () => {
 
       <div className="flex-1 flex overflow-hidden">
         {!showWelcome && (
-          <Sidebar progress={progress} onNavigate={navigate} onReset={() => setShowReset(true)} onHome={() => setShowWelcome(true)} />
+          <Sidebar
+            progress={progress}
+            onNavigate={navigate}
+            onReset={() => setShowReset(true)}
+            onHome={() => setShowWelcome(true)}
+            onBackToGuides={() => routerNavigate('/guides')}
+          />
         )}
 
         {showWelcome ? (
@@ -1575,6 +1590,7 @@ const GuiaPage: React.FC = () => {
             onStart={() => { setProgress(defaultProgress()); setShowWelcome(false); }}
             hasProgress={hasStoredProgress && progress.completedModules.length > 0}
             onResume={() => setShowWelcome(false)}
+            onBackToGuides={() => routerNavigate('/guides')}
           />
         ) : (
           <ModuleContent
