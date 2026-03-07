@@ -4,6 +4,7 @@ import HeroSection from './components/HeroSection';
 import BlogPost from './components/blog/BlogPost';
 import AdminPanel from './components/admin/AdminPanel';
 import Login from './components/admin/Login';
+import GuiaPage from './components/guide/GuiaPage';
 import { getInternalSlug } from './utils/blog-slugs';
 import { useSEO } from './utils/useSEO';
 
@@ -20,7 +21,11 @@ const AppContent: React.FC = () => {
   // Detectar si estamos en una ruta de blog
   // Convertir slug de URL a slug interno si es necesario
   const blogPath = location.pathname.slice(1); // Remover el "/"
-  const blogSlug = blogPath ? (getInternalSlug(blogPath) || blogPath) : null;
+  // Excluir rutas reservadas de la detección de blog slugs
+  const reservedPaths = ['guia'];
+  const blogSlug = blogPath && !reservedPaths.includes(blogPath)
+    ? (getInternalSlug(blogPath) || blogPath)
+    : null;
 
   // SEO para página principal
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
@@ -63,6 +68,7 @@ const App: React.FC = () => {
       <Routes>
         <Route path="/admin/login" element={<Login />} />
         <Route path="/admin" element={<AdminPanel />} />
+        <Route path="/guia" element={<div className="w-full min-h-screen overflow-y-auto"><GuiaPage /></div>} />
         <Route path="/*" element={<AppContent />} />
       </Routes>
     </BrowserRouter>
