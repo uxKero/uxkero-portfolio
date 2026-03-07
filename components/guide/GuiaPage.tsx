@@ -1,1089 +1,1594 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  ChevronDown, Copy, Lock, ArrowRight, ArrowLeft,
-  CheckCircle, AlertTriangle, Lightbulb, Info, Check,
+  CheckCircle2, Circle, ChevronRight, ChevronLeft, RotateCcw,
+  Copy, Check, AlertTriangle, Info, Lightbulb, X, BookOpen,
+  Lock, Home, ArrowRight,
 } from 'lucide-react';
 
-// ─────────────────────────────────────────────────────────────
-// TYPES
-// ─────────────────────────────────────────────────────────────
+// ─── TYPES ───────────────────────────────────────────────────────────────────
 
-interface Callout {
-  type: 'warning' | 'tip' | 'info';
-  title: string;
-  text: string;
+type BlockType = 'text' | 'code' | 'table' | 'callout' | 'heading' | 'list' | 'divider';
+type CalloutKind = 'tip' | 'warning' | 'info' | 'note';
+
+interface CodeData  { lang: string; code: string; filename?: string; }
+interface TableData { headers: string[]; rows: string[][]; }
+interface CalloutData { kind: CalloutKind; title?: string; text: string; }
+
+interface Block {
+  type: BlockType;
+  text?: string;
+  level?: 2 | 3;
+  code?: CodeData;
+  table?: TableData;
+  callout?: CalloutData;
+  items?: string[];
 }
 
-interface Step {
-  title: string;
-  subtitle?: string;
-  content: string;
-  code?: string;
-  callout?: Callout;
-}
-
-interface Quiz {
-  question: string;
-  options: string[];
-  correct: number;
-}
-
+interface Step  { title: string; blocks: Block[]; }
+interface QuizOption { id: string; label: string; }
+interface Quiz  { question: string; options: QuizOption[]; answer: string; explanation: string; }
 interface Module {
-  number: string;
-  title: string;
-  subtitle: string;
-  description: string;
-  color: string;
-  group: string;
-  steps: Step[];
-  quiz: Quiz;
+  id: string; num: string; title: string; subtitle: string; group: string;
+  steps: Step[]; quiz: Quiz;
 }
 
-// ─────────────────────────────────────────────────────────────
-// MODULE DATA
-// ─────────────────────────────────────────────────────────────
+// ─── BLOCK HELPERS ───────────────────────────────────────────────────────────
+
+const T   = (text: string): Block => ({ type: 'text', text });
+const H   = (text: string, level: 2 | 3 = 2): Block => ({ type: 'heading', text, level });
+const C   = (code: string, lang = 'bash', filename?: string): Block => ({ type: 'code', code: { lang, code, filename } });
+const TBL = (headers: string[], rows: string[][]): Block => ({ type: 'table', table: { headers, rows } });
+const CL  = (kind: CalloutKind, text: string, title?: string): Block => ({ type: 'callout', callout: { kind, text, title } });
+const LI  = (items: string[]): Block => ({ type: 'list', items });
+
+// ─── MODULE DATA ──────────────────────────────────────────────────────────────
 
 const MODULES: Module[] = [
+  // ── MODULE 00 ──────────────────────────────────────────────────────────────
   {
-    number: '00',
-    title: 'Instalación',
-    subtitle: 'Del VPS limpio al primer mensaje en WhatsApp',
-    description: 'Antes de configurar cualquier archivo del workspace, OpenClaw tiene que estar corriendo. Este módulo cubre la instalación desde cero.',
-    color: '#6366f1',
-    group: 'Fundamentos',
+    id: 'mod-00', num: '00', title: 'Setting Up', group: 'Fundamentals',
+    subtitle: 'From zero to a running OpenClaw instance connected to WhatsApp',
     steps: [
       {
-        title: 'Prerequisitos',
-        subtitle: 'Ubuntu 22.04 + Node.js 22+',
-        content: 'OpenClaw es un gateway autohospedado. El programa corre en tu máquina (o en un servidor) y actúa como puente entre tus apps de mensajería y el modelo de IA que elegís. No es un servicio en la nube — vos lo instalás, vos lo controlás.\n\nAntes de instalar, necesitás un servidor con Ubuntu 22.04 LTS y Node.js versión 22 o superior. Si ya tenés Node instalado, verificá con `node -v`.',
-        code: '$ sudo apt update && sudo apt upgrade -y\n$ lsb_release -a\n$ node -v\n→ Si devuelve v22.x.x o superior, ya está.',
-        callout: { type: 'warning', title: 'Instalar en VPS, no en tu máquina personal', text: 'OpenClaw es software experimental. Instalarlo en un servidor dedicado evita riesgos en tu equipo y permite que corra 24/7.' },
+        title: 'System Requirements',
+        blocks: [
+          T('Before installing OpenClaw, verify that your machine meets the following baseline requirements. The stack is entirely Node.js — no Python, no Docker required for basic setups.'),
+          TBL(
+            ['Requirement', 'Minimum', 'Recommended', 'Notes'],
+            [
+              ['Node.js', 'v18.0', 'v20 LTS', 'Check with `node --version`'],
+              ['npm', 'v9', 'v10', 'Bundled with Node.js'],
+              ['Git', 'Any', 'Latest', 'For cloning and version control'],
+              ['WhatsApp number', 'Active SIM', 'Dedicated number', 'Cannot be your main personal number'],
+              ['LLM API key', 'OpenAI OR Anthropic OR Gemini', '—', 'You only need one provider to start'],
+              ['RAM', '2 GB free', '4 GB+', 'More is better for multi-agent setups'],
+              ['OS', 'macOS / Linux', 'Ubuntu 22+ / macOS 13+', 'Windows requires WSL2'],
+            ]
+          ),
+          CL('tip', 'Run `node --version` and `npm --version` in your terminal before proceeding. If Node is missing, install it via https://nodejs.org (download the LTS version).'),
+          CL('warning', 'Do not use your primary WhatsApp number. OpenClaw links to WhatsApp Web — any existing WhatsApp Web sessions on that number will be disconnected.'),
+        ]
       },
       {
-        title: 'Instalación',
-        subtitle: 'El script oficial de OpenClaw',
-        content: 'El instalador oficial detecta y puede instalar Node.js solo. El comando instala OpenClaw globalmente y lanza el asistente de configuración inicial que te guía paso a paso.',
-        code: '$ npm install -g openclaw\n$ openclaw onboard',
-        callout: { type: 'tip', title: '¿Usás un usuario no-root?', text: 'Recomendado. OpenClaw guarda todo en el home del usuario que lo instala (~/.openclaw). Instalarlo como root crea problemas de permisos.' },
+        title: 'Installation',
+        blocks: [
+          T('Installation follows three steps: clone the repository, install dependencies, and run the initialization wizard.'),
+          H('1. Clone & Install', 3),
+          C(`git clone https://github.com/openclaw/openclaw.git\ncd openclaw\nnpm install`, 'bash'),
+          H('2. Run the Init Wizard', 3),
+          C(`npx openclaw init`, 'bash'),
+          T('The wizard walks you through configuration interactively. It generates your `openclaw.json` config file automatically based on your answers.'),
+          TBL(
+            ['Wizard Prompt', 'What to Enter', 'Example'],
+            [
+              ['LLM Provider', 'Your preferred AI provider', 'openai'],
+              ['Model name', 'The exact model identifier', 'gpt-4o'],
+              ['API Key', 'Your provider API key', 'sk-...'],
+              ['Agent name', 'Display name for the agent', 'Kero Assistant'],
+              ['Agent description', 'What this agent does', 'Customer support agent'],
+              ['WhatsApp mode', 'Connection type', 'qr (default)'],
+            ]
+          ),
+          CL('info', 'The wizard creates `openclaw.json` at the project root. You can edit it manually at any time — Module 01 covers every field in detail.'),
+        ]
       },
       {
-        title: 'Modelo de IA',
-        subtitle: 'API key + elección del modelo',
-        content: 'OpenClaw es agnóstico de modelo. Podés conectarlo con OpenRouter (recomendado para empezar), OpenAI, Anthropic, o Ollama para modelos locales.\n\nDurante el `openclaw onboard`, te va a pedir tu API key. OpenRouter es ideal para comenzar porque te da acceso a múltiples modelos con una sola key.',
-        code: 'OPENROUTER_API_KEY=sk-or-v1-...\nModel: openai/gpt-4o-mini  ← económico para empezar',
-        callout: { type: 'info', title: 'Regla de oro del modelo', text: 'Empezá con un modelo económico. Migrá a modelos más potentes cuando entiendas qué tareas realmente necesitan más capacidad.' },
+        title: 'Model Configuration',
+        blocks: [
+          T('OpenClaw supports multiple LLM providers through a unified adapter layer. You configure the model once in `openclaw.json` and the system handles the rest.'),
+          TBL(
+            ['Provider', 'auth.provider value', 'Example model', 'Notes'],
+            [
+              ['OpenAI', 'openai', 'gpt-4o', 'Recommended for production'],
+              ['Anthropic', 'anthropic', 'claude-3-5-sonnet-20241022', 'Best instruction-following'],
+              ['Google', 'gemini', 'gemini-1.5-pro', 'Good for high-volume'],
+              ['Ollama (local)', 'ollama', 'llama3.2', 'No API key needed, runs offline'],
+              ['Custom OpenAI-compatible', 'openai', 'any', 'Set `baseUrl` to your endpoint'],
+            ]
+          ),
+          C(`// openclaw.json — auth section\n{\n  "auth": {\n    "provider": "openai",\n    "model": "gpt-4o",\n    "apiKey": "sk-your-key-here"\n  }\n}`, 'json', 'openclaw.json'),
+          CL('tip', 'For local Ollama, set `"apiKey": ""` (empty string) and `"baseUrl": "http://localhost:11434"`. No cloud costs, full privacy.'),
+        ]
       },
       {
-        title: 'Conectar WhatsApp',
-        subtitle: 'QR + primer handshake',
-        content: 'OpenClaw se conecta a WhatsApp vía Baileys. El proceso es el mismo que vincular WhatsApp Web: escaneás un código QR con tu teléfono.\n\nUna vez conectado, el agente aparece como un contacto más en tu WhatsApp.',
-        code: '$ openclaw start\n→ Abre el QR en pantalla\n→ WhatsApp > Dispositivos vinculados > Vincular dispositivo\n→ Escaneá el QR',
-        callout: { type: 'warning', title: 'Usá un número dedicado', text: 'Recomendado usar una SIM separada para el agente, no tu número personal. Esto evita confusiones y es más seguro.' },
+        title: 'WhatsApp Connection',
+        blocks: [
+          T('OpenClaw uses WhatsApp Web under the hood via the `@whiskeysockets/baileys` library. The first connection requires scanning a QR code — after that, the session is stored locally and reconnects automatically.'),
+          H('Start the server', 3),
+          C(`npm start`, 'bash'),
+          T('On first launch, a QR code appears in your terminal. Open WhatsApp on your phone:'),
+          LI([
+            'Tap the three dots (⋮) in the top-right corner',
+            'Go to Linked Devices → Link a Device',
+            'Point your camera at the QR code in the terminal',
+            'Wait 3–5 seconds for the connection to confirm',
+          ]),
+          CL('warning', 'The QR code expires after about 60 seconds. If it expires before you scan, press Ctrl+C and restart with `npm start` to get a fresh code.'),
+          H('Session persistence', 3),
+          T('After the first scan, OpenClaw saves the session in the `auth_info_baileys/` folder inside your workspace. You never need to scan again unless you explicitly log out or delete this folder.'),
+          TBL(
+            ['File/Folder', 'What it does'],
+            [
+              ['auth_info_baileys/', 'Stores encrypted WhatsApp session credentials'],
+              ['creds.json', 'Main session file — do not share or commit to git'],
+              ['keys/*.json', 'Encryption keys for the session'],
+            ]
+          ),
+          CL('warning', 'Add `auth_info_baileys/` to your `.gitignore` immediately. These files contain your WhatsApp session — sharing them gives someone full access to your linked number.'),
+        ]
       },
       {
-        title: 'Verificación',
-        subtitle: 'openclaw doctor + primer chat',
-        content: 'Antes de empezar a configurar el workspace, verificá que todo esté funcionando. El comando `openclaw doctor` hace un diagnóstico completo del sistema.\n\nSi todo está verde, mandá un mensaje al agente en WhatsApp.',
-        code: '$ openclaw doctor\n✓ Node.js 22.x  ✓ Config válida\n✓ WhatsApp conectado  ✓ Modelo respondiendo\n\nMensaje de prueba: "Hola, ¿estás ahí?"',
-        callout: { type: 'tip', title: 'Checkpoint', text: 'Si recibís respuesta en WhatsApp, la instalación está completa. Todo lo que sigue es configuración del workspace.' },
-      },
+        title: 'Verification',
+        blocks: [
+          T('Once the server is running and WhatsApp is connected, verify everything works with a quick test.'),
+          H('Send a ping', 3),
+          T('Open WhatsApp on your phone and send the following message to yourself (to the number linked to OpenClaw):'),
+          C(`/ping`, 'text'),
+          T('The agent should reply: `pong` — this confirms the message pipeline is fully operational.'),
+          H('Check the server logs', 3),
+          C(`[OpenClaw] ✓ WA connected — +1234567890\n[OpenClaw] ✓ Agent "Kero Assistant" loaded\n[OpenClaw] ✓ Model: gpt-4o ready\n[OpenClaw] → Message received from +1234567890\n[OpenClaw] ← Sending response...`, 'text'),
+          TBL(
+            ['What you see', 'What it means'],
+            [
+              ['✓ WA connected', 'WhatsApp session active and receiving messages'],
+              ['✓ Agent loaded', 'Your agent configuration was parsed successfully'],
+              ['✓ Model ready', 'The LLM provider responded to a test ping'],
+              ['→ Message received', 'Incoming message from WhatsApp arrived'],
+              ['← Sending response', 'The agent generated a reply and is sending it'],
+            ]
+          ),
+          CL('tip', 'If you see an error about `DATABASE_URL`, that\'s for the optional logging feature. The core agent still works without it.'),
+        ]
+      }
     ],
     quiz: {
-      question: '¿Por qué la guía recomienda instalar OpenClaw en un VPS y no en tu computadora personal?',
+      question: 'After scanning the WhatsApp QR code for the first time, what folder stores the session so you never need to scan again?',
       options: [
-        'Para que corra 24/7 sin depender de que tu computadora esté encendida, y porque es software experimental que conviene aislar.',
-        'Porque OpenClaw solo funciona en Linux y la mayoría de computadoras personales usan Windows o Mac.',
-        'Porque la instalación ocupa demasiado espacio y no es compatible con menos de 32GB de RAM.',
+        { id: 'a', label: 'openclaw.json' },
+        { id: 'b', label: 'auth_info_baileys/' },
+        { id: 'c', label: 'workspace/' },
+        { id: 'd', label: '.env' },
       ],
-      correct: 0,
-    },
+      answer: 'b',
+      explanation: '`auth_info_baileys/` stores the encrypted session credentials. As long as this folder exists and is intact, OpenClaw reconnects to WhatsApp automatically on every restart — no QR scan needed.',
+    }
   },
+
+  // ── MODULE 01 ──────────────────────────────────────────────────────────────
   {
-    number: '01',
-    title: 'openclaw.json',
-    subtitle: 'El cerebro del sistema',
-    description: 'Si OpenClaw fuera un auto, openclaw.json sería el tablero de control: modelos, canales, agentes y límites. Todo pasa por acá antes de llegar al workspace.',
-    color: '#d97706',
-    group: 'Fundamentos',
+    id: 'mod-01', num: '01', title: 'The Config File', group: 'Fundamentals',
+    subtitle: 'Every field in openclaw.json explained, one by one',
     steps: [
       {
-        title: 'N1 — Funciona y ya',
-        subtitle: 'auth, agents, plugins, gateway',
-        content: 'El nivel N1 es la configuración mínima funcional. Con ella el agente responde mensajes y tiene las herramientas básicas habilitadas.\n\nEste archivo vive en `~/.openclaw/openclaw.json`, no en el workspace. Es la infraestructura, no la mente del agente.',
-        code: '{\n  "gateway": {\n    "bind": "localhost",\n    "port": 18789\n  },\n  "agents": [{\n    "name": "mi-agente",\n    "workspace": "~/.openclaw/workspace/"\n  }]\n}',
-        callout: { type: 'warning', title: 'Regla de oro', text: 'Cada vez que modificás openclaw.json, necesitás reiniciar OpenClaw. El agente no lo lee en caliente.' },
+        title: 'Structure Overview',
+        blocks: [
+          T('`openclaw.json` is the single source of truth for your entire OpenClaw installation. It lives at the root of the project and controls everything: which AI model to use, what agents exist, which plugins are enabled, how WhatsApp connects, and how sessions persist.'),
+          C(`{\n  "auth": { ... },\n  "agents": [ ... ],\n  "plugins": [ ... ],\n  "gateway": { ... },\n  "channels": { ... },\n  "session": { ... }\n}`, 'json', 'openclaw.json'),
+          TBL(
+            ['Top-level key', 'What it controls'],
+            [
+              ['auth', 'LLM provider, model name, and API credentials'],
+              ['agents', 'Array of agent definitions — each with its own identity and workspace'],
+              ['plugins', 'List of enabled plugins and their per-plugin configuration'],
+              ['gateway', 'How the HTTP API gateway behaves (port, auth, rate limits)'],
+              ['channels', 'Channel-specific config — WhatsApp, Telegram, REST, etc.'],
+              ['session', 'How conversation history is stored and retrieved'],
+            ]
+          ),
+          CL('info', 'Changes to `openclaw.json` require a server restart to take effect. A hot-reload feature is on the roadmap.'),
+        ]
       },
       {
-        title: 'N2 — Lo personalizo',
-        subtitle: 'channels, session, messages, tools',
-        content: 'En N2 controlás cómo el agente se comporta con distintos usuarios y canales. Podés definir quién tiene acceso y qué herramientas puede usar cada canal.\n\nEste es el nivel donde la mayoría de usuarios se quedan — es suficiente para el 90% de los casos de uso.',
-        code: '"channels": {\n  "whatsapp": {\n    "enabled": true,\n    "pairing": "strict",\n    "allowedNumbers": ["+5491..."]\n  }\n},\n"session": {\n  "maxHistory": 50\n}',
-        callout: { type: 'tip', title: 'Pairing strict', text: 'Con "strict", solo los números en allowedNumbers pueden hablar con el agente. Cualquier otro recibe silencio. Es la config más segura.' },
+        title: 'Auth Section',
+        blocks: [
+          T('The `auth` section defines your LLM connection. This is where you specify which AI brain your agents use.'),
+          C(`"auth": {\n  "provider": "openai",\n  "model": "gpt-4o",\n  "apiKey": "sk-...",\n  "baseUrl": "https://api.openai.com/v1",\n  "maxTokens": 4096,\n  "temperature": 0.7\n}`, 'json', 'openclaw.json › auth'),
+          TBL(
+            ['Field', 'Type', 'Required', 'Description'],
+            [
+              ['provider', 'string', '✓', 'LLM backend: `openai`, `anthropic`, `gemini`, `ollama`'],
+              ['model', 'string', '✓', 'Exact model identifier — must match the provider\'s naming convention'],
+              ['apiKey', 'string', '✓*', 'Your API key. For Ollama, use an empty string `""`'],
+              ['baseUrl', 'string', '—', 'Override the API endpoint. Useful for custom or local deployments'],
+              ['maxTokens', 'number', '—', 'Max tokens per response. Higher = longer answers, more cost'],
+              ['temperature', 'number', '—', 'Creativity/randomness 0.0–2.0. 0 = deterministic, 1.0 = balanced, 2.0 = very random'],
+            ]
+          ),
+          CL('tip', 'Set `temperature: 0.2` for customer support agents that need consistent, predictable answers. Use `0.8+` for creative writing assistants.'),
+          CL('warning', 'Never commit your `apiKey` to git. Use an environment variable instead: set `"apiKey": "$ENV:OPENAI_API_KEY"` and export the key in your shell or `.env` file.'),
+        ]
       },
       {
-        title: 'N3 — Lo potencio',
-        subtitle: 'skills, Whisper, browser',
-        content: 'N3 habilita las capacidades más poderosas: transcripción de audios (Whisper), navegación web, y skills específicos. Acá también configurás el routing — qué modelo usar para cada tipo de tarea.',
-        code: '"tools": {\n  "bash": true,\n  "browser": true,\n  "whisper": { "model": "base" }\n},\n"routing": {\n  "default": "openai/gpt-4o",\n  "light":   "openai/gpt-4o-mini"\n}',
-        callout: { type: 'warning', title: 'Habilitá de a una', text: 'No actives bash, browser y file_system al mismo tiempo desde el día uno. Habilitá una herramienta, probala, y recién avanzá a la siguiente.' },
+        title: 'Agents Section',
+        blocks: [
+          T('The `agents` array is where you define one or more agents. Each agent has its own identity, workspace, and behavior. Think of each agent as a different "employee" with a specific role.'),
+          C(`"agents": [\n  {\n    "id": "main",\n    "name": "Kero Assistant",\n    "description": "Main customer support agent",\n    "workspacePath": "./workspace",\n    "bootstrapMaxChars": 8000,\n    "language": "es"\n  }\n]`, 'json', 'openclaw.json › agents'),
+          TBL(
+            ['Field', 'Type', 'Description'],
+            [
+              ['id', 'string', 'Unique identifier for this agent. Used internally and in multi-agent routing'],
+              ['name', 'string', 'Display name shown in logs and optionally in the chat itself'],
+              ['description', 'string', 'What this agent does. Used for routing decisions in multi-agent setups'],
+              ['workspacePath', 'string', 'Path to the agent\'s workspace folder — where AGENTS.md, SOUL.md, MEMORY.md live'],
+              ['bootstrapMaxChars', 'number', 'Hard character limit for the system prompt. Prevents exceeding context window. Recommended: 6000–12000'],
+              ['language', 'string', 'Default response language (`en`, `es`, `pt`, etc.)'],
+            ]
+          ),
+          CL('info', 'You can have multiple entries in the `agents` array — one per specialized role. Module 06 covers multi-agent orchestration in depth.'),
+        ]
       },
       {
-        title: 'N4 — En producción',
-        subtitle: 'seguridad, costos, escalabilidad',
-        content: 'N4 es configuración para un agente ya estabilizado. Incluye límites de tokens por día, alertas de costo, sandboxing completo y configuración para múltiples agentes en paralelo.\n\nSi llegaste acá, ya conocés tu agente. Este nivel es sobre control y escala.',
-        code: '"limits": {\n  "dailyTokens": 500000,\n  "costAlertUSD": 5.0,\n  "sandbox": true\n},\n"multi": {\n  "agents": ["agente-trabajo", "agente-personal"]\n}',
-        callout: { type: 'info', title: 'N1 → N4 no es obligatorio', text: 'Mucha gente vive feliz en N2. Los niveles son una guía de qué configurar cuando necesitás más control, no un camino forzado.' },
+        title: 'Plugins Section',
+        blocks: [
+          T('Plugins extend what your agent can *do*. Without plugins, the agent can only generate text replies. With plugins, it can search the web, read files, call APIs, run code, and more.'),
+          C(`"plugins": [\n  {\n    "name": "web-search",\n    "enabled": true,\n    "config": {\n      "maxResults": 5\n    }\n  },\n  {\n    "name": "file-reader",\n    "enabled": true,\n    "config": {\n      "allowedExtensions": [".txt", ".md", ".pdf"]\n    }\n  }\n]`, 'json', 'openclaw.json › plugins'),
+          TBL(
+            ['Field', 'Type', 'Description'],
+            [
+              ['name', 'string', 'Plugin identifier — must match a plugin registered in the system'],
+              ['enabled', 'boolean', 'Quick toggle without deleting the config. Set `false` to disable without removing settings'],
+              ['config', 'object', 'Plugin-specific configuration. Each plugin documents its own available keys'],
+            ]
+          ),
+          CL('tip', 'Disable plugins you\'re not using. Each enabled plugin adds a tool description to the system prompt, which costs tokens and can confuse the model if there are too many options.'),
+        ]
       },
+      {
+        title: 'Gateway, Channels & Session',
+        blocks: [
+          T('The remaining three sections control the server infrastructure: how it exposes an API, which communication channels are active, and how conversation memory is stored.'),
+          H('Gateway', 3),
+          C(`"gateway": {\n  "port": 3000,\n  "authToken": "my-secret-token",\n  "rateLimit": {\n    "windowMs": 60000,\n    "max": 100\n  }\n}`, 'json', 'openclaw.json › gateway'),
+          TBL(
+            ['Field', 'Description'],
+            [
+              ['port', 'HTTP port for the REST API. Default: 3000'],
+              ['authToken', 'Bearer token required on all API requests. Leave empty to disable auth (not recommended for production)'],
+              ['rateLimit.windowMs', 'Time window in milliseconds for rate limiting. 60000 = 1 minute'],
+              ['rateLimit.max', 'Max requests per window per IP'],
+            ]
+          ),
+          H('Channels', 3),
+          C(`"channels": {\n  "whatsapp": {\n    "enabled": true,\n    "printQR": true,\n    "sessionPath": "./auth_info_baileys"\n  },\n  "rest": {\n    "enabled": false\n  }\n}`, 'json', 'openclaw.json › channels'),
+          TBL(
+            ['Field', 'Description'],
+            [
+              ['whatsapp.enabled', 'Whether to start the WhatsApp listener on boot'],
+              ['whatsapp.printQR', 'Print QR code to terminal on first connection (true) or save to a file (false)'],
+              ['whatsapp.sessionPath', 'Where to store the WhatsApp session files'],
+              ['rest.enabled', 'Expose a REST endpoint at `/api/message` for HTTP-based integrations'],
+            ]
+          ),
+          H('Session', 3),
+          C(`"session": {\n  "type": "file",\n  "maxHistory": 20,\n  "ttlSeconds": 3600\n}`, 'json', 'openclaw.json › session'),
+          TBL(
+            ['Field', 'Description'],
+            [
+              ['type', 'Storage backend: `file` (default, stores JSON on disk), `memory` (resets on restart), `redis` (requires Redis)'],
+              ['maxHistory', 'Number of past messages to include in each request context. Higher = better memory, more tokens used'],
+              ['ttlSeconds', 'Inactivity timeout in seconds before a session expires. 3600 = 1 hour'],
+            ]
+          ),
+          CL('tip', 'For production with high traffic, switch `type` to `"redis"` and set a short `ttlSeconds` (300–600). File-based sessions work great for single-instance personal bots.'),
+        ]
+      }
     ],
     quiz: {
-      question: '¿Qué tenés que hacer obligatoriamente cada vez que modificás openclaw.json?',
+      question: 'In `openclaw.json`, which field controls how many past messages are included in each request to the LLM?',
       options: [
-        'Reiniciar OpenClaw para que los cambios surtan efecto, porque el agente no lee el archivo en caliente.',
-        'Enviarle un mensaje al agente diciéndole "recargá tu configuración" para que actualice los parámetros.',
-        'Borrar los diarios de memoria del día actual para que el agente arranque con contexto limpio.',
+        { id: 'a', label: 'auth.maxTokens' },
+        { id: 'b', label: 'agents.bootstrapMaxChars' },
+        { id: 'c', label: 'session.maxHistory' },
+        { id: 'd', label: 'gateway.rateLimit.max' },
       ],
-      correct: 0,
-    },
+      answer: 'c',
+      explanation: '`session.maxHistory` controls how many previous messages from the conversation are included in each LLM request. More history = better context but more tokens consumed per message.',
+    }
   },
+
+  // ── MODULE 02 ──────────────────────────────────────────────────────────────
   {
-    number: '02',
-    title: 'Workspace',
-    subtitle: 'El hogar de tu agente',
-    description: 'El workspace es la carpeta donde vive la mente de tu agente. No es donde se instala OpenClaw, no es donde se guardan las contraseñas. Es donde están los archivos que definen quién es tu agente.',
-    color: '#0d9488',
-    group: 'Fundamentos',
+    id: 'mod-02', num: '02', title: 'Workspace Architecture', group: 'Fundamentals',
+    subtitle: 'The two-folder system, every file explained, and sandboxing modes',
     steps: [
       {
-        title: 'Las dos carpetas',
-        subtitle: 'La confusión más común en los primeros días',
-        content: 'Hay dos carpetas relacionadas con OpenClaw en tu sistema. Es crítico entender la diferencia porque editar algo en la carpeta equivocada no tiene efecto — o puede romper cosas.\n\n`~/.openclaw/` es la infraestructura: config técnica, credenciales OAuth, sesiones activas. `~/.openclaw/workspace/` es la mente: AGENTS.md, SOUL.md, memorias, skills personalizados.',
-        code: '~/.openclaw/          ← Infraestructura\n├── openclaw.json       ← Config técnica\n├── credentials/        ← OAuth tokens\n└── workspace/          ← La mente del agente\n    ├── AGENTS.md\n    ├── SOUL.md\n    └── memory/',
-        callout: { type: 'warning', title: 'Confusión frecuente', text: 'Muchos buscan SOUL.md en ~/.openclaw/ y no lo encuentran. Los archivos del agente están un nivel más adentro, en workspace/. Son carpetas hermanas en roles, no en ubicación.' },
+        title: 'The Two-Folder System',
+        blocks: [
+          T('OpenClaw keeps a strict separation between two directories. Understanding this distinction is fundamental — it prevents accidental overwrites and makes multi-agent setups possible.'),
+          TBL(
+            ['Folder', 'Purpose', 'Who writes to it', 'Contents'],
+            [
+              ['Project root (repo)', 'Engine code, config, and base logic', 'You (the developer)', '`openclaw.json`, `src/`, `node_modules/`, `package.json`'],
+              ['workspace/', 'Agent identity, memory, and working files', 'You AND the agent', 'AGENTS.md, SOUL.md, MEMORY.md, SKILLS/, scratch files'],
+            ]
+          ),
+          CL('info', 'The workspace is where the "personality" of your agent lives. You can have one workspace per agent, or share a workspace across agents that should have the same identity.'),
+          CL('tip', 'Treat the project root as read-only after deployment. All your customization work happens inside the workspace folder.'),
+        ]
       },
       {
-        title: 'Mapa completo de archivos',
-        subtitle: 'Qué hace cada uno y cuándo se carga',
-        content: 'El workspace tiene archivos con roles muy específicos. Conocer qué hace cada uno te evita poner cosas en el lugar equivocado y entender por qué el agente se comporta de cierta manera.',
-        code: 'workspace/\n├── AGENTS.md    ← Cómo opera (siempre)\n├── SOUL.md      ← Quién es (siempre)\n├── TOOLS.md     ← Guía de tools (siempre)\n├── USER.md      ← Quién sos vos (siempre)\n├── IDENTITY.md  ← Nombre del agente (siempre)\n├── MEMORY.md    ← Memoria curada (sesión privada)\n├── HEARTBEAT.md ← Tareas periódicas\n└── memory/      ← Diarios del día (automático)',
-        callout: { type: 'info', title: 'Definición oficial', text: '"The workspace is the agent\'s home. It is the only working directory used for file tools and workspace context. Keep it private and treat it as memory."' },
+        title: 'The Workspace File Map',
+        blocks: [
+          T('Every file inside the workspace has a specific role in the agent\'s behavior. Here is the complete map of what each file does:'),
+          C(`workspace/\n├── AGENTS.md          # Primary identity file — who the agent is\n├── SOUL.md            # Persistent values, brand voice, non-negotiables\n├── MEMORY.md          # Auto-updated conversation summaries\n├── CONTEXT.md         # Manual reference context (FAQs, product info)\n├── SKILLS/            # Folder of skill definitions\n│   ├── skill-one/\n│   │   └── SKILL.md\n│   └── skill-two/\n│       └── SKILL.md\n├── scratch/           # Agent working files (temp notes, drafts)\n└── exports/           # Files generated for users`, 'text'),
+          TBL(
+            ['File', 'Injected into prompt?', 'Who edits it', 'Description'],
+            [
+              ['AGENTS.md', '✓ Always (Layer 1)', 'You', 'Core identity: role, capabilities, tone, rules'],
+              ['SOUL.md', '✓ Always (Layer 2)', 'You', 'Values and brand voice that NEVER change regardless of user requests'],
+              ['MEMORY.md', '✓ Conditionally', 'Agent (auto-writes)', 'Summarized conversation history — updated automatically'],
+              ['CONTEXT.md', '✓ Conditionally', 'You', 'Static reference material: FAQs, pricing, policies — injected when relevant'],
+              ['SKILLS/*.md', '✓ When triggered', 'You', 'Step-by-step task procedures the agent follows exactly'],
+              ['scratch/', '✗ Never', 'Agent', 'Agent\'s working scratch pad — files here are tools, not prompt content'],
+              ['exports/', '✗ Never', 'Agent', 'Output destination for generated files (PDFs, reports, etc.)'],
+            ]
+          ),
+          CL('warning', 'Files in `scratch/` and `exports/` are never injected into the prompt. If you want something to influence the agent\'s behavior, it must live at the root of the workspace or in SKILLS/.'),
+        ]
       },
       {
-        title: 'Lo que NO va en el workspace',
-        subtitle: 'Credenciales, sesiones, skills globales',
-        content: 'Tan importante como saber qué va adentro es saber qué no va. El workspace está pensado para la identidad y memoria del agente — no para infraestructura técnica.\n\nPoner credenciales en AGENTS.md o SOUL.md es un error de seguridad. El workspace puede quedar expuesto si compartís el agente.',
-        callout: { type: 'warning', title: 'Nunca en el workspace', text: 'API keys, tokens OAuth, contraseñas, credenciales de base de datos. También: skills globales instalados, configuración de canales, sesiones activas. Todo eso vive en ~/.openclaw/.' },
+        title: 'Sandboxing Modes',
+        blocks: [
+          T('OpenClaw can restrict what the agent is allowed to do with the file system. This is controlled via the `sandboxing` field in the agent config.'),
+          TBL(
+            ['Mode', 'What the agent can do', 'When to use'],
+            [
+              ['none', 'Full file system access — read/write anywhere', 'Development and trusted personal use only'],
+              ['minimal', 'Can only read/write inside the workspace folder', 'Most production deployments — good balance'],
+              ['full', 'Read-only, no writes allowed, no external calls', 'High-security deployments or untrusted user inputs'],
+            ]
+          ),
+          C(`// In openclaw.json › agents\n{\n  "id": "main",\n  "workspacePath": "./workspace",\n  "sandboxing": "minimal"\n}`, 'json'),
+          CL('warning', 'Running with `"sandboxing": "none"` in production means the agent can potentially read any file on your server if a malicious prompt manipulates it. Always use `"minimal"` or `"full"` in production.'),
+          CL('tip', 'Start with `"minimal"`. Only downgrade to `"none"` if you have a specific use case that requires cross-directory access AND you fully trust the user inputs.'),
+        ]
       },
       {
-        title: 'Git backup y migración',
-        subtitle: 'Cómo proteger la mente de tu agente',
-        content: 'El workspace es lo más valioso que tenés en OpenClaw — meses de configuración, memoria acumulada, personalización. Perderlo significa empezar de cero.\n\nLa mejor práctica es tener el workspace bajo control de versiones con git, con un repo privado.',
-        code: 'cd ~/.openclaw/workspace\ngit init\ngit remote add origin git@github.com:usuario/mi-agente-privado.git\n\n# Para migrar a otra máquina:\ngit clone git@github.com:usuario/mi-agente-privado.git \\\n  ~/.openclaw/workspace',
-        callout: { type: 'tip', title: 'Repo privado siempre', text: 'El workspace contiene la personalidad de tu agente, tus preferencias, y potencialmente resúmenes de conversaciones privadas. Nunca lo publiques en un repo público.' },
-      },
+        title: 'Multi-Agent Configuration',
+        blocks: [
+          T('When you define multiple agents in the `agents` array, OpenClaw can route messages to different agents based on content, user identity, or explicit commands. Each agent must have a unique `id` and its own workspace path.'),
+          C(`"agents": [\n  {\n    "id": "support",\n    "name": "Support Agent",\n    "description": "Handles customer support, billing, and account questions",\n    "workspacePath": "./workspaces/support"\n  },\n  {\n    "id": "sales",\n    "name": "Sales Agent",\n    "description": "Handles product inquiries, pricing, and demos",\n    "workspacePath": "./workspaces/sales"\n  }\n]`, 'json', 'openclaw.json'),
+          T('The router uses the `description` field to decide which agent to invoke. It embeds the description of each agent and performs semantic matching against the incoming message.'),
+          C(`# Create separate workspace folders\nmkdir -p workspaces/support\nmkdir -p workspaces/sales\n\n# Each workspace needs at minimum AGENTS.md and SOUL.md\ntouch workspaces/support/AGENTS.md\ntouch workspaces/sales/AGENTS.md`, 'bash'),
+          CL('info', 'Each agent has completely isolated memory and identity. A conversation with the "support" agent never bleeds into the context of the "sales" agent — they are fully independent.'),
+        ]
+      }
     ],
     quiz: {
-      question: '¿Cuál es la diferencia clave entre ~/.openclaw/ y ~/.openclaw/workspace/?',
+      question: 'Which file in the workspace is auto-updated by the agent itself (not by you) to summarize conversation history?',
       options: [
-        '~/.openclaw/ es la infraestructura técnica (config, credenciales) y workspace/ es la mente del agente (SOUL.md, AGENTS.md, memorias).',
-        'Son la misma carpeta — workspace/ es solo un alias que OpenClaw crea por compatibilidad.',
-        'workspace/ es para archivos temporales que se borran automáticamente al reiniciar el servidor.',
+        { id: 'a', label: 'AGENTS.md' },
+        { id: 'b', label: 'SOUL.md' },
+        { id: 'c', label: 'CONTEXT.md' },
+        { id: 'd', label: 'MEMORY.md' },
       ],
-      correct: 0,
-    },
+      answer: 'd',
+      explanation: 'MEMORY.md is the only file in the workspace that the agent writes to automatically. It contains compressed summaries of past conversations, allowing the agent to "remember" without blowing up the context window.',
+    }
   },
+
+  // ── MODULE 03 ──────────────────────────────────────────────────────────────
   {
-    number: '03',
-    title: 'AGENTS.md',
-    subtitle: 'El manual de operaciones de tu agente',
-    description: 'AGENTS.md define cómo opera tu agente: rutinas de inicio, protocolos de seguridad, reglas de comportamiento y el orden en que prioriza las instrucciones.',
-    color: '#1d4ed8',
-    group: 'Arquitectura del agente',
+    id: 'mod-03', num: '03', title: 'The Identity Stack', group: 'Architecture',
+    subtitle: 'How the system prompt is assembled from 12 injection layers',
     steps: [
       {
-        title: 'El ciclo de bootstrap',
-        subtitle: 'Qué pasa antes de que el agente procese tu mensaje',
-        content: 'Antes de hablar de AGENTS.md, hay que entender cómo OpenClaw construye el contexto del agente. Cada vez que llega un mensaje, el sistema no simplemente envía ese mensaje al modelo — arma un bloque de instrucciones completo desde cero.',
-        code: '1. Lee los archivos del workspace activo\n2. Los concatena en el orden fijo del stack\n3. Los inyecta como system prompt\n4. Agrega el historial de conversación\n5. Agrega tu mensaje\n6. Envía todo al modelo y espera respuesta',
-        callout: { type: 'info', title: 'Los archivos no son memoria persistente', text: 'Son instrucciones que se reinyectan frescas en cada arranque. El agente no "recuerda" — lee sus archivos como si fuera la primera vez en cada sesión.' },
+        title: 'The Bootstrap Cycle',
+        blocks: [
+          T('Every time OpenClaw starts (or reinitializes an agent), it runs through a 5-step bootstrap cycle to build the complete agent runtime from scratch.'),
+          TBL(
+            ['Step', 'Name', 'What happens'],
+            [
+              ['1', 'Load Config', 'Reads `openclaw.json` and validates all fields'],
+              ['2', 'Load Identity', 'Reads AGENTS.md and SOUL.md from the workspace path'],
+              ['3', 'Load Memory', 'Reads MEMORY.md and compresses if over `bootstrapMaxChars` limit'],
+              ['4', 'Load Skills', 'Scans SKILLS/ folder, reads each SKILL.md, applies gating rules'],
+              ['5', 'Assemble Prompt', 'Concatenates all layers in order into the final system prompt'],
+            ]
+          ),
+          T('The assembled system prompt is cached in memory. It is rebuilt only when the agent is explicitly refreshed or the server restarts.'),
+          CL('info', 'The `bootstrapMaxChars` setting acts as a safety valve — if the assembled system prompt exceeds this character count, the lowest-priority layers (memory, context) are trimmed first. Protected layers are never touched.'),
+        ]
       },
       {
-        title: 'Stack de inyección — las 12 capas',
-        subtitle: 'Orden y peso de cada archivo',
-        content: 'El system prompt no es una mezcla aleatoria. Los archivos se insertan en un orden específico que determina cuáles tienen más peso. Las capas de arriba son más autoritativas.\n\nAGENTS.md está en la posición 3 — después de Tooling y Safety (no modificables), y antes de SOUL.md. Las reglas operativas de AGENTS.md tienen más peso que la personalidad.',
-        code: '#1  Tooling       ← Herramientas habilitadas (~450 tokens)\n#2  Safety        ← Reglas del sistema, no modificable (~80)\n#3  AGENTS.md     ← Tu manual de operaciones ← ACÁ\n#4  SOUL.md       ← Personalidad del agente\n#5  USER.md       ← Información sobre vos\n#6  IDENTITY.md   ← Nombre y presentación\n...\n#12 Mensaje       ← Tu mensaje del momento',
-        callout: { type: 'tip', title: 'Por qué importa el orden', text: 'Si hay conflicto entre AGENTS.md y SOUL.md, gana AGENTS.md. El manual de operaciones tiene más peso que la personalidad.' },
+        title: 'The 12 Injection Layers',
+        blocks: [
+          T('The final system prompt is not a single document — it\'s a carefully ordered stack of 12 layers, each contributing specific content. The order matters: earlier layers have higher priority and are never trimmed.'),
+          TBL(
+            ['Layer', 'Source', 'Approx. tokens', 'Can be trimmed?'],
+            [
+              ['1', 'Core engine instructions (hardcoded)', '~200', '✗ Never'],
+              ['2', 'SOUL.md — brand values', '~300–600', '✗ Never'],
+              ['3', 'AGENTS.md — role definition', '~500–1500', '✗ Never'],
+              ['4', 'Channel context (WhatsApp-specific rules)', '~100', '✗ Never'],
+              ['5', 'Active plugins tool descriptions', '~50–200 per plugin', 'Partially'],
+              ['6', 'Current date/time injection', '~20', '✗ Never'],
+              ['7', 'Active skill procedures (triggered)', '~200–800', 'Yes'],
+              ['8', 'CONTEXT.md (when relevant)', '~200–2000', 'Yes'],
+              ['9', 'MEMORY.md summary (long-term)', '~200–600', 'Yes'],
+              ['10', 'Recent conversation history', '~variable', 'Yes (maxHistory)'],
+              ['11', 'Pre-message hook output', '~variable', 'Yes'],
+              ['12', 'User\'s incoming message', 'Varies', '✗ Never'],
+            ]
+          ),
+          CL('warning', 'Layers 1–4 are protected and never trimmed regardless of `bootstrapMaxChars`. This ensures the agent never "forgets" its core identity even in very long conversations.'),
+          CL('tip', 'If your agent seems to "forget" instructions mid-conversation, the most likely cause is that MEMORY.md or CONTEXT.md is being trimmed due to a tight `bootstrapMaxChars`. Increase the limit or trim those files.'),
+        ]
       },
       {
-        title: 'Anatomía de AGENTS.md',
-        subtitle: 'Qué pertenece aquí',
-        content: 'AGENTS.md está pensado para instrucciones operativas: qué hacer al inicio de sesión, cómo manejar pedidos ambiguos, cuándo pedir permiso antes de actuar.\n\nNo va la personalidad (eso es SOUL.md). No van las tools disponibles (eso es TOOLS.md). AGENTS.md es el manual de procesos.',
-        code: '# AGENTS.md\n\n## Al iniciar sesión\n- Leer MEMORY.md si es sesión privada\n- Saludar brevemente, no hacer resumen largo\n\n## Antes de ejecutar código\n- Confirmar siempre con el usuario\n- Mostrar el comando antes de correrlo\n\n## Gestión de memoria\n- Al cerrar sesión: flush a memory/HOY.md',
-        callout: { type: 'info', title: 'La regla de distinción', text: 'Preguntate: "¿esto describe cómo opera el agente o quién es?" Si describe operaciones → AGENTS.md. Si describe personalidad → SOUL.md.' },
+        title: 'AGENTS.md vs SOUL.md',
+        blocks: [
+          T('Both files define who the agent is, but they serve different purposes. Understanding the distinction helps you write better, more effective agent identities.'),
+          TBL(
+            ['Aspect', 'AGENTS.md', 'SOUL.md'],
+            [
+              ['Purpose', 'Role, capabilities, and operational instructions', 'Core values, brand voice, and non-negotiable principles'],
+              ['Tone', 'Functional and descriptive', 'Philosophical and declarative'],
+              ['Changes?', 'Evolves as the agent\'s role changes', 'Rarely changes — only when brand/values shift'],
+              ['Overridable?', 'Partially — user context can expand role', 'No — values persist regardless of any user instruction'],
+              ['Typical length', '500–1500 chars', '300–600 chars'],
+              ['Contains', 'What the agent does, how it formats responses, what tools it uses', 'What the agent believes, how it treats people, what it refuses to do'],
+            ]
+          ),
+          H('Example: SOUL.md', 3),
+          C(`# Soul\n\nI am Kero, a product design assistant.\n\nMy values:\n- I am always honest, even when the truth is uncomfortable\n- I never pretend to know something I don't\n- I respect the user's time: I am concise and direct\n- I never impersonate a human or deny being an AI\n- I do not engage with harmful, illegal, or deceptive requests`, 'markdown', 'workspace/SOUL.md'),
+          H('Example: AGENTS.md', 3),
+          C(`# Role\nYou are Kero, a product design consultant specializing in UX and strategy.\n\n# Capabilities\n- Review and critique design decisions\n- Suggest UX improvements with concrete examples\n- Draft product specs and user stories\n\n# Response format\n- Always be concise — no padding, no filler\n- Use markdown formatting when helpful\n- If unsure, say so and offer to research further`, 'markdown', 'workspace/AGENTS.md'),
+        ]
       },
       {
-        title: 'Correlaciones con otros archivos',
-        subtitle: 'Responsabilidades claras por archivo',
-        content: 'AGENTS.md trabaja en conjunto con los otros archivos del workspace. Cada archivo tiene una responsabilidad única y clara. El overlap genera conflictos que el modelo resuelve de forma impredecible.',
-        callout: { type: 'info', title: 'Responsabilidades únicas', text: 'AGENTS.md = cómo OPERA. SOUL.md = quién ES. TOOLS.md = qué HERRAMIENTAS. USER.md = quién ERES VOS. MEMORY.md = qué RECUERDA. Cada archivo tiene una sola responsabilidad.' },
-      },
+        title: 'AGENTS.md Anatomy Sections',
+        blocks: [
+          T('A well-structured AGENTS.md follows a specific anatomy. Each section serves a purpose — think of it as a job description written for an AI. The **2KB Rule of Thumb**: keep AGENTS.md under 2000 characters for optimal performance without trimming.'),
+          TBL(
+            ['Section heading', 'What to write here', 'Max size'],
+            [
+              ['# Role', 'One sentence defining who the agent is and their primary function', '50–100 chars'],
+              ['# Context', 'Background the agent needs: company info, product context, audience', '200–400 chars'],
+              ['# Capabilities', 'Bulleted list of what this agent CAN do', '200–500 chars'],
+              ['# Limitations', 'What this agent CANNOT or SHOULD NOT do', '100–200 chars'],
+              ['# Response Format', 'How to structure replies: length, language, markdown use, tone', '100–300 chars'],
+              ['# Examples (optional)', 'Sample Q&A pairs showing desired behavior', '200–400 chars'],
+            ]
+          ),
+          CL('tip', 'The "# Limitations" section is often the most powerful. A clear list of things the agent should NOT do (e.g., "never discuss competitor products") is more reliable than trying to describe everything it should do.'),
+          CL('info', 'Sections are parsed by their heading names. You can add custom sections, but the standard ones (Role, Context, Capabilities, etc.) are recognized and given slight priority weighting by the engine.'),
+        ]
+      }
     ],
     quiz: {
-      question: 'En el ciclo de bootstrap, ¿qué ocurre ANTES de que el agente procese tu mensaje?',
+      question: 'Which two layers of the injection stack are NEVER trimmed, no matter how long the system prompt gets?',
       options: [
-        'OpenClaw lee los archivos del workspace, los concatena en el stack de inyección y los envía como system prompt al modelo.',
-        'El agente busca en internet información actualizada sobre el tema antes de formular su respuesta.',
-        'El modelo recupera automáticamente el historial completo de todas las conversaciones anteriores.',
+        { id: 'a', label: 'MEMORY.md and CONTEXT.md' },
+        { id: 'b', label: 'SOUL.md (Layer 2) and AGENTS.md (Layer 3)' },
+        { id: 'c', label: 'Plugin descriptions and Skills' },
+        { id: 'd', label: 'Conversation history and the user\'s message' },
       ],
-      correct: 0,
-    },
+      answer: 'b',
+      explanation: 'SOUL.md (Layer 2) and AGENTS.md (Layer 3) are protected layers — they are never trimmed regardless of the `bootstrapMaxChars` limit. This guarantees the agent always retains its core identity and role definition.',
+    }
   },
+
+  // ── MODULE 04 ──────────────────────────────────────────────────────────────
   {
-    number: '04',
-    title: 'SOUL.md',
-    subtitle: 'El alma de tu agente',
-    description: 'SOUL.md es el archivo donde definís quién es tu agente: su nombre, su tono, sus valores, sus límites y cómo se presenta ante el mundo.',
-    color: '#db2777',
-    group: 'Arquitectura del agente',
+    id: 'mod-04', num: '04', title: 'Conversation Flow', group: 'Architecture',
+    subtitle: 'How a message travels from WhatsApp to AI response and back',
     steps: [
       {
-        title: 'Qué hace SOUL.md',
-        subtitle: 'La distinción fundamental',
-        content: 'SOUL.md es el archivo donde definís quién es tu agente: su nombre, su tono, sus valores y sus límites. OpenClaw lo lee en cada sesión y lo inyecta en el system prompt después de AGENTS.md.\n\nLa analogía exacta: SOUL.md es la cultura de la empresa. AGENTS.md es el manual de procesos.',
-        callout: { type: 'info', title: 'La distinción fundamental', text: 'AGENTS.md = cómo OPERA tu agente (rutinas, herramientas, protocolos). SOUL.md = quién ES tu agente (personalidad, tono, valores, límites).' },
+        title: 'The Message Lifecycle',
+        blocks: [
+          T('Every incoming message passes through a deterministic pipeline before the agent generates a response. Understanding this pipeline helps you debug issues and optimize latency.'),
+          TBL(
+            ['Stage', 'Name', 'What happens'],
+            [
+              ['1', 'Receive', 'Channel listener (WhatsApp/REST) receives raw message'],
+              ['2', 'Parse', 'Extract sender ID, content, media type, timestamp'],
+              ['3', 'Route', 'Determine which agent handles this sender/conversation'],
+              ['4', 'Pre-hook', 'Run pre-message hooks (logging, filtering, enrichment)'],
+              ['5', 'Context build', 'Assemble conversation history + system prompt'],
+              ['6', 'LLM call', 'Send to AI provider, await response'],
+              ['7', 'Post-hook', 'Run post-message hooks (moderation, audit log)'],
+              ['8', 'Send', 'Deliver response back via the originating channel'],
+            ]
+          ),
+          CL('info', 'Stages 4 and 7 (pre/post hooks) are where you can inject custom middleware — rate limiting, content moderation, A/B testing, analytics, etc.'),
+        ]
       },
       {
-        title: 'Sin SOUL.md vs con él',
-        subtitle: 'Lo que se pierde sin el archivo',
-        content: 'El agente no falla si no tenés SOUL.md. OpenClaw inyecta un marcador y el modelo continúa como un LLM genérico. Lo que se pierde es la identidad — y con ella, la consistencia y la confianza.\n\nCon SOUL.md, cada respuesta tiene el mismo tono. Sin él, el modelo infiere el tono según el contexto del momento.',
-        code: '# Sin SOUL.md:\nInyecta: [SOUL.md: missing]\nResultado: personalidad genérica del modelo base\nProblema: tono inconsistente entre sesiones\n\n# Con SOUL.md:\nLee el archivo completo\nResultado: personalidad específica que definiste\nBeneficio: mismo tono y valores en cada respuesta',
-        callout: { type: 'tip', title: 'SOUL.md es un archivo vivo', text: 'A diferencia de configs estáticas, SOUL.md puede evolucionar. Tu agente puede modificar su propio SOUL.md si le das permiso — aprendiendo qué funciona con el tiempo.' },
+        title: 'Context Assembly',
+        blocks: [
+          T('Before calling the LLM, OpenClaw assembles a "context packet" — the full input the model will see. This packet determines the quality and relevance of the response.'),
+          C(`// Simplified context packet structure\n{\n  "system": "<assembled 12-layer prompt>",\n  "messages": [\n    { "role": "user",      "content": "Message from 3 exchanges ago" },\n    { "role": "assistant", "content": "Agent reply 3 exchanges ago" },\n    // ... up to session.maxHistory entries\n    { "role": "user",      "content": "Current message" }\n  ]\n}`, 'json'),
+          T('The `session.maxHistory` setting directly controls how many `{role, content}` pairs appear in the messages array.'),
+          TBL(
+            ['maxHistory value', 'Messages remembered', 'Token impact', 'Best for'],
+            [
+              ['5', 'Last ~2–3 exchanges', 'Low (~500 tokens)', 'Simple FAQs, one-shot tasks'],
+              ['10', 'Last ~5 exchanges', 'Medium (~1000 tokens)', 'Most use cases — good default'],
+              ['20', 'Last ~10 exchanges', 'High (~2000 tokens)', 'Long negotiations, complex tasks'],
+              ['50', 'Last ~25 exchanges', 'Very high', 'Only with models with large context windows'],
+            ]
+          ),
+        ]
       },
       {
-        title: 'Estructura del archivo',
-        subtitle: 'Qué incluir y en qué orden',
-        content: 'SOUL.md no tiene un formato obligatorio, pero la comunidad convergió en una estructura que funciona bien. Las secciones más importantes son la prime directive, los valores core, el estilo de comunicación, y los límites.',
-        code: '# SOUL.md\n\n## Prime Directive\nSoy [nombre], el agente personal de [usuario].\nMi propósito es [objetivo central].\n\n## Valores core\n- Claridad sobre exhaustividad\n- Honestidad sobre complacencia\n\n## Estilo de comunicación\n- Respuestas cortas por defecto\n- Bullets solo si hay 3+ items\n\n## Límites\n- No ejecutar código sin confirmación',
-        callout: { type: 'info', title: 'Estilo por canal', text: 'Podés definir estilos distintos según el canal. WhatsApp: casual y conciso. Email: formal. Slack: técnico. El agente adapta el tono según de dónde llega el mensaje.' },
+        title: 'Response Streaming',
+        blocks: [
+          T('OpenClaw supports both streaming and non-streaming response modes. Streaming sends words to WhatsApp as the AI generates them — non-streaming waits for the full response before sending.'),
+          TBL(
+            ['Mode', 'WhatsApp experience', 'Latency', 'When to use'],
+            [
+              ['Streaming (default)', 'User sees "typing..." then progressive text delivery', 'Feels faster', 'All conversational use cases'],
+              ['Non-streaming', 'Silence, then full message appears instantly', 'Feels slower', 'When you need the full response before post-processing'],
+            ]
+          ),
+          C(`// Toggle in openclaw.json › channels\n"channels": {\n  "whatsapp": {\n    "streaming": true  // set false to disable\n  }\n}`, 'json'),
+          CL('tip', 'WhatsApp\'s "typing..." indicator appears automatically when streaming is on, making the interaction feel natural and human-like. Keep streaming enabled for chat-style bots.'),
+        ]
       },
       {
-        title: 'Cómo crear el tuyo',
-        subtitle: 'El método más efectivo',
-        content: 'La forma más efectiva de escribir SOUL.md no es empezar de cero — es conversar con el agente. Describile cómo querés que se comporte, pedile que proponga un SOUL.md inicial, y refinalo en iteraciones.\n\nEmpezá simple. Un SOUL.md de 20 líneas bien escrito supera a uno de 200 líneas contradictorio.',
-        callout: { type: 'tip', title: 'El método más efectivo', text: 'Escribile al agente: "Quiero definir tu personalidad. Te voy a describir cómo quiero que te comportes, y vos me proponés un SOUL.md." La conversación generará algo mejor que lo que podrías escribir directamente.' },
-      },
+        title: 'Error Handling',
+        blocks: [
+          T('When something goes wrong in the pipeline, OpenClaw\'s error handling ensures the user always gets a response (even if it\'s an error message) and the failure is logged.'),
+          TBL(
+            ['Error type', 'Default behavior', 'User receives'],
+            [
+              ['LLM API timeout', 'Retry once, then fallback', '"I\'m having trouble connecting. Please try again."'],
+              ['LLM API rate limit', 'Queue with backoff', 'Response delayed, then sent normally'],
+              ['Invalid config', 'Server refuses to start', 'Error printed to terminal — fix before starting'],
+              ['WhatsApp disconnect', 'Auto-reconnect in 5s', 'No message to user — transparent reconnect'],
+              ['Plugin failure', 'Skip plugin, continue without it', 'Agent responds without plugin data (degraded mode)'],
+            ]
+          ),
+          CL('warning', 'LLM API errors are often caused by expired keys or exceeded quota. Check your API provider dashboard if you see repeated timeout errors.'),
+        ]
+      }
     ],
     quiz: {
-      question: 'AGENTS.md y SOUL.md tienen roles distintos. ¿Cuál describe correctamente la diferencia?',
+      question: 'In the message pipeline, at which stage does OpenClaw call the AI (LLM) provider?',
       options: [
-        'AGENTS.md = cómo OPERA el agente (rutinas, protocolos). SOUL.md = quién ES el agente (personalidad, valores, tono).',
-        'SOUL.md controla las herramientas técnicas habilitadas y AGENTS.md controla la personalidad y el tono.',
-        'Son archivos redundantes — OpenClaw usa el que encuentra primero y descarta el otro.',
+        { id: 'a', label: 'Stage 2 — Parse' },
+        { id: 'b', label: 'Stage 4 — Pre-hook' },
+        { id: 'c', label: 'Stage 6 — LLM call' },
+        { id: 'd', label: 'Stage 8 — Send' },
       ],
-      correct: 0,
-    },
+      answer: 'c',
+      explanation: 'The LLM call happens at Stage 6, after the context has been fully assembled. Stages 1–5 are preparation (receive, parse, route, hooks, context build), and Stages 7–8 are delivery (post-hook, send).',
+    }
   },
+
+  // ── MODULE 05 ──────────────────────────────────────────────────────────────
   {
-    number: '05',
-    title: 'TOOLS.md',
-    subtitle: 'Las manos del agente',
-    description: 'TOOLS.md le explica al agente los detalles de tu entorno: qué skills tenés activos, qué convenciones usás, cómo querés que use cada herramienta en tu contexto.',
-    color: '#0ea5e9',
-    group: 'Arquitectura del agente',
+    id: 'mod-05', num: '05', title: 'Plugins', group: 'Architecture',
+    subtitle: 'Extending your agent with tools that go beyond text generation',
     steps: [
       {
-        title: 'Qué es TOOLS.md (y qué NO)',
-        subtitle: 'El error más común',
-        content: 'TOOLS.md es pura guía en lenguaje natural — notas para el agente sobre cómo usar las herramientas en tu contexto específico. No tiene lógica técnica, no ejecuta nada, y no reemplaza la configuración de openclaw.json.',
-        callout: { type: 'warning', title: 'TOOLS.md NO activa ni desactiva herramientas', text: 'Las herramientas reales del sistema (leer archivos, ejecutar comandos, buscar en la web) se configuran en openclaw.json, no acá. TOOLS.md es solo guía contextual.' },
+        title: 'What Are Plugins',
+        blocks: [
+          T('Without plugins, your agent is limited to generating text based on what it was trained on. Plugins give the agent the ability to *act* — fetch live data, read files, call APIs, execute code, and interact with external services.'),
+          T('Under the hood, plugins are implemented as LLM "tools" or "function calls" — the model can request to use a plugin mid-response, OpenClaw executes it, and the result is fed back to the model to complete the response.'),
+          TBL(
+            ['Plugin type', 'What it enables', 'Examples'],
+            [
+              ['Data retrieval', 'Fetch real-time or external information', 'web-search, weather, database-query'],
+              ['File operations', 'Read and write files in the workspace', 'file-reader, file-writer, pdf-parser'],
+              ['External APIs', 'Call third-party services', 'calendar, crm, webhook'],
+              ['Computation', 'Run code or math', 'code-executor, calculator'],
+              ['Communication', 'Send messages to other channels', 'email-sender, slack-notifier'],
+            ]
+          ),
+          CL('info', 'The agent decides on its own when to invoke a plugin. You don\'t need to explicitly tell it "use the web search plugin" — if a plugin is enabled and the query warrants it, the model will use it.'),
+        ]
       },
       {
-        title: 'Tools vs Skills',
-        subtitle: 'La distinción más importante del módulo',
-        content: 'OpenClaw separa dos conceptos que parecen lo mismo pero son completamente distintos.\n\nUna herramienta (tool) es una capacidad técnica: ejecutar comandos, leer email, abrir el browser.\n\nUn skill es un manual que le dice al agente cómo y cuándo usar esas herramientas para un workflow específico.',
-        code: '# Herramienta (tool): capacidad técnica\nBash    → ejecutar comandos\nGmail   → leer emails\nBrowser → navegar webs\n\n# Skill: manual de uso\nskill "weekly-report" → combina\n  Gmail + Calendar + Bash\n  para armar el reporte semanal',
-        callout: { type: 'tip', title: 'La analogía exacta', text: 'Tener la herramienta Bash es como tener Python instalado. Tener un skill es como tener el script que sabe qué comandos correr, en qué orden, y qué hacer si algo falla.' },
+        title: 'Built-in Plugins',
+        blocks: [
+          T('OpenClaw ships with a set of first-party plugins ready to enable.'),
+          TBL(
+            ['Plugin name', 'Description', 'Key config options'],
+            [
+              ['web-search', 'Search the web using Brave or Google Search API', 'apiKey, maxResults, safeSearch'],
+              ['file-reader', 'Read files from the workspace', 'allowedExtensions, maxFileSizeKB'],
+              ['file-writer', 'Create or overwrite files in the workspace', 'allowedPaths, maxFileSizeKB'],
+              ['calculator', 'Evaluate mathematical expressions safely', 'precision'],
+              ['date-time', 'Get current date/time in any timezone', 'defaultTimezone'],
+              ['http-request', 'Make HTTP GET/POST requests to configured endpoints', 'allowedHosts, timeout'],
+              ['memory-writer', 'Explicitly update MEMORY.md mid-conversation', 'maxMemoryChars'],
+            ]
+          ),
+          C(`"plugins": [\n  {\n    "name": "web-search",\n    "enabled": true,\n    "config": {\n      "apiKey": "your-brave-api-key",\n      "maxResults": 3\n    }\n  },\n  {\n    "name": "calculator",\n    "enabled": true\n  }\n]`, 'json', 'openclaw.json › plugins'),
+        ]
       },
       {
-        title: 'Cómo escribir TOOLS.md',
-        subtitle: 'Estructura, ejemplos y plantillas',
-        content: 'TOOLS.md se escribe en Markdown libre. No hay formato obligatorio. Lo importante es que sea específico para tu entorno: nombres reales de servidores, convenciones de tu proyecto, preferencias de modelo por tarea.\n\nSe inyecta en la posición 5 del stack, después de AGENTS.md, SOUL.md, USER.md e IDENTITY.md.',
-        code: '# TOOLS.md\n\n## Servidores disponibles\n- prod.miservidor.com (SSH via ~/.ssh/id_prod)\n- staging.miservidor.com (SSH via ~/.ssh/id_staging)\n\n## Convenciones de código\n- Proyecto: ~/proyectos/backend/\n- Branch principal: main\n\n## Modelo preferido por tarea\n- Análisis de datos: gpt-4o\n- Borradores rápidos: gpt-4o-mini',
-        callout: { type: 'info', title: 'Su lugar en el stack', text: 'TOOLS.md se carga en posición 5. El agente ya sabe cómo operar, quién es, con quién habla y tiene nombre antes de leer TOOLS.md.' },
+        title: 'Security & Best Practices',
+        blocks: [
+          T('Poorly configured plugins are one of the most common sources of issues in OpenClaw deployments.'),
+          LI([
+            'Only enable plugins your agent actually needs — each one consumes tokens in the system prompt',
+            'Set tight `allowedPaths` for file plugins in production to prevent path traversal',
+            'For `http-request`, always whitelist `allowedHosts` — never allow arbitrary URLs in production',
+            'Set `maxResults: 3` or lower for web-search to reduce context bloat',
+            'Use `enabled: false` to temporarily disable a plugin without losing its configuration',
+          ]),
+          CL('warning', 'The `http-request` plugin with no `allowedHosts` restriction is a significant security risk. A carefully crafted user prompt could instruct the agent to exfiltrate data to an external server. Always restrict allowed hosts.'),
+        ]
       },
       {
-        title: 'Mejores prácticas',
-        subtitle: 'Qué poner, qué evitar',
-        content: 'Las mejores prácticas de TOOLS.md son simples: específico sobre genérico, contexto real sobre instrucciones genéricas, y separación clara de responsabilidades.\n\nLo que más valor agrega: nombres exactos de servidores, paths reales, convenciones del proyecto, y preferencias de modelo para distintas tareas.',
-        callout: { type: 'warning', title: 'Errores frecuentes', text: 'No poner: credenciales reales, rutas con datos sensibles, instrucciones de personalidad (eso va en SOUL.md), ni configuración técnica (eso va en openclaw.json).' },
-      },
+        title: 'Custom Plugins',
+        blocks: [
+          T('You can create custom plugins to integrate any service or logic into your agent. A plugin is a TypeScript module that exports a specific interface.'),
+          C(`// plugins/my-plugin.ts\nimport { Plugin, PluginContext } from 'openclaw';\n\nexport const myPlugin: Plugin = {\n  name: 'my-plugin',\n  description: 'What this plugin does — the agent reads this to know when to use it',\n  parameters: {\n    type: 'object',\n    properties: {\n      query: { type: 'string', description: 'The query to process' }\n    },\n    required: ['query']\n  },\n  execute: async (params: { query: string }, ctx: PluginContext) => {\n    const result = await myService.fetch(params.query);\n    return { result };\n  }\n};`, 'typescript', 'plugins/my-plugin.ts'),
+          CL('tip', 'The `description` field of a custom plugin is critical — it\'s what the LLM reads to decide when to invoke your plugin. Write it as a clear, one-sentence description of when the plugin is useful.'),
+        ]
+      }
     ],
     quiz: {
-      question: '¿Qué hace realmente TOOLS.md? Elegí la descripción correcta.',
+      question: 'What is the main security risk of enabling the `http-request` plugin without configuring `allowedHosts`?',
       options: [
-        'Es guía en lenguaje natural para el agente sobre su entorno. No activa ni desactiva herramientas — eso se hace en openclaw.json.',
-        'Es el archivo donde se habilitan o deshabilitan las herramientas del sistema como Bash, Gmail o el navegador web.',
-        'Es el archivo que conecta OpenClaw con APIs externas y define las credenciales de cada integración.',
+        { id: 'a', label: 'It uses too many tokens in the system prompt' },
+        { id: 'b', label: 'A crafted user prompt could make the agent send data to an external server' },
+        { id: 'c', label: 'The plugin will fail to load and the agent won\'t start' },
+        { id: 'd', label: 'The agent might call itself recursively' },
       ],
-      correct: 0,
-    },
+      answer: 'b',
+      explanation: 'Without `allowedHosts`, the `http-request` plugin can call any URL. A malicious user prompt could instruct the agent to POST sensitive conversation data to an attacker-controlled server. Always whitelist hosts in production.',
+    }
   },
+
+  // ── MODULE 06 ──────────────────────────────────────────────────────────────
   {
-    number: '06',
-    title: 'USER.md + IDENTITY.md',
-    subtitle: 'Quién sos vos y quién es él',
-    description: 'USER.md le dice al agente quién sos vos. IDENTITY.md define cómo se presenta el agente — su nombre, emoji, tagline. Son archivos complementarios con roles completamente distintos.',
-    color: '#7c3aed',
-    group: 'Arquitectura del agente',
+    id: 'mod-06', num: '06', title: 'Multi-Agent Systems', group: 'Architecture',
+    subtitle: 'Orchestrating multiple specialized agents that work together',
     steps: [
       {
-        title: 'USER.md — Quién sos vos',
-        subtitle: 'Contexto del usuario para el agente',
-        content: 'USER.md le dice al agente quién sos. Con esta información puede personalizar respuestas, respetar tu zona horaria para tareas programadas, adaptar el nivel técnico de sus explicaciones, y recordar tus proyectos activos sin que tengas que repetírselos.',
-        code: '# USER.md\n\n## Identidad\nNombre: Alan\nZona horaria: America/Buenos_Aires\nRol: Product Designer / Developer\n\n## Proyectos activos\n- Portfolio: github.com/usuario/portfolio\n- Cliente X: fase de rediseño UX\n\n## Preferencias\n- Idioma: español rioplatense\n- Respuestas: concisas, sin bullet spam\n- Código: TypeScript preferido',
-        callout: { type: 'tip', title: 'Qué incluir', text: 'Lo más valioso en USER.md: zona horaria exacta (para cron jobs), proyectos activos con contexto, preferencias de comunicación, y convenciones personales que usés constantemente.' },
+        title: 'Why Multiple Agents',
+        blocks: [
+          T('A single agent trying to do everything — customer support, sales, technical help — performs worse than multiple specialized agents, each with a focused identity and context.'),
+          TBL(
+            ['Single-agent approach', 'Multi-agent approach'],
+            [
+              ['One large AGENTS.md trying to cover all roles', 'Separate AGENTS.md per role, each concise and focused'],
+              ['Context gets diluted with irrelevant information', 'Each agent only sees context relevant to its specialty'],
+              ['Harder to maintain — one change can affect all behaviors', 'Independent workspaces — update one agent without affecting others'],
+              ['All conversations go to the same "personality"', 'Users get routed to the best-suited agent automatically'],
+            ]
+          ),
+          CL('tip', 'A good rule of thumb: if your AGENTS.md exceeds 2000 characters to cover everything the bot needs to do, you probably need multiple agents.'),
+        ]
       },
       {
-        title: 'IDENTITY.md — Quién es el agente',
-        subtitle: 'El nombre y presentación del agente',
-        content: 'IDENTITY.md define cómo se llama y presenta tu agente. Es un archivo simple pero que tiene impacto en cómo se siente interactuar con él.\n\nA diferencia de SOUL.md (que define quién es internamente), IDENTITY.md define cómo se presenta hacia afuera.',
-        code: '# IDENTITY.md\n\nNombre: Kero\nEmoji: 🦊\nTagline: "Tu agente en OpenAgent.lat"\n\n## Por canal\nWhatsApp: "Hola, soy Kero 🦊"\nTelegram: "@kero_bot — agente personal"\nEmail:    "Kero — Asistente de [Usuario]"\n\n## Tono de presentación\nCasual en mensajería directa\nFormal en respuestas a terceros',
-        callout: { type: 'info', title: 'Presentación vs identidad profunda', text: 'IDENTITY.md es la tarjeta de presentación. SOUL.md es la personalidad real. Son complementarios: IDENTITY.md dice cómo se llama, SOUL.md dice cómo piensa y actúa.' },
+        title: 'Routing Strategies',
+        blocks: [
+          T('OpenClaw offers three strategies for deciding which agent handles a given message.'),
+          TBL(
+            ['Strategy', 'How it works', 'Best for'],
+            [
+              ['Semantic routing (default)', 'LLM compares message against each agent\'s `description` and picks the closest match', 'General-purpose multi-agent setups'],
+              ['Rule-based routing', 'You define regex or keyword rules that map message patterns to agents', 'High-volume bots where LLM routing adds cost/latency'],
+              ['Explicit routing', 'Users type a command like `/support` or `/sales` to manually switch agents', 'Power users who know the agent structure'],
+            ]
+          ),
+          C(`// Rule-based routing example in openclaw.json\n"routing": {\n  "strategy": "rule-based",\n  "rules": [\n    { "pattern": "^/support", "agentId": "support" },\n    { "pattern": "^/sales",   "agentId": "sales" },\n    { "pattern": "precio|cotización", "agentId": "sales" },\n    { "default": "support" }\n  ]\n}`, 'json'),
+        ]
       },
       {
-        title: 'Cascada de resolución',
-        subtitle: 'Cuándo tiene prioridad cada archivo',
-        content: 'OpenClaw resuelve la identidad del agente en cascada: primero mira la config global (openclaw.json), luego la config del agente específico, y finalmente el IDENTITY.md del workspace.',
-        code: 'Orden de resolución:\n1. openclaw.json    → "name": "global-override"\n2. Agente específico → config del agente\n3. IDENTITY.md       ← la mayoría llega acá\n\nSi ninguno define el nombre:\n→ Se usa el nombre de la carpeta del workspace',
-        callout: { type: 'tip', title: 'Multi-agente', text: 'Si tenés múltiples agentes, podés tener un USER.md global compartido e IDENTITY.md distintos por agente. Mismo contexto de usuario, distintas presentaciones.' },
+        title: 'Agent Handoff',
+        blocks: [
+          T('When routing switches an ongoing conversation from one agent to another, a "handoff" occurs. By default, handoffs carry conversation history but not agent-specific memory.'),
+          TBL(
+            ['What carries over on handoff', 'What does NOT carry over'],
+            [
+              ['Last N messages (from session.maxHistory)', 'MEMORY.md of the previous agent'],
+              ['User\'s WhatsApp phone number / identity', 'Scratch files from the previous agent'],
+              ['Explicit context set by the user', 'Plugin state from the previous agent'],
+            ]
+          ),
+          CL('info', 'You can configure a "handoff context" — a summary injected into the new agent\'s context on arrival — to smooth transitions. Set this in `handoffContext.md` inside each agent\'s workspace.'),
+        ]
       },
       {
-        title: 'Cuándo NO cargarlos',
-        subtitle: 'Contextos de aislamiento',
-        content: 'USER.md y IDENTITY.md se cargan por defecto en sesiones privadas. Pero en grupos o agentes públicos puede ser problemático — la info personal no debería estar disponible para otros participantes del grupo.\n\nLa configuración de qué archivos cargar en qué contextos va en openclaw.json.',
-        callout: { type: 'warning', title: 'Cuidado en grupos', text: 'En grupos de WhatsApp o Telegram, USER.md se carga por defecto pero puede contener información personal que no querés compartir con otros. Configurá context_isolation en openclaw.json.' },
-      },
+        title: 'Shared Resources',
+        blocks: [
+          T('Multiple agents can share read-only resources — like a company FAQ document or a product catalog — without duplicating them across workspaces.'),
+          C(`"agents": [\n  {\n    "id": "support",\n    "workspacePath": "./workspaces/support",\n    "sharedContextPaths": [\n      "./shared/COMPANY_FAQ.md",\n      "./shared/PRODUCT_CATALOG.md"\n    ]\n  },\n  {\n    "id": "sales",\n    "workspacePath": "./workspaces/sales",\n    "sharedContextPaths": [\n      "./shared/PRODUCT_CATALOG.md"\n    ]\n  }\n]`, 'json'),
+          CL('tip', 'Shared context files are injected as Layer 8 (CONTEXT.md equivalent) and are subject to trimming. Keep them focused and under 1500 characters each for best results.'),
+        ]
+      }
     ],
     quiz: {
-      question: '¿Qué información va en USER.md versus IDENTITY.md?',
+      question: 'Which routing strategy avoids using the LLM to decide which agent to use, making it best for high-volume bots?',
       options: [
-        'USER.md = quién sos vos (nombre, zona horaria, proyectos). IDENTITY.md = cómo se presenta el agente (nombre, emoji, tagline).',
-        'USER.md es para el username técnico del sistema e IDENTITY.md para la contraseña de autenticación del agente.',
-        'Son el mismo archivo con diferentes nombres — solo se usa el que OpenClaw encuentra primero en el workspace.',
+        { id: 'a', label: 'Semantic routing' },
+        { id: 'b', label: 'Explicit routing' },
+        { id: 'c', label: 'Rule-based routing' },
+        { id: 'd', label: 'Probabilistic routing' },
       ],
-      correct: 0,
-    },
+      answer: 'c',
+      explanation: 'Rule-based routing uses regex/keyword patterns defined by you — no LLM call needed to decide the route. This makes it faster and cheaper for high-volume deployments where semantic intelligence in routing isn\'t necessary.',
+    }
   },
+
+  // ── MODULE 07 ──────────────────────────────────────────────────────────────
   {
-    number: '07',
-    title: 'MEMORY.md',
-    subtitle: 'El agente solo recuerda lo que está escrito en disco',
-    description: 'La memoria de OpenClaw no es mágica ni automática. El agente solo recuerda lo que en algún momento se escribió en un archivo Markdown.',
-    color: '#0f766e',
-    group: 'Sistema avanzado',
+    id: 'mod-07', num: '07', title: 'Memory & Context', group: 'Advanced',
+    subtitle: 'Managing what the agent remembers across conversations',
     steps: [
       {
-        title: 'El principio fundamental',
-        subtitle: 'Cada sesión arranca desde cero',
-        content: 'Antes de entender cómo funcionan los archivos, hay un concepto que lo cambia todo: el agente no recuerda nada que no esté escrito en disco.\n\nCada sesión arranca desde cero. El agente lee sus archivos de workspace y recién ahí "sabe" algo. Lo que pasó en conversaciones anteriores existe únicamente si en algún momento se escribió en un archivo Markdown.',
-        callout: { type: 'warning', title: 'No hay base de datos oculta', text: 'La memoria de OpenClaw son archivos de texto plano que podés abrir, editar y borrar con cualquier editor. No hay entrenamiento adicional. No hay memoria mágica. Solo archivos.' },
+        title: 'The Context Window Problem',
+        blocks: [
+          T('Every LLM has a context window — a maximum amount of text it can "see" at once. Everything outside the window is effectively forgotten. OpenClaw\'s memory system is designed to work around this limitation.'),
+          TBL(
+            ['Model', 'Context window', 'Practical limit with system prompt'],
+            [
+              ['gpt-4o', '128K tokens', '~100K tokens for conversation'],
+              ['claude-3-5-sonnet', '200K tokens', '~160K tokens for conversation'],
+              ['gpt-3.5-turbo', '16K tokens', '~12K tokens for conversation'],
+              ['ollama/llama3.2', '8K tokens', '~5K tokens for conversation'],
+            ]
+          ),
+          CL('warning', 'Even models with large context windows slow down significantly as the context fills up. Long contexts = higher latency and cost. Memory management isn\'t just about staying within limits — it\'s about efficiency.'),
+        ]
       },
       {
-        title: 'Dos tipos de memoria',
-        subtitle: 'Diario diario vs memoria curada',
-        content: 'OpenClaw tiene dos capas de memoria con propósitos completamente distintos.\n\n`memory/YYYY-MM-DD.md` es el diario del día — automático, ruidoso, de corto alcance.\n\n`MEMORY.md` es la memoria de largo plazo — curada, compacta, durable. Solo se carga en sesión privada, nunca en grupos.',
-        code: 'memory/2025-03-07.md  ← Diario de HOY\n  Automático, ruidoso, de corto alcance\n  El agente escribe aquí durante el día\n\nMEMORY.md             ← Memoria curada\n  Manual (el agente con tu permiso)\n  Compacta, durable, siempre disponible\n  Solo en sesión privada',
-        callout: { type: 'info', title: 'Quién escribe MEMORY.md', text: 'MEMORY.md lo escribe el agente, no vos directamente. Vos le decís "recordá esto" y él decide cómo formularlo para que sea útil a futuro. También podés editarlo manualmente.' },
+        title: 'MEMORY.md — Auto-Summarization',
+        blocks: [
+          T('MEMORY.md is OpenClaw\'s primary mechanism for long-term memory. After each conversation session, the engine summarizes the conversation into structured bullet points and appends them to MEMORY.md.'),
+          C(`# Memory\n\n## Session 2024-01-15\n- User is building an e-commerce site on Shopify\n- Prefers Spanish responses\n- Has a budget of ~$500/mo for third-party apps\n- Previously struggled with inventory sync — solved with SKU Bridge plugin\n\n## Session 2024-01-20\n- Asked about marketing automations — recommended Klaviyo integration\n- Interested in a loyalty program — suggested Smile.io`, 'markdown', 'workspace/MEMORY.md'),
+          T('On each new conversation, MEMORY.md is injected into Layer 9 of the system prompt, giving the agent background context about the user even before they say anything.'),
+          CL('tip', 'You can manually edit MEMORY.md to add permanent facts about a user or customer that should always be remembered. Write them in the same bullet format for consistency.'),
+        ]
       },
       {
-        title: 'El ciclo completo de memoria',
-        subtitle: 'Cómo viaja la info de conversación a long-term',
-        content: 'Una pieza de información viaja desde una conversación hasta la memoria de largo plazo en 4 etapas.\n\n1. Durante la conversación, el agente trabaja en RAM — no persiste.\n2. Cuando la sesión se acerca al límite de contexto, ocurre un memory flush automático.\n3. Los diarios acumulan el registro del día.\n4. Con el tiempo, lo más valioso se cura en MEMORY.md — la capa que permanece indefinidamente.',
-        callout: { type: 'tip', title: 'Pedile que recuerde', text: 'Si querés que algo quede en MEMORY.md, pedíselo explícitamente: "Recordá que prefiero TypeScript sobre JavaScript para este proyecto." El agente lo curará en el archivo de memoria curada.' },
+        title: 'Context vs Memory',
+        blocks: [
+          T('There\'s an important distinction between two types of "context" in OpenClaw:'),
+          TBL(
+            ['Type', 'File', 'Layer', 'Updated by', 'Contains'],
+            [
+              ['Knowledge context', 'CONTEXT.md', 'Layer 8', 'You', 'Static product info, FAQs, policies — doesn\'t change conversation by conversation'],
+              ['Episodic memory', 'MEMORY.md', 'Layer 9', 'Agent (auto)', 'Per-user or per-session summaries — changes as conversations happen'],
+              ['Active history', 'session storage', 'Layer 10', 'System', 'Raw recent messages — automatically rotated by maxHistory'],
+            ]
+          ),
+          CL('info', 'Think of CONTEXT.md as the agent\'s "training manual" (static) and MEMORY.md as its "personal notes about this user" (dynamic). They serve very different purposes.'),
+        ]
       },
       {
-        title: 'Límites y estrategia de poda',
-        subtitle: 'Cómo evitar saturar el contexto',
-        content: 'MEMORY.md se inyecta en el system prompt en cada sesión privada. Si crece demasiado, consume tokens que podrían usarse para conversación.\n\nLa regla práctica: MEMORY.md debería tener la información más duradera y de mayor impacto. Detalles efímeros van en los diarios y se descartan naturalmente.',
-        callout: { type: 'warning', title: 'Señal para actualizar', text: 'Si MEMORY.md supera las 200-300 líneas, es momento de una sesión de "limpieza de memoria". Le pedís al agente que lo revise y descarte lo que ya no es relevante.' },
-      },
+        title: 'Memory Best Practices',
+        blocks: [
+          T('Poorly managed memory is one of the most common causes of degraded agent performance over time.'),
+          LI([
+            'Review MEMORY.md periodically — if it exceeds 800 characters, manually summarize or archive old sessions',
+            'Use specific, factual bullet points in MEMORY.md — avoid vague notes like "user seems happy"',
+            'For shared bots (multiple users), never put user-specific data in MEMORY.md — use per-user session files instead',
+            'Set `session.maxHistory` between 10–20 for most use cases',
+            'Use `bootstrapMaxChars` to enforce a hard limit and prevent runaway prompt growth',
+          ]),
+          CL('warning', 'If you\'re running a bot for many different users, MEMORY.md should only contain information that applies to ALL users. Per-user memory requires a custom memory plugin or database integration.'),
+        ]
+      }
     ],
     quiz: {
-      question: 'Si querés que el agente recuerde algo importante a largo plazo, ¿qué tenés que hacer?',
+      question: 'What is the difference between CONTEXT.md and MEMORY.md in terms of who writes them?',
       options: [
-        'Pedirle al agente que lo escriba en MEMORY.md, porque el agente solo recuerda lo que está escrito en disco.',
-        'Repetírselo al principio de cada conversación nueva para que lo tenga disponible en el contexto.',
-        'Activar la memoria automática en openclaw.json para que el agente recuerde todas las conversaciones.',
+        { id: 'a', label: 'Both are written by you manually' },
+        { id: 'b', label: 'CONTEXT.md is written by you; MEMORY.md is auto-updated by the agent' },
+        { id: 'c', label: 'CONTEXT.md is auto-updated; MEMORY.md is written by you manually' },
+        { id: 'd', label: 'Both are auto-updated by the agent' },
       ],
-      correct: 0,
-    },
+      answer: 'b',
+      explanation: 'CONTEXT.md is static reference material you write and maintain (product docs, FAQs, policies). MEMORY.md is dynamically updated by the agent after each conversation session, containing summaries of past interactions.',
+    }
   },
+
+  // ── MODULE 08 ──────────────────────────────────────────────────────────────
   {
-    number: '08',
-    title: 'HEARTBEAT.md',
-    subtitle: 'El agente que actúa sin que lo pidas',
-    description: 'HEARTBEAT.md define las tareas proactivas periódicas: qué revisar, cuándo actuar, y cuándo quedarse en silencio. Convierte al agente de reactivo a autónomo.',
-    color: '#dc2626',
-    group: 'Sistema avanzado',
+    id: 'mod-08', num: '08', title: 'Production', group: 'Advanced',
+    subtitle: 'Hardening, monitoring, and running OpenClaw reliably at scale',
     steps: [
       {
-        title: 'Cómo funciona el heartbeat',
-        subtitle: 'El ciclo periódico de OpenClaw',
-        content: 'OpenClaw ejecuta un ciclo de heartbeat cada ~30 minutos (configurable). En cada ciclo, el agente lee HEARTBEAT.md y ejecuta las condiciones definidas.\n\nSi algo necesita atención, el agente actúa y te notifica. Si no hay nada, se queda en silencio. Nunca molesta sin razón.',
-        callout: { type: 'info', title: 'La diferencia con un cron job', text: 'Un cron job siempre ejecuta en el horario definido. El heartbeat ejecuta el ciclo, pero el agente decide si hay algo que hacer. La condición "si hay emails urgentes" no se activa si no hay nada urgente.' },
+        title: 'Environment Setup',
+        blocks: [
+          T('Before going to production, configure your environment correctly. All sensitive values should live in environment variables — never hardcoded in `openclaw.json`.'),
+          C(`# .env file (add to .gitignore!)\nOPENAI_API_KEY=sk-...\nANTHROPIC_API_KEY=sk-ant-...\nGATEWAY_AUTH_TOKEN=your-strong-secret-here\nNODE_ENV=production\nPORT=3000`, 'bash', '.env'),
+          T('Then in `openclaw.json`, reference environment variables using the `$ENV:` prefix:'),
+          C(`{\n  "auth": {\n    "provider": "openai",\n    "apiKey": "$ENV:OPENAI_API_KEY"\n  },\n  "gateway": {\n    "authToken": "$ENV:GATEWAY_AUTH_TOKEN"\n  }\n}`, 'json', 'openclaw.json'),
+          TBL(
+            ['Security checklist', 'Status'],
+            [
+              ['API keys in env vars, not in openclaw.json', '☐'],
+              ['auth_info_baileys/ in .gitignore', '☐'],
+              ['.env in .gitignore', '☐'],
+              ['gateway.authToken set and strong (20+ chars)', '☐'],
+              ['sandboxing: "minimal" or "full" for all agents', '☐'],
+              ['http-request plugin: allowedHosts set if enabled', '☐'],
+            ]
+          ),
+        ]
       },
       {
-        title: 'Estructura del checklist',
-        subtitle: 'Condiciones, acciones y reglas de silencio',
-        content: 'HEARTBEAT.md tiene tres secciones clave: las condiciones de activación, las acciones correspondientes, y las reglas de silencio.\n\nLas reglas de silencio son tan importantes como las condiciones — sin ellas, el agente se convierte en ruido.',
-        code: '# HEARTBEAT.md\n\n## Checklist cada 30 min\n\n### Email\n- Si hay emails urgentes sin leer → notificar\n- Si hay facturas vencidas → alertar\n\n### Calendario\n- Si hay reunión en < 15 min → recordar\n\n## Reglas de silencio\n- No molestar entre 23:00 y 08:00\n- No molestar si mandé mensaje en < 2h\n- Batching: acumular y mandar 1 resumen',
-        callout: { type: 'tip', title: 'Empezá con poco', text: 'Un HEARTBEAT.md con 3-4 condiciones bien definidas es infinitamente mejor que uno con 20 que genera ruido. Cada condición que agregás multiplica el riesgo de falsos positivos.' },
+        title: 'Process Management with PM2',
+        blocks: [
+          T('Never run OpenClaw directly with `node` or `npm start` in production — the process will die on any error. Use PM2 to keep it alive.'),
+          C(`npm install -g pm2\n\n# Start OpenClaw with PM2\npm2 start npm --name "openclaw" -- start\n\n# Enable auto-start on server reboot\npm2 startup\npm2 save`, 'bash'),
+          TBL(
+            ['PM2 command', 'What it does'],
+            [
+              ['pm2 status', 'Show all running processes and their status'],
+              ['pm2 logs openclaw', 'Stream live logs from the OpenClaw process'],
+              ['pm2 restart openclaw', 'Restart the process (applies config changes)'],
+              ['pm2 stop openclaw', 'Stop the process without removing it'],
+              ['pm2 monit', 'Real-time CPU/memory dashboard for all processes'],
+            ]
+          ),
+          CL('tip', 'PM2 automatically restarts the process on crash. With `pm2 startup`, it also survives server reboots. This is the minimum viable production setup.'),
+        ]
       },
       {
-        title: 'Control de token burn',
-        subtitle: 'Por qué este archivo debe ser brevísimo',
-        content: 'HEARTBEAT.md se ejecuta en cada ciclo del heartbeat. Si tiene 500 tokens, eso es 500 tokens × (ciclos por día) tokens gastados solo en chequear condiciones, aunque no haya nada que hacer.\n\nLa regla de oro: HEARTBEAT.md debería tener menos de 50 líneas.',
-        callout: { type: 'warning', title: 'El riesgo del heartbeat detallado', text: 'Un HEARTBEAT.md largo es costoso y lento. Keepealo mínimo: condición → acción. Sin explicaciones largas. Sin contexto redundante.' },
+        title: 'Logging & Monitoring',
+        blocks: [
+          T('OpenClaw emits structured logs. In production, capture and analyze these to detect issues early.'),
+          C(`# View live logs\npm2 logs openclaw --lines 100\n\n# Export logs to file\npm2 logs openclaw --nostream > openclaw.log\n\n# Rotate logs (prevent disk fill)\npm2 install pm2-logrotate`, 'bash'),
+          TBL(
+            ['Log level', 'Meaning', 'Action required'],
+            [
+              ['INFO', 'Normal operation events (connections, messages, responses)', 'None'],
+              ['WARN', 'Non-fatal issues (retries, degraded plugin, slow response)', 'Review periodically'],
+              ['ERROR', 'Failures that affected a user\'s response', 'Investigate promptly'],
+              ['FATAL', 'Startup failure or unrecoverable error — process terminates', 'Immediate attention'],
+            ]
+          ),
+        ]
       },
       {
-        title: 'Patrones avanzados',
-        subtitle: 'Heartbeat condicional, escalamiento, canvas updates',
-        content: 'Con la base bien configurada, podés implementar patrones más sofisticados: heartbeat condicional (solo ciertos días u horarios), escalamiento (si no hay respuesta después de X, escalá), y canvas updates (el agente actualiza un documento compartido periódicamente).\n\nEstos patrones combinan HEARTBEAT.md con skills y tools específicos.',
-        callout: { type: 'tip', title: 'Heartbeat + Skills', text: 'La combinación más poderosa es HEARTBEAT.md como trigger + un skill como ejecutor. El heartbeat detecta la condición; el skill define exactamente cómo responder.' },
-      },
+        title: 'Scaling Considerations',
+        blocks: [
+          T('A single OpenClaw instance handles roughly 5–10 concurrent conversations comfortably. Beyond that, you\'ll need horizontal scaling.'),
+          TBL(
+            ['Scenario', 'Recommended approach'],
+            [
+              ['< 10 simultaneous users', 'Single instance with PM2 — simplest setup'],
+              ['10–100 simultaneous users', 'Redis sessions + multiple instances behind a load balancer'],
+              ['100+ simultaneous users', 'Containerized deployment (Docker/Kubernetes) with Redis + message queue'],
+              ['Global deployment', 'Multi-region with regional WhatsApp numbers'],
+            ]
+          ),
+          CL('tip', 'Start with a single instance and PM2. Only add complexity when you hit actual limits. Premature scaling creates operational overhead with no user benefit.'),
+        ]
+      }
     ],
     quiz: {
-      question: '¿Qué tipo de tareas va en HEARTBEAT.md?',
+      question: 'What is the correct way to reference an environment variable in `openclaw.json` instead of hardcoding sensitive values?',
       options: [
-        'Tareas proactivas periódicas — cosas que el agente hace por su cuenta según condiciones definidas, sin que vos le pidas.',
-        'El historial de conversaciones del día actual, que el agente guarda automáticamente para consultas futuras.',
-        'Las reglas de seguridad del sistema que OpenClaw aplica en cada sesión y no se pueden modificar.',
+        { id: 'a', label: 'Use `process.env.KEY` directly in the JSON file' },
+        { id: 'b', label: 'Use the `$ENV:KEY` prefix syntax' },
+        { id: 'c', label: 'Environment variables cannot be used in openclaw.json' },
+        { id: 'd', label: 'Use `{{KEY}}` template syntax' },
       ],
-      correct: 0,
-    },
+      answer: 'b',
+      explanation: 'OpenClaw supports the `$ENV:KEY` prefix in any string value in `openclaw.json`. For example, `"apiKey": "$ENV:OPENAI_API_KEY"` reads the value from the `OPENAI_API_KEY` environment variable at runtime, keeping secrets out of your config file.',
+    }
   },
+
+  // ── MODULE 09 ──────────────────────────────────────────────────────────────
   {
-    number: '09',
-    title: 'Skills',
-    subtitle: 'Enseñale a tu agente a hacer cualquier cosa',
-    description: 'Un skill es un playbook — un manual de instrucciones empaquetado que le enseña al agente cómo usar herramientas, llamar APIs, o seguir un proceso específico de forma consistente.',
-    color: '#4f46e5',
-    group: 'Sistema avanzado',
+    id: 'mod-09', num: '09', title: 'Skills', group: 'Advanced',
+    subtitle: 'Teaching the agent to follow precise, step-by-step procedures',
     steps: [
       {
-        title: 'Qué es un skill',
-        subtitle: 'La distinción crítica: herramientas vs skills',
-        content: 'Todo lo que vimos hasta ahora define cómo el agente es. Los skills definen qué puede hacer más allá de sus capacidades base.\n\nUn skill no es un plugin que ejecuta código solo. No es una integración técnica. Es una carpeta con un archivo Markdown que el agente lee cuando necesita hacer esa tarea.',
-        callout: { type: 'info', title: 'La analogía exacta', text: 'Tener la herramienta Bash es como tener Python instalado. Tener un skill es como tener el script que sabe qué comandos correr, en qué orden, con qué parámetros, y qué hacer si algo falla. Sin el skill, el agente improvisa. Con el skill, sigue el mismo proceso confiable siempre.' },
+        title: 'Skills vs Tools vs Plugins',
+        blocks: [
+          T('Three different mechanisms can extend an agent\'s capabilities, and they\'re often confused. Here\'s the definitive distinction:'),
+          TBL(
+            ['Mechanism', 'What it is', 'Defined where', 'Used when'],
+            [
+              ['Skill', 'A procedural workflow — step-by-step instructions the agent follows to complete a specific task', 'SKILLS/*/SKILL.md', 'The agent needs to follow a precise, repeatable process'],
+              ['Plugin', 'A tool the agent can call to do something (fetch data, run code, write a file)', 'openclaw.json + JS/TS module', 'The agent needs to perform an action beyond text generation'],
+              ['AGENTS.md section', 'Behavioral guidance — how to respond, what tone to use, general rules', 'workspace/AGENTS.md', 'Shaping personality and general response style'],
+            ]
+          ),
+          T('A skill is more like a recipe: "When the user asks to generate a report, follow these 5 steps in order." A plugin is more like a tool: "Use the calculator to compute this." They can work together.'),
+          CL('info', 'Skills are powerful for complex workflows where the order of steps matters and mistakes are costly — like generating a proposal, filling out a form, or running an onboarding sequence.'),
+        ]
       },
       {
-        title: 'Estructura de SKILL.md',
-        subtitle: 'Frontmatter, prompt y guardrails',
-        content: 'Cada skill vive en una carpeta dentro del workspace, con un archivo `SKILL.md` como núcleo. La estructura tiene tres partes: el frontmatter (metadatos), el prompt principal (las instrucciones), y los guardrails (qué no hacer).',
-        code: '---\nname: weekly-report\ndescription: Genera el reporte semanal\ntrigger: "reporte semanal"\ntools: [bash, gmail, calendar]\n---\n\n# Weekly Report\n\n## Proceso\n1. Leer emails de la semana (Gmail)\n2. Revisar calendario de la semana\n3. Correr: git log --since="7 days ago"\n4. Generar resumen en formato definido\n\n## Guardrails\n- No enviar el reporte sin aprobación\n- Si falta alguna fuente, decirlo',
-        callout: { type: 'tip', title: 'El frontmatter es clave', text: 'El campo "trigger" define qué frases activan el skill automáticamente. Si escribís "reporte semanal", el agente detecta que debe usar ese skill en lugar de improvisar.' },
+        title: 'Skill Folder Structure',
+        blocks: [
+          T('Each skill lives in its own subfolder inside `SKILLS/`. The folder name is the skill\'s identifier. The only required file is `SKILL.md`.'),
+          C(`workspace/SKILLS/\n├── generate-report/\n│   ├── SKILL.md          # Required: definition and instructions\n│   ├── template.md       # Optional: file the skill uses as input\n│   └── example-output.md # Optional: reference for the agent\n├── onboard-client/\n│   └── SKILL.md\n└── draft-proposal/\n    ├── SKILL.md\n    └── proposal-template.md`, 'text'),
+          T('The agent scans the SKILLS/ folder on startup and loads each SKILL.md that passes the gating rules. Skills that pass gating are injected into Layer 7 of the system prompt.'),
+          CL('tip', 'Keep each skill folder focused on one task. A skill called "generate-report" should only contain files related to report generation — don\'t mix concerns.'),
+        ]
       },
       {
-        title: 'Sistema de gating',
-        subtitle: 'Activar skills condicionalmente',
-        content: 'No todos los skills deberían estar disponibles en todos los contextos. El sistema de gating permite activar skills condicionalmente según: el canal, el usuario que habla, variables de entorno presentes, u horario.',
-        code: '---\nname: deploy-production\ngating:\n  env: [DEPLOY_KEY]\n  users: ["alan"]\n  hours: "9-18"\n  channels: ["telegram"]\n---\n\n# Deploy a producción\nSolo disponible si:\n- Está configurada la variable DEPLOY_KEY\n- El usuario es "alan"\n- Es entre 9am y 6pm\n- El mensaje viene de Telegram',
-        callout: { type: 'warning', title: 'Seguridad por gating', text: 'Para skills que ejecutan acciones irreversibles (deploy, borrar archivos, enviar emails masivos), siempre poné gating estricto por usuario y horario.' },
+        title: 'SKILL.md Frontmatter',
+        blocks: [
+          T('Every SKILL.md starts with a YAML frontmatter block (between `---` delimiters) that tells OpenClaw when and how to load the skill. The frontmatter is followed by the actual skill instructions in Markdown.'),
+          C(`---\nname: generate-report\ndescription: Step-by-step procedure for generating a client report from data\ntriggers:\n  - "generate a report"\n  - "create report"\n  - "make a report for"\nalways: false\nrequires:\n  env: [REPORT_API_KEY]\n  config: [agents.id]\n---\n\n# How to Generate a Report\n\n## Step 1: Gather data\nAsk the user for the reporting period and which metrics to include...\n\n## Step 2: Format the data\n...`, 'yaml', 'SKILLS/generate-report/SKILL.md'),
+          TBL(
+            ['Frontmatter field', 'Type', 'Required', 'Description'],
+            [
+              ['name', 'string', '✓', 'Unique identifier for this skill — used in logs and routing'],
+              ['description', 'string', '✓', 'One-line description. The LLM reads this to decide whether to invoke the skill'],
+              ['triggers', 'string[]', '—', 'Phrases that automatically activate this skill. Semantic matching — not exact'],
+              ['always', 'boolean', '—', 'If `true`, inject this skill into every conversation. Default: `false`'],
+              ['requires.env', 'string[]', '—', 'Skill is only loaded if these environment variables are set'],
+              ['requires.config', 'string[]', '—', 'Skill is only loaded if these `openclaw.json` paths are defined'],
+              ['requires.os', 'string', '—', 'Only load on specific OS: `linux`, `darwin` (macOS), `win32`'],
+              ['requires.bins', 'string[]', '—', 'Only load if these CLI tools are available in PATH'],
+            ]
+          ),
+        ]
       },
       {
-        title: 'Crear tu primer skill',
-        subtitle: 'Paso a paso con ejemplo real',
-        content: 'El mejor primer skill es algo que ya hacés repetidamente pero que es lo suficientemente estructurado para documentarlo. Candidatos: el brief del día, la rutina de inicio, o el proceso de revisión de código.\n\nEmpezá simple: un skill de 10-15 líneas que hace una cosa bien supera a uno de 100 líneas que intenta hacerlo todo.',
-        code: '# Crear el directorio del skill\nmkdir ~/.openclaw/workspace/skills/daily-brief\ntouch ~/.openclaw/workspace/skills/daily-brief/SKILL.md\n\n# Estructura mínima:\n---\nname: daily-brief\ndescription: Brief de inicio del día\ntrigger: "qué tengo hoy"\n---\n\n# Brief del día\n1. Revisar calendario de hoy\n2. Leer emails sin leer\n3. Listar top 3 tareas del día',
-        callout: { type: 'info', title: 'ClawHub para skills comunitarios', text: 'Antes de escribir un skill desde cero, revisá ClawHub (clawhub.dev) — el repositorio comunitario. Probablemente alguien ya resolvió lo que necesitás. Leé el skill antes de instalarlo.' },
+        title: 'The Gating System',
+        blocks: [
+          T('The `requires` frontmatter fields form a gating system that conditionally enables or disables skills based on the runtime environment. This lets you ship a single workspace that adapts to different deployment contexts.'),
+          TBL(
+            ['Gate type', 'Frontmatter key', 'Example', 'Use case'],
+            [
+              ['Environment variable', 'requires.env', '`[SLACK_WEBHOOK_URL]`', 'Only enable Slack-notifying skills on servers that have Slack configured'],
+              ['Config presence', 'requires.config', '`[agents.plugins]`', 'Only enable plugin-dependent skills if plugins are configured'],
+              ['OS detection', 'requires.os', '`darwin`', 'macOS-only or Linux-only skills (e.g., using system commands)'],
+              ['Binary presence', 'requires.bins', '`[ffmpeg, curl]`', 'Skills that shell out to external CLI tools — only load if the tool is installed'],
+              ['Always on', 'always: true', '—', 'Core skills that should always be available, no conditions'],
+            ]
+          ),
+          CL('tip', 'Use gating aggressively. It\'s better to have skills silently not load than to have the agent try to use a skill that will fail because a dependency is missing.'),
+          CL('info', 'When a skill fails its gating check, it is silently excluded from Layer 7. The agent has zero knowledge of the skill\'s existence — it won\'t reference it or try to use it.'),
+        ]
       },
+      {
+        title: 'Writing Effective Skills',
+        blocks: [
+          T('A skill\'s Markdown content is the procedure the agent follows. Writing it well is an art — here are the principles that produce reliable, consistent agent behavior.'),
+          LI([
+            'Use numbered steps — the agent follows them sequentially and can track where it is',
+            'Each step should have one clear action — "Ask the user for X" or "Write the file Y" — not both',
+            'Include decision points: "If the user says X, go to Step 3. Otherwise, proceed to Step 4."',
+            'Specify the exact format of outputs: "Generate a table with these exact columns: Name, Date, Amount"',
+            'End with a validation step: "Confirm with the user before sending/saving/submitting"',
+          ]),
+          C(`# Draft a Proposal\n\n## Step 1: Gather requirements\nAsk: "What is the project scope and expected timeline?"\nWait for user response before proceeding.\n\n## Step 2: Confirm budget\nAsk: "What is the client's approximate budget range?"\n\n## Step 3: Generate draft\nWrite the proposal using this format:\n- Header with client name, date, project name\n- 3-sentence executive summary\n- Scope table: Task | Hours | Rate | Total\n- Payment terms section\n\n## Step 4: Review with user\nPresent the draft and ask: "Should I adjust anything before finalizing?"`, 'markdown', 'SKILLS/draft-proposal/SKILL.md'),
+          CL('tip', 'The single most impactful improvement to any skill: add "Wait for user response before proceeding" after steps that ask questions. Without it, the agent may rush through multiple steps in a single response.'),
+        ]
+      }
     ],
     quiz: {
-      question: '¿Cuál es la diferencia exacta entre una herramienta (tool) y un skill en OpenClaw?',
+      question: 'When a skill\'s `requires.bins` check fails (the required CLI tool is not installed), what does the agent experience?',
       options: [
-        'Una herramienta es una capacidad técnica (ejecutar Bash, leer email). Un skill es un manual que le dice al agente cómo y cuándo usar esas herramientas para un workflow específico.',
-        'Los skills son herramientas de pago disponibles en ClawHub y las tools son las gratuitas incluidas en OpenClaw.',
-        'No hay diferencia real — son términos intercambiables que OpenClaw usa según la versión del software.',
+        { id: 'a', label: 'The agent receives an error message and reports it to the user' },
+        { id: 'b', label: 'The skill loads anyway but produces warnings' },
+        { id: 'c', label: 'The skill is silently excluded — the agent has no knowledge it exists' },
+        { id: 'd', label: 'The server refuses to start until all skill dependencies are met' },
       ],
-      correct: 0,
-    },
+      answer: 'c',
+      explanation: 'When any `requires` gate fails, the skill is silently excluded from the loaded set. The agent has zero knowledge of the skill\'s existence — it won\'t reference it, try to use it, or explain its absence. This is by design: a clean, dependency-safe loading mechanism.',
+    }
   },
 ];
 
-// ─────────────────────────────────────────────────────────────
-// UTILITY COMPONENTS
-// ─────────────────────────────────────────────────────────────
+// ─── PROGRESS ────────────────────────────────────────────────────────────────
 
-const CodeBlock: React.FC<{ code: string }> = ({ code }) => {
+interface Progress {
+  currentModuleId: string;
+  currentStepIndex: number;
+  completedModules: string[];
+}
+
+const defaultProgress = (): Progress => ({
+  currentModuleId: MODULES[0].id,
+  currentStepIndex: 0,
+  completedModules: [],
+});
+
+const STORAGE_KEY = 'openclaw-guide-v2';
+
+// ─── COPY BUTTON ──────────────────────────────────────────────────────────────
+
+const CopyButton: React.FC<{ text: string }> = ({ text }) => {
   const [copied, setCopied] = useState(false);
-  const handleCopy = () => {
-    navigator.clipboard.writeText(code);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
+  const copy = useCallback(() => {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }, [text]);
   return (
-    <div className="relative mt-4 rounded-lg bg-black border border-white/10 overflow-hidden">
-      <div className="flex items-center justify-between px-4 py-2 bg-white/5 border-b border-white/10">
-        <span className="text-xs text-white/30 font-mono">terminal</span>
-        <button
-          onClick={handleCopy}
-          className="flex items-center gap-1.5 text-xs text-white/40 hover:text-white/80 transition-colors"
-        >
-          {copied ? <Check size={11} /> : <Copy size={11} />}
-          {copied ? 'Copiado' : 'Copiar'}
-        </button>
-      </div>
-      <pre className="p-4 text-sm font-mono text-emerald-400/90 overflow-x-auto whitespace-pre-wrap leading-relaxed">
-        {code}
-      </pre>
-    </div>
+    <button
+      onClick={copy}
+      className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition-colors px-2 py-1 rounded hover:bg-white/5"
+    >
+      {copied ? <Check size={12} /> : <Copy size={12} />}
+      {copied ? 'Copied' : 'Copy'}
+    </button>
   );
 };
 
-const CalloutBlock: React.FC<{ callout: Callout }> = ({ callout }) => {
-  const variants = {
-    warning: { bg: 'bg-amber-950/40', border: 'border-amber-500/30', label: 'text-amber-400', Icon: AlertTriangle },
-    tip: { bg: 'bg-emerald-950/40', border: 'border-emerald-500/30', label: 'text-emerald-400', Icon: Lightbulb },
-    info: { bg: 'bg-blue-950/40', border: 'border-blue-500/30', label: 'text-blue-400', Icon: Info },
-  };
-  const v = variants[callout.type];
-  return (
-    <div className={`mt-4 rounded-lg border ${v.bg} ${v.border} p-4`}>
-      <div className={`flex items-center gap-2 mb-1.5 font-semibold text-xs uppercase tracking-wide ${v.label}`}>
-        <v.Icon size={13} />
-        {callout.title}
-      </div>
-      <p className="text-sm text-white/70 leading-relaxed">{callout.text}</p>
-    </div>
-  );
+// ─── INLINE TEXT RENDERER ────────────────────────────────────────────────────
+
+function renderInline(text: string): React.ReactNode {
+  const parts = text.split(/(\*\*[^*]+\*\*|`[^`]+`)/g);
+  return parts.map((part, i) => {
+    if (part.startsWith('**') && part.endsWith('**'))
+      return <strong key={i} className="text-white font-semibold">{part.slice(2, -2)}</strong>;
+    if (part.startsWith('`') && part.endsWith('`'))
+      return <code key={i} className="font-mono text-[0.82em] text-emerald-300 bg-emerald-950/50 px-1.5 py-0.5 rounded">{part.slice(1, -1)}</code>;
+    return part;
+  });
+}
+
+// ─── BLOCK RENDERER ───────────────────────────────────────────────────────────
+
+const calloutConfig: Record<CalloutKind, { bg: string; border: string; icon: React.ReactNode }> = {
+  tip:     { bg: 'bg-emerald-950/40', border: 'border-emerald-800/50', icon: <Lightbulb size={13} className="text-emerald-400 shrink-0 mt-0.5" /> },
+  warning: { bg: 'bg-amber-950/40',   border: 'border-amber-800/50',   icon: <AlertTriangle size={13} className="text-amber-400 shrink-0 mt-0.5" /> },
+  info:    { bg: 'bg-blue-950/40',    border: 'border-blue-800/50',    icon: <Info size={13} className="text-blue-400 shrink-0 mt-0.5" /> },
+  note:    { bg: 'bg-zinc-800/40',    border: 'border-zinc-700/50',    icon: <BookOpen size={13} className="text-zinc-400 shrink-0 mt-0.5" /> },
 };
 
-const StepProgress: React.FC<{ total: number; current: number; color: string; quizDone?: boolean }> = ({
-  total, current, color, quizDone,
-}) => (
-  <div className="flex items-center gap-0 mb-6">
-    {Array.from({ length: total }).map((_, i) => (
-      <React.Fragment key={i}>
-        <div
-          className="relative flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300"
-          style={{
-            backgroundColor: i < current || quizDone ? color : i === current ? color : 'rgba(255,255,255,0.08)',
-            color: i <= current || quizDone ? '#fff' : 'rgba(255,255,255,0.25)',
-            border: `2px solid ${i <= current || quizDone ? color : 'rgba(255,255,255,0.1)'}`,
-            opacity: i < current || quizDone ? 1 : i === current ? 1 : 0.5,
-          }}
-        >
-          {i < current || quizDone ? <Check size={11} /> : i + 1}
+const BlockRenderer: React.FC<{ block: Block }> = ({ block }) => {
+  switch (block.type) {
+    case 'text':
+      return <p className="text-zinc-300 leading-relaxed text-sm mb-4 last:mb-0">{renderInline(block.text || '')}</p>;
+
+    case 'heading':
+      return block.level === 2
+        ? <h2 className="text-white font-semibold text-base mt-6 mb-3 first:mt-0">{block.text}</h2>
+        : <h3 className="text-zinc-200 font-medium text-sm mt-5 mb-2 first:mt-0">{block.text}</h3>;
+
+    case 'code': {
+      const cd = block.code!;
+      return (
+        <div className="mb-4 last:mb-0 rounded-lg overflow-hidden border border-white/[0.08]">
+          <div className="flex items-center justify-between px-4 py-2 bg-[#1a1a1a] border-b border-white/[0.08]">
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] text-zinc-500 font-mono uppercase tracking-wider">{cd.lang}</span>
+              {cd.filename && <><span className="text-zinc-700 text-xs">·</span><span className="text-[11px] text-zinc-500 font-mono">{cd.filename}</span></>}
+            </div>
+            <CopyButton text={cd.code} />
+          </div>
+          <pre className="px-4 py-4 overflow-x-auto bg-[#111111]">
+            <code className="font-mono text-zinc-300 text-[0.8rem] leading-relaxed whitespace-pre">{cd.code}</code>
+          </pre>
         </div>
-        {i < total - 1 && (
-          <div
-            className="h-px flex-1 transition-all duration-300"
-            style={{ backgroundColor: i < current || quizDone ? color : 'rgba(255,255,255,0.08)' }}
-          />
-        )}
-      </React.Fragment>
-    ))}
+      );
+    }
+
+    case 'table': {
+      const td = block.table!;
+      return (
+        <div className="mb-4 last:mb-0 overflow-x-auto rounded-lg border border-white/[0.08]">
+          <table className="w-full text-sm border-collapse">
+            <thead>
+              <tr className="bg-[#1a1a1a]">
+                {td.headers.map((h, i) => (
+                  <th key={i} className="text-left text-xs font-medium text-zinc-400 px-4 py-3 border-b border-white/[0.08]">{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {td.rows.map((row, ri) => (
+                <tr key={ri} className="border-b border-white/[0.06] last:border-0 hover:bg-white/[0.02] transition-colors">
+                  {row.map((cell, ci) => (
+                    <td key={ci} className="px-4 py-3 text-zinc-300 text-xs align-top">{renderInline(cell)}</td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      );
+    }
+
+    case 'callout': {
+      const cl = block.callout!;
+      const s = calloutConfig[cl.kind];
+      return (
+        <div className={`mb-4 last:mb-0 flex gap-3 p-4 rounded-lg border ${s.bg} ${s.border}`}>
+          {s.icon}
+          <div className="text-xs leading-relaxed text-zinc-300 min-w-0">
+            {cl.title && <span className="font-semibold text-white mr-1.5">{cl.title}:</span>}
+            {renderInline(cl.text)}
+          </div>
+        </div>
+      );
+    }
+
+    case 'list':
+      return (
+        <ul className="mb-4 last:mb-0 space-y-2">
+          {(block.items || []).map((item, i) => (
+            <li key={i} className="flex gap-2.5 text-sm text-zinc-300 leading-relaxed">
+              <span className="text-zinc-600 shrink-0 mt-0.5 text-xs">→</span>
+              <span>{renderInline(item)}</span>
+            </li>
+          ))}
+        </ul>
+      );
+
+    case 'divider':
+      return <hr className="border-white/[0.08] my-6" />;
+
+    default:
+      return null;
+  }
+};
+
+// ─── STEP INDICATOR ───────────────────────────────────────────────────────────
+
+const StepIndicator: React.FC<{ steps: Step[]; current: number; completed: boolean }> = ({ steps, current, completed }) => (
+  <div className="flex items-center mb-8">
+    {steps.map((_, i) => {
+      const done = completed ? true : i < current;
+      const active = !completed && i === current;
+      return (
+        <React.Fragment key={i}>
+          <div className={`
+            flex items-center justify-center w-6 h-6 rounded-full text-[11px] font-mono shrink-0 transition-all
+            ${done ? 'bg-emerald-500 text-black font-bold' : active ? 'bg-white text-black font-bold' : 'bg-zinc-800 text-zinc-500 border border-zinc-700'}
+          `}>
+            {done ? <Check size={10} strokeWidth={3} /> : i + 1}
+          </div>
+          {i < steps.length - 1 && (
+            <div className={`flex-1 h-px mx-1 ${done ? 'bg-emerald-600' : 'bg-zinc-800'}`} />
+          )}
+        </React.Fragment>
+      );
+    })}
   </div>
 );
 
-const QuizSection: React.FC<{
-  quiz: Quiz;
-  onComplete: () => void;
-  color: string;
-  alreadyCompleted?: boolean;
-}> = ({ quiz, onComplete, color, alreadyCompleted }) => {
-  const [selected, setSelected] = useState<number | null>(null);
+// ─── QUIZ VIEW ────────────────────────────────────────────────────────────────
+
+const QuizView: React.FC<{ quiz: Quiz; onPass: () => void; onSkip: () => void }> = ({ quiz, onPass, onSkip }) => {
+  const [selected, setSelected] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
-  const [isCorrect, setIsCorrect] = useState(false);
+  const correct = submitted && selected === quiz.answer;
+  const wrong   = submitted && selected !== quiz.answer;
 
-  if (alreadyCompleted) {
-    return (
-      <div className="mt-6 border border-emerald-800/40 rounded-xl p-5 bg-emerald-950/20 flex items-center gap-3">
-        <CheckCircle size={20} className="text-emerald-400 flex-shrink-0" />
-        <div>
-          <p className="text-sm font-semibold text-emerald-400">Módulo completado</p>
-          <p className="text-xs text-white/40 mt-0.5">Podés releer el contenido cuando quieras.</p>
-        </div>
-      </div>
-    );
-  }
-
-  const handleSubmit = () => {
-    if (selected === null) return;
-    const correct = selected === quiz.correct;
-    setIsCorrect(correct);
+  const submit = () => {
+    if (!selected) return;
     setSubmitted(true);
-    if (correct) setTimeout(onComplete, 1200);
+    if (selected === quiz.answer) setTimeout(onPass, 1400);
   };
 
   return (
-    <div className="mt-6 border border-white/10 rounded-xl p-5 bg-white/[0.03]">
-      <div className="flex items-center gap-2 mb-4">
-        <div
-          className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black text-white"
-          style={{ backgroundColor: color }}
-        >?</div>
-        <span className="text-xs font-semibold uppercase tracking-widest text-white/40">Check de conocimiento</span>
-      </div>
-      <p className="text-sm text-white/90 font-medium mb-4 leading-relaxed">{quiz.question}</p>
-      <div className="space-y-2.5 mb-4">
-        {quiz.options.map((option, i) => (
-          <button
-            key={i}
-            onClick={() => !submitted && setSelected(i)}
-            disabled={submitted}
-            className={`w-full text-left p-3 rounded-lg border text-sm leading-relaxed transition-all ${
-              submitted
-                ? i === quiz.correct
-                  ? 'border-emerald-500/60 bg-emerald-950/40 text-emerald-300'
-                  : selected === i && !isCorrect
-                  ? 'border-red-500/60 bg-red-950/40 text-red-300'
-                  : 'border-white/5 text-white/30'
-                : selected === i
-                ? 'border-white/40 bg-white/10 text-white'
-                : 'border-white/10 text-white/65 hover:border-white/25 hover:bg-white/5'
-            }`}
-          >
-            <span className="text-xs font-mono mr-2 text-white/25">{String.fromCharCode(65 + i)}.</span>
-            {option}
-          </button>
-        ))}
-      </div>
-      {!submitted ? (
-        <button
-          onClick={handleSubmit}
-          disabled={selected === null}
-          className="px-4 py-2 rounded-lg text-sm font-semibold text-white transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-          style={{ backgroundColor: selected !== null ? color : 'rgba(255,255,255,0.1)' }}
-        >
-          Verificar respuesta
+    <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="mt-10 border border-white/[0.10] rounded-xl overflow-hidden">
+      <div className="px-6 py-4 bg-[#161616] border-b border-white/[0.08] flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div className="w-1.5 h-1.5 rounded-full bg-zinc-500" />
+          <span className="text-xs text-zinc-400 font-medium tracking-wide uppercase">Module Check</span>
+        </div>
+        <button onClick={onSkip} className="text-xs text-zinc-600 hover:text-zinc-400 transition-colors">
+          Skip
         </button>
-      ) : isCorrect ? (
-        <div className="flex items-center gap-2 text-emerald-400">
-          <CheckCircle size={15} />
-          <span className="text-sm font-medium">¡Correcto! Desbloqueando siguiente módulo…</span>
+      </div>
+      <div className="px-6 py-6">
+        <p className="text-white text-sm font-medium mb-5 leading-relaxed">{quiz.question}</p>
+        <div className="space-y-2.5">
+          {quiz.options.map(opt => {
+            let cls = 'border-white/[0.08] text-zinc-300 hover:border-white/20 hover:bg-white/[0.03]';
+            if (selected === opt.id && !submitted) cls = 'border-white/30 bg-white/[0.06] text-white';
+            if (submitted && opt.id === quiz.answer) cls = 'border-emerald-500/60 bg-emerald-950/40 text-emerald-300';
+            if (submitted && selected === opt.id && opt.id !== quiz.answer) cls = 'border-red-500/60 bg-red-950/40 text-red-300';
+            return (
+              <button key={opt.id} onClick={() => !submitted && setSelected(opt.id)} disabled={submitted}
+                className={`w-full text-left px-4 py-3 rounded-lg border text-sm transition-all ${cls}`}>
+                <span className="font-mono text-[11px] text-zinc-600 mr-2.5">{opt.id.toUpperCase()}.</span>
+                {opt.label}
+              </button>
+            );
+          })}
         </div>
-      ) : (
-        <div className="space-y-2">
-          <p className="text-sm text-red-400/80">Respuesta incorrecta. Revisá el contenido del módulo arriba.</p>
-          <button
-            onClick={() => { setSelected(null); setSubmitted(false); setIsCorrect(false); }}
-            className="px-4 py-2 rounded-lg text-sm border border-white/15 text-white/60 hover:border-white/30 hover:text-white transition-all"
-          >
-            Intentar de nuevo
-          </button>
-        </div>
-      )}
-    </div>
+        {!submitted ? (
+          <div className="mt-5">
+            <button onClick={submit} disabled={!selected}
+              className="px-5 py-2 bg-white text-black text-sm font-medium rounded-lg disabled:opacity-30 hover:bg-zinc-100 transition-colors">
+              Check answer
+            </button>
+          </div>
+        ) : (
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mt-5">
+            <div className={`p-4 rounded-lg border text-xs leading-relaxed ${correct ? 'bg-emerald-950/30 border-emerald-800/40 text-emerald-200' : 'bg-red-950/30 border-red-800/40 text-red-200'}`}>
+              <span className="font-semibold block mb-1">{correct ? '✓ Correct' : '✗ Not quite'}</span>
+              {quiz.explanation}
+            </div>
+            {wrong && (
+              <button onClick={() => { setSelected(null); setSubmitted(false); }}
+                className="mt-3 text-xs text-zinc-500 hover:text-zinc-300 transition-colors">
+                Try again
+              </button>
+            )}
+          </motion.div>
+        )}
+      </div>
+    </motion.div>
   );
 };
 
-// ─────────────────────────────────────────────────────────────
-// MODULE CARD
-// ─────────────────────────────────────────────────────────────
+// ─── RESET MODAL ──────────────────────────────────────────────────────────────
 
-const ModuleCard: React.FC<{
-  module: Module;
-  index: number;
-  isLocked: boolean;
-  isCompleted: boolean;
-  isExpanded: boolean;
-  onToggle: () => void;
-  onComplete: () => void;
-}> = ({ module, index, isLocked, isCompleted, isExpanded, onToggle, onComplete }) => {
-  const [currentStep, setCurrentStep] = useState(0);
-  const [showQuiz, setShowQuiz] = useState(false);
-  const step = module.steps[currentStep];
-
-  const handleNext = () => {
-    if (currentStep < module.steps.length - 1) {
-      setCurrentStep(p => p + 1);
-    } else {
-      setShowQuiz(true);
-    }
-  };
-  const handlePrev = () => {
-    if (showQuiz) setShowQuiz(false);
-    else if (currentStep > 0) setCurrentStep(p => p - 1);
-  };
-
-  return (
-    <div
-      className={`rounded-xl border transition-all duration-200 ${
-        isLocked
-          ? 'border-white/5 opacity-40'
-          : isCompleted
-          ? 'border-white/15'
-          : 'border-white/10'
-      } bg-white/[0.02] overflow-hidden`}
-    >
-      {/* Header / trigger */}
-      <button
-        onClick={!isLocked ? onToggle : undefined}
-        disabled={isLocked}
-        className={`w-full flex items-center gap-4 p-4 text-left transition-all ${
-          isLocked ? 'cursor-not-allowed' : 'hover:bg-white/[0.04] cursor-pointer'
-        }`}
-      >
-        {/* Number badge */}
-        <div
-          className="flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center text-xl font-black text-white"
-          style={{ backgroundColor: isLocked ? 'rgba(255,255,255,0.04)' : module.color }}
-        >
-          {isLocked ? (
-            <Lock size={15} className="text-white/20" />
-          ) : isCompleted ? (
-            <Check size={19} />
-          ) : (
-            module.number
-          )}
+const ResetModal: React.FC<{ onConfirm: () => void; onCancel: () => void }> = ({ onConfirm, onCancel }) => (
+  <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onCancel}>
+    <motion.div initial={{ scale: 0.96, opacity: 0, y: 8 }} animate={{ scale: 1, opacity: 1, y: 0 }}
+      transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+      className="bg-[#111111] border border-white/[0.12] rounded-xl p-6 max-w-sm w-full shadow-2xl"
+      onClick={e => e.stopPropagation()}>
+      <div className="flex items-start gap-4 mb-5">
+        <div className="w-9 h-9 rounded-lg bg-red-950/60 border border-red-800/50 flex items-center justify-center shrink-0">
+          <RotateCcw size={16} className="text-red-400" />
         </div>
+        <div>
+          <h3 className="text-white font-semibold text-sm mb-1">Reset all progress?</h3>
+          <p className="text-zinc-400 text-xs leading-relaxed">This will clear all completed modules, quiz results, and return you to Module 00. This cannot be undone.</p>
+        </div>
+      </div>
+      <div className="flex gap-2.5">
+        <button onClick={onCancel} className="flex-1 px-4 py-2.5 rounded-lg border border-white/[0.1] text-zinc-300 text-sm hover:bg-white/[0.04] transition-colors">Cancel</button>
+        <button onClick={onConfirm} className="flex-1 px-4 py-2.5 rounded-lg bg-red-600 text-white text-sm font-medium hover:bg-red-700 transition-colors">Reset progress</button>
+      </div>
+    </motion.div>
+  </div>
+);
 
-        {/* Labels */}
-        <div className="flex-1 min-w-0">
-          <div
-            className="text-[10px] font-bold uppercase tracking-widest mb-0.5"
-            style={{ color: isLocked ? 'rgba(255,255,255,0.15)' : module.color }}
-          >
-            Módulo {module.number}
-          </div>
-          <h3 className={`font-bold text-base leading-tight ${isLocked ? 'text-white/20' : 'text-white'}`}>
-            {module.title}
-          </h3>
-          <p className={`text-xs mt-0.5 leading-relaxed ${isLocked ? 'text-white/12' : 'text-white/45'}`}>
-            {module.subtitle}
+// ─── FORWARD WARNING MODAL ────────────────────────────────────────────────────
+
+const ForwardWarningModal: React.FC<{ target: Module; onConfirm: () => void; onCancel: () => void }> = ({ target, onConfirm, onCancel }) => (
+  <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onCancel}>
+    <motion.div initial={{ scale: 0.96, opacity: 0, y: 8 }} animate={{ scale: 1, opacity: 1, y: 0 }}
+      transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+      className="bg-[#111111] border border-white/[0.12] rounded-xl p-6 max-w-sm w-full shadow-2xl"
+      onClick={e => e.stopPropagation()}>
+      <div className="flex items-start gap-4 mb-5">
+        <div className="w-9 h-9 rounded-lg bg-amber-950/60 border border-amber-800/50 flex items-center justify-center shrink-0">
+          <AlertTriangle size={16} className="text-amber-400" />
+        </div>
+        <div>
+          <h3 className="text-white font-semibold text-sm mb-1">Jumping ahead</h3>
+          <p className="text-zinc-400 text-xs leading-relaxed mb-2">
+            You're navigating to <span className="text-white font-medium">{target.num} — {target.title}</span> without completing the previous modules.
+          </p>
+          <p className="text-zinc-500 text-xs leading-relaxed">
+            Some content may be harder to follow without the foundation. You can always come back.
           </p>
         </div>
+      </div>
+      <div className="flex gap-2.5">
+        <button onClick={onCancel} className="flex-1 px-4 py-2.5 rounded-lg border border-white/[0.1] text-zinc-300 text-sm hover:bg-white/[0.04] transition-colors">Go back</button>
+        <button onClick={onConfirm} className="flex-1 px-4 py-2.5 rounded-lg bg-white text-black text-sm font-medium hover:bg-zinc-200 transition-colors">Continue anyway</button>
+      </div>
+    </motion.div>
+  </div>
+);
 
-        {/* Right side */}
-        <div className="flex-shrink-0 flex items-center gap-2">
-          {isCompleted && (
-            <div className="w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center">
-              <Check size={10} className="text-emerald-400" />
-            </div>
-          )}
-          {!isLocked && (
-            <ChevronDown
-              size={15}
-              className={`text-white/25 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}
-            />
-          )}
+// ─── WELCOME SCREEN ───────────────────────────────────────────────────────────
+
+const WelcomeScreen: React.FC<{ onStart: () => void; hasProgress: boolean; onResume: () => void }> = ({ onStart, hasProgress, onResume }) => (
+  <div className="flex-1 flex items-center justify-center p-8">
+    <div className="max-w-lg w-full">
+      <div className="mb-8">
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.06] border border-white/[0.10] text-xs text-zinc-400 mb-6">
+          <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+          OpenClaw Complete Guide · 10 Modules
         </div>
-      </button>
+        <h1 className="text-3xl font-semibold text-white mb-3 tracking-tight">Learn OpenClaw from scratch.</h1>
+        <p className="text-zinc-400 text-base leading-relaxed">
+          From installation to production deployment. Each module builds on the last —
+          interactive, hands-on, with real configuration examples from the actual system.
+        </p>
+      </div>
+      <div className="grid grid-cols-3 gap-3 mb-8">
+        {[{ label: 'Modules', value: '10' }, { label: 'Topics', value: '42+' }, { label: 'Quizzes', value: '10' }].map(item => (
+          <div key={item.label} className="p-4 rounded-lg bg-white/[0.03] border border-white/[0.08] text-center">
+            <div className="text-2xl font-semibold text-white mb-0.5">{item.value}</div>
+            <div className="text-xs text-zinc-500">{item.label}</div>
+          </div>
+        ))}
+      </div>
+      <div className="flex gap-3">
+        {hasProgress ? (
+          <>
+            <button onClick={onResume} className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-white text-black text-sm font-medium rounded-lg hover:bg-zinc-100 transition-colors">
+              Continue where I left off <ArrowRight size={15} />
+            </button>
+            <button onClick={onStart} className="px-5 py-3 border border-white/[0.12] text-zinc-400 text-sm rounded-lg hover:bg-white/[0.04] transition-colors">Start over</button>
+          </>
+        ) : (
+          <button onClick={onStart} className="flex items-center gap-2 px-8 py-3 bg-white text-black text-sm font-medium rounded-lg hover:bg-zinc-100 transition-colors">
+            Start learning <ArrowRight size={15} />
+          </button>
+        )}
+      </div>
+    </div>
+  </div>
+);
 
-      {/* Expanded body */}
-      <AnimatePresence initial={false}>
-        {isExpanded && !isLocked && (
-          <motion.div
-            key="content"
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.28, ease: [0.4, 0, 0.2, 1] }}
-            className="overflow-hidden"
-          >
-            <div className="px-4 pb-5 border-t border-white/5 pt-4">
-              {/* Step progress */}
-              <StepProgress
-                total={module.steps.length}
-                current={currentStep}
-                color={module.color}
-                quizDone={isCompleted || (showQuiz && false)}
-              />
+// ─── SIDEBAR ──────────────────────────────────────────────────────────────────
 
-              {!showQuiz ? (
-                <>
-                  {/* Step header */}
-                  <div className="mb-4">
-                    <div className="text-[10px] font-semibold uppercase tracking-widest text-white/25 mb-1">
-                      Paso {currentStep + 1} / {module.steps.length}
-                    </div>
-                    <h4 className="text-lg font-bold text-white leading-tight">{step.title}</h4>
-                    {step.subtitle && (
-                      <p className="text-sm text-white/45 italic mt-0.5">{step.subtitle}</p>
-                    )}
-                  </div>
+const GROUPS = ['Fundamentals', 'Architecture', 'Advanced'];
 
-                  {/* Content */}
-                  <div className="space-y-3">
-                    {step.content.split('\n\n').map((para, i) => (
-                      <p key={i} className="text-sm text-white/72 leading-relaxed">{para}</p>
-                    ))}
-                  </div>
-                  {step.code && <CodeBlock code={step.code} />}
-                  {step.callout && <CalloutBlock callout={step.callout} />}
-
-                  {/* Navigation */}
-                  <div className="flex items-center justify-between mt-6 pt-4 border-t border-white/5">
-                    <button
-                      onClick={handlePrev}
-                      disabled={currentStep === 0}
-                      className="flex items-center gap-1.5 text-sm text-white/40 hover:text-white disabled:opacity-0 transition-colors"
-                    >
-                      <ArrowLeft size={13} /> Anterior
+const Sidebar: React.FC<{
+  progress: Progress;
+  onNavigate: (id: string) => void;
+  onReset: () => void;
+  onHome: () => void;
+}> = ({ progress, onNavigate, onReset, onHome }) => {
+  const currentIdx = MODULES.findIndex(m => m.id === progress.currentModuleId);
+  return (
+    <aside className="w-[220px] shrink-0 h-full flex flex-col border-r border-white/[0.07] bg-[#0d0d0d] overflow-y-auto">
+      <div className="px-4 py-4 border-b border-white/[0.07] shrink-0">
+        <button onClick={onHome} className="flex items-center gap-2 text-zinc-500 hover:text-zinc-300 transition-colors">
+          <Home size={13} /><span className="text-xs font-medium">OpenClaw Guide</span>
+        </button>
+      </div>
+      <nav className="flex-1 py-4 px-3">
+        {GROUPS.map(group => {
+          const groupMods = MODULES.filter(m => m.group === group);
+          return (
+            <div key={group} className="mb-5 last:mb-0">
+              <div className="px-1 mb-2 text-[10px] font-semibold text-zinc-600 uppercase tracking-widest">{group}</div>
+              <div className="space-y-0.5">
+                {groupMods.map(mod => {
+                  const modIdx = MODULES.findIndex(m => m.id === mod.id);
+                  const done    = progress.completedModules.includes(mod.id);
+                  const current = mod.id === progress.currentModuleId;
+                  const ahead   = modIdx > currentIdx && !done;
+                  return (
+                    <button key={mod.id} onClick={() => onNavigate(mod.id)}
+                      className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-md text-left transition-colors text-xs
+                        ${current ? 'bg-white/[0.08] text-white' : 'text-zinc-500 hover:text-zinc-300 hover:bg-white/[0.04]'}`}>
+                      <div className="shrink-0">
+                        {done    ? <CheckCircle2 size={13} className="text-emerald-500" />
+                        : current ? <div className="w-3 h-3 rounded-full bg-white" />
+                        : ahead   ? <Lock size={11} className="text-zinc-700" />
+                                  : <Circle size={13} className="text-zinc-700" />}
+                      </div>
+                      <span className="font-mono text-[10px] text-zinc-600 shrink-0">{mod.num}</span>
+                      <span className="truncate">{mod.title}</span>
                     </button>
-                    <button
-                      onClick={handleNext}
-                      className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold text-white transition-all hover:opacity-90"
-                      style={{ backgroundColor: module.color }}
-                    >
-                      {currentStep < module.steps.length - 1 ? 'Siguiente' : 'Verificar conocimiento'}
-                      <ArrowRight size={13} />
-                    </button>
-                  </div>
-                </>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+      </nav>
+      <div className="px-3 py-4 border-t border-white/[0.07] shrink-0">
+        <div className="mb-3">
+          <div className="flex items-center justify-between text-[10px] text-zinc-600 mb-1.5">
+            <span>Progress</span><span>{progress.completedModules.length}/{MODULES.length}</span>
+          </div>
+          <div className="h-0.5 bg-zinc-800 rounded-full overflow-hidden">
+            <div className="h-full bg-emerald-500 rounded-full transition-all duration-500"
+              style={{ width: `${(progress.completedModules.length / MODULES.length) * 100}%` }} />
+          </div>
+        </div>
+        <button onClick={onReset} className="flex items-center gap-1.5 text-[11px] text-zinc-700 hover:text-zinc-400 transition-colors">
+          <RotateCcw size={10} />Reset progress
+        </button>
+      </div>
+    </aside>
+  );
+};
+
+// ─── MODULE CONTENT ───────────────────────────────────────────────────────────
+
+const ModuleContent: React.FC<{
+  module: Module;
+  stepIndex: number;
+  isCompleted: boolean;
+  showQuiz: boolean;
+  onNext: () => void;
+  onPrev: () => void;
+  onComplete: () => void;
+  onSkipQuiz: () => void;
+}> = ({ module, stepIndex, isCompleted, showQuiz, onNext, onPrev, onComplete, onSkipQuiz }) => {
+  const step = module.steps[stepIndex];
+  const isLast  = stepIndex === module.steps.length - 1;
+  const isFirst = stepIndex === 0;
+
+  return (
+    <div className="flex-1 overflow-y-auto">
+      <div className="max-w-2xl mx-auto px-8 py-8">
+        <div className="mb-8">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="font-mono text-xs text-zinc-600">{module.num}</span>
+            <span className="text-zinc-700">·</span>
+            <span className="text-xs text-zinc-500">{module.group}</span>
+            {isCompleted && (
+              <><span className="text-zinc-700">·</span>
+              <span className="flex items-center gap-1 text-xs text-emerald-500"><CheckCircle2 size={11} /> Completed</span></>
+            )}
+          </div>
+          <h1 className="text-xl font-semibold text-white mb-1.5 tracking-tight">{module.title}</h1>
+          <p className="text-sm text-zinc-500">{module.subtitle}</p>
+        </div>
+
+        <StepIndicator steps={module.steps} current={stepIndex} completed={isCompleted} />
+
+        <AnimatePresence mode="wait">
+          <motion.div key={`${module.id}-${stepIndex}`}
+            initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.18 }}>
+            <h2 className="text-white font-semibold text-base mb-6">
+              <span className="font-mono text-zinc-600 text-sm mr-2">{stepIndex + 1}.</span>{step.title}
+            </h2>
+            <div>
+              {step.blocks.map((block, i) => <BlockRenderer key={i} block={block} />)}
+            </div>
+
+            {isLast && !isCompleted && showQuiz && (
+              <QuizView quiz={module.quiz} onPass={onComplete} onSkip={onSkipQuiz} />
+            )}
+
+            <div className="flex items-center justify-between mt-10 pt-6 border-t border-white/[0.07]">
+              <button onClick={onPrev} disabled={isFirst}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm text-zinc-400 hover:text-zinc-200 disabled:opacity-20 disabled:cursor-not-allowed transition-colors hover:bg-white/[0.04]">
+                <ChevronLeft size={14} />Previous
+              </button>
+              <span className="text-xs text-zinc-600 font-mono">{stepIndex + 1} / {module.steps.length}</span>
+              {isCompleted ? (
+                <span className="flex items-center gap-1.5 text-sm text-emerald-400"><CheckCircle2 size={14} /> Done</span>
+              ) : isLast ? (
+                !showQuiz ? (
+                  <button onClick={onNext} className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-white text-black text-sm font-medium hover:bg-zinc-100 transition-colors">
+                    Take quiz <ChevronRight size={14} />
+                  </button>
+                ) : null
               ) : (
-                <>
-                  <QuizSection
-                    quiz={module.quiz}
-                    onComplete={onComplete}
-                    color={module.color}
-                    alreadyCompleted={isCompleted}
-                  />
-                  <div className="mt-4 pt-4 border-t border-white/5">
-                    <button
-                      onClick={handlePrev}
-                      className="flex items-center gap-1.5 text-sm text-white/40 hover:text-white transition-colors"
-                    >
-                      <ArrowLeft size={13} /> Volver al último paso
-                    </button>
-                  </div>
-                </>
+                <button onClick={onNext} className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-white text-black text-sm font-medium hover:bg-zinc-100 transition-colors">
+                  Continue <ChevronRight size={14} />
+                </button>
               )}
             </div>
           </motion.div>
-        )}
-      </AnimatePresence>
+        </AnimatePresence>
+      </div>
     </div>
   );
 };
 
-// ─────────────────────────────────────────────────────────────
-// MAIN PAGE
-// ─────────────────────────────────────────────────────────────
-
-const GROUPS = [
-  { name: 'Fundamentos', indices: [0, 1, 2] },
-  { name: 'Arquitectura del agente', indices: [3, 4, 5, 6] },
-  { name: 'Sistema avanzado', indices: [7, 8, 9] },
-];
+// ─── MAIN ─────────────────────────────────────────────────────────────────────
 
 const GuiaPage: React.FC = () => {
-  const [completedModules, setCompletedModules] = useState<Set<number>>(() => {
-    try {
-      const saved = localStorage.getItem('openclaw-guide-v1');
-      return saved ? new Set<number>(JSON.parse(saved)) : new Set<number>();
-    } catch {
-      return new Set<number>();
-    }
+  const [progress, setProgress] = useState<Progress>(() => {
+    try { const s = localStorage.getItem(STORAGE_KEY); if (s) return JSON.parse(s); } catch {}
+    return defaultProgress();
   });
-  const [expandedModule, setExpandedModule] = useState<number | null>(null);
+  const [showWelcome, setShowWelcome]       = useState(true);
+  const [showReset, setShowReset]           = useState(false);
+  const [forwardTarget, setForwardTarget]   = useState<Module | null>(null);
+  const [showQuiz, setShowQuiz]             = useState(false);
+
+  const hasStoredProgress = (() => {
+    try { return !!localStorage.getItem(STORAGE_KEY); } catch { return false; }
+  })();
 
   useEffect(() => {
-    localStorage.setItem('openclaw-guide-v1', JSON.stringify([...completedModules]));
-  }, [completedModules]);
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(progress)); } catch {}
+  }, [progress]);
 
-  const isLocked = (i: number) => i > 0 && !completedModules.has(i - 1);
+  useEffect(() => { setShowQuiz(false); }, [progress.currentModuleId, progress.currentStepIndex]);
 
-  const handleToggle = (i: number) =>
-    setExpandedModule(prev => (prev === i ? null : i));
+  const currentModule  = MODULES.find(m => m.id === progress.currentModuleId) || MODULES[0];
+  const currentModIdx  = MODULES.findIndex(m => m.id === progress.currentModuleId);
+  const isCompleted    = progress.completedModules.includes(currentModule.id);
 
-  const handleComplete = (i: number) => {
-    setCompletedModules(prev => new Set([...prev, i]));
-    if (i < MODULES.length - 1) {
-      setTimeout(() => setExpandedModule(i + 1), 600);
+  const navigate = useCallback((moduleId: string) => {
+    const targetIdx  = MODULES.findIndex(m => m.id === moduleId);
+    const done       = progress.completedModules.includes(moduleId);
+    const isCurrent  = moduleId === progress.currentModuleId;
+    if (isCurrent) return;
+    if (targetIdx <= currentModIdx || done) {
+      setProgress(p => ({ ...p, currentModuleId: moduleId, currentStepIndex: 0 }));
+      setShowWelcome(false);
+      return;
     }
-  };
+    setForwardTarget(MODULES.find(m => m.id === moduleId)!);
+  }, [progress.completedModules, progress.currentModuleId, currentModIdx]);
 
-  const handleReset = () => {
-    if (window.confirm('¿Reiniciar todo el progreso?')) {
-      setCompletedModules(new Set());
-      setExpandedModule(null);
-      localStorage.removeItem('openclaw-guide-v1');
+  const confirmForward = useCallback(() => {
+    if (forwardTarget) {
+      setProgress(p => ({ ...p, currentModuleId: forwardTarget.id, currentStepIndex: 0 }));
+      setShowWelcome(false);
     }
-  };
+    setForwardTarget(null);
+  }, [forwardTarget]);
 
-  const total = completedModules.size;
-  const allDone = total === MODULES.length;
+  const nextStep = useCallback(() => {
+    const isLast = progress.currentStepIndex === currentModule.steps.length - 1;
+    if (isLast && !isCompleted) { setShowQuiz(true); return; }
+    setProgress(p => ({ ...p, currentStepIndex: p.currentStepIndex + 1 }));
+  }, [progress.currentStepIndex, currentModule.steps.length, isCompleted]);
+
+  const prevStep = useCallback(() => {
+    if (progress.currentStepIndex > 0) {
+      setProgress(p => ({ ...p, currentStepIndex: p.currentStepIndex - 1 }));
+    }
+  }, [progress.currentStepIndex]);
+
+  const complete = useCallback(() => {
+    const nextIdx = currentModIdx + 1;
+    setProgress(p => ({
+      ...p,
+      completedModules: p.completedModules.includes(currentModule.id) ? p.completedModules : [...p.completedModules, currentModule.id],
+      currentModuleId: nextIdx < MODULES.length ? MODULES[nextIdx].id : currentModule.id,
+      currentStepIndex: 0,
+    }));
+    setShowQuiz(false);
+  }, [currentModule.id, currentModIdx]);
+
+  const skipQuiz = useCallback(() => {
+    const nextIdx = currentModIdx + 1;
+    setProgress(p => ({
+      ...p,
+      currentModuleId: nextIdx < MODULES.length ? MODULES[nextIdx].id : currentModule.id,
+      currentStepIndex: 0,
+    }));
+    setShowQuiz(false);
+  }, [currentModule.id, currentModIdx]);
+
+  const reset = useCallback(() => {
+    setProgress(defaultProgress());
+    setShowReset(false);
+    setShowWelcome(true);
+    setShowQuiz(false);
+    try { localStorage.removeItem(STORAGE_KEY); } catch {}
+  }, []);
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="w-full h-screen flex flex-col bg-[#0a0a0a] text-white overflow-hidden"
+      style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
 
-      {/* ── HERO ─────────────────────────────── */}
-      <div className="border-b border-white/5 px-6 pt-16 pb-14">
-        <div className="max-w-3xl mx-auto">
-          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/25 mb-5">
-            Guía OpenClaw · KeroClow · www.openagent.lat
-          </p>
-          <h1 className="text-5xl md:text-7xl font-black leading-none tracking-tight text-white mb-4">
-            Guía Completa<br />
-            <span style={{ color: 'rgba(255,255,255,0.25)' }}>de OpenClaw</span>
-          </h1>
-          <p className="text-lg text-white/55 mb-8 max-w-md leading-relaxed">
-            De cero a experto. 10 módulos. Instalación hasta Skills.
-          </p>
-          <div className="flex flex-wrap items-center gap-3">
-            <span className="px-3 py-1 rounded-full border border-white/10 text-xs text-white/35">KeroClow</span>
-            <span className="px-3 py-1 rounded-full border border-white/10 text-xs text-white/35">www.openagent.lat</span>
-            {total > 0 && (
-              <span className="px-3 py-1 rounded-full bg-emerald-950 border border-emerald-800/60 text-xs text-emerald-400">
-                {total}/{MODULES.length} módulos completados
-              </span>
-            )}
-          </div>
-        </div>
-      </div>
+      {showReset    && <ResetModal onConfirm={reset} onCancel={() => setShowReset(false)} />}
+      {forwardTarget && <ForwardWarningModal target={forwardTarget} onConfirm={confirmForward} onCancel={() => setForwardTarget(null)} />}
 
-      {/* ── INTRO ARTICLE ────────────────────── */}
-      <div className="max-w-3xl mx-auto px-6 py-14 space-y-14">
+      <div className="flex-1 flex overflow-hidden">
+        {!showWelcome && (
+          <Sidebar progress={progress} onNavigate={navigate} onReset={() => setShowReset(true)} onHome={() => setShowWelcome(true)} />
+        )}
 
-        <div className="grid md:grid-cols-[190px_1fr] gap-8">
-          <div>
-            <h2 className="text-2xl md:text-3xl font-bold text-white/70 leading-snug">Por qué<br />esta guía</h2>
-          </div>
-          <div className="space-y-4 text-white/60 text-sm leading-relaxed">
-            <p className="italic text-white/50">"Instalé OpenClaw. Ahora, ¿qué hago con todos estos archivos?"</p>
-            <p>Es la pregunta que hace todo el mundo al arrancar. Tenés un workspace vacío, la documentación oficial explica cada archivo por separado, y no queda claro en qué orden leer ni cuánto importa cada cosa.</p>
-            <p>Esta guía existe para resolver eso. Cubre todos los archivos del workspace de principio a fin, en el orden que tiene sentido. Cada módulo es independiente — podés leerlos en orden o ir directamente al archivo que necesitás configurar.</p>
-          </div>
-        </div>
-
-        <hr className="border-white/[0.06]" />
-
-        <div className="grid md:grid-cols-[190px_1fr] gap-8">
-          <div>
-            <h2 className="text-2xl md:text-3xl font-bold text-white/70 leading-snug">Qué vas<br />a aprender</h2>
-          </div>
-          <div className="space-y-4">
-            <p className="text-sm text-white/60 leading-relaxed">
-              10 módulos con pasos concretos, ejemplos reales, y un check de conocimiento al final de cada uno.
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-3">
-              {[
-                { label: 'Fundamentos', items: ['Instalación', 'openclaw.json', 'Workspace'], color: '#6366f1' },
-                { label: 'Arquitectura', items: ['AGENTS.md', 'SOUL.md', 'TOOLS.md', 'USER + IDENTITY'], color: '#db2777' },
-                { label: 'Sistema avanzado', items: ['MEMORY.md', 'HEARTBEAT.md', 'Skills'], color: '#4f46e5' },
-              ].map(g => (
-                <div key={g.label} className="p-4 rounded-xl border border-white/[0.06] bg-white/[0.02]">
-                  <div className="text-[10px] font-bold uppercase tracking-wider mb-2" style={{ color: g.color }}>{g.label}</div>
-                  <ul className="space-y-1">
-                    {g.items.map(item => <li key={item} className="text-xs text-white/45">{item}</li>)}
-                  </ul>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <hr className="border-white/[0.06]" />
-
-        <div className="grid md:grid-cols-[190px_1fr] gap-8">
-          <div>
-            <h2 className="text-2xl md:text-3xl font-bold text-white/70 leading-snug">Cómo<br />funciona</h2>
-          </div>
-          <div className="space-y-4 text-sm text-white/60 leading-relaxed">
-            <p>Cada módulo tiene pasos numerados con contenido concreto — no teoría abstracta, sino qué escribir y por qué. Los bloques de código tienen botón de copiar.</p>
-            <p>Al final de cada módulo hay un check de conocimiento de una sola pregunta. Necesitás responderla correctamente para desbloquear el siguiente módulo. Si no recordás la respuesta, el contenido está justo arriba.</p>
-            <p>Tu progreso se guarda en este navegador. Podés cerrar y volver cuando quieras.</p>
-          </div>
-        </div>
-      </div>
-
-      <div className="border-t border-white/[0.06]" />
-
-      {/* ── MODULES SECTION ──────────────────── */}
-      <div className="max-w-3xl mx-auto px-6 py-14">
-
-        {/* Section header */}
-        <div className="flex items-center justify-between mb-10">
-          <div className="flex items-center gap-3">
-            <div className="w-1 h-8 rounded-full bg-white/15" />
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-white/25">MÓDULOS</p>
-              <p className="text-sm text-white/40 mt-0.5">{total} de {MODULES.length} completados</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            {/* Progress bar */}
-            <div className="w-28 h-1 bg-white/8 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-emerald-500 rounded-full transition-all duration-500"
-                style={{ width: `${(total / MODULES.length) * 100}%` }}
-              />
-            </div>
-            {total > 0 && (
-              <button
-                onClick={handleReset}
-                className="text-xs text-white/20 hover:text-white/50 transition-colors"
-                title="Reiniciar progreso"
-              >
-                Reiniciar
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* Groups + cards */}
-        <div className="space-y-14">
-          {GROUPS.map(group => (
-            <div key={group.name} className="grid md:grid-cols-[190px_1fr] gap-6 items-start">
-              <div className="md:sticky md:top-6">
-                <p className="text-[10px] font-bold uppercase tracking-widest text-white/20 mb-1">MÓDULOS</p>
-                <h3 className="text-lg md:text-xl font-bold text-white/60 leading-snug">{group.name}</h3>
-              </div>
-              <div className="space-y-3">
-                {group.indices.map(idx => (
-                  <ModuleCard
-                    key={idx}
-                    module={MODULES[idx]}
-                    index={idx}
-                    isLocked={isLocked(idx)}
-                    isCompleted={completedModules.has(idx)}
-                    isExpanded={expandedModule === idx}
-                    onToggle={() => handleToggle(idx)}
-                    onComplete={() => handleComplete(idx)}
-                  />
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* All done */}
-        <AnimatePresence>
-          {allDone && (
-            <motion.div
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="mt-20 text-center p-10 rounded-2xl border border-emerald-800/40 bg-emerald-950/20"
-            >
-              <div className="text-4xl mb-4">🎉</div>
-              <h3 className="text-2xl font-bold text-white mb-2">¡Guía completada!</h3>
-              <p className="text-white/55 text-sm max-w-sm mx-auto leading-relaxed">
-                Completaste los 10 módulos de la Guía OpenClaw. Tenés el conocimiento para configurar y personalizar tu agente de principio a fin.
-              </p>
-              <a
-                href="https://www.openagent.lat"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 mt-6 px-6 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm transition-colors"
-              >
-                Ver más en openagent.lat <ArrowRight size={14} />
-              </a>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-
-      {/* ── FOOTER ───────────────────────────── */}
-      <div className="border-t border-white/[0.06] mt-8 py-8 px-6 text-center">
-        <p className="text-xs text-white/20">
-          Guía OpenClaw · KeroClow ·{' '}
-          <a href="https://www.openagent.lat" target="_blank" rel="noopener noreferrer" className="hover:text-white/40 transition-colors">
-            www.openagent.lat
-          </a>
-        </p>
+        {showWelcome ? (
+          <WelcomeScreen
+            onStart={() => { setProgress(defaultProgress()); setShowWelcome(false); }}
+            hasProgress={hasStoredProgress && progress.completedModules.length > 0}
+            onResume={() => setShowWelcome(false)}
+          />
+        ) : (
+          <ModuleContent
+            key={`${currentModule.id}-${progress.currentStepIndex}`}
+            module={currentModule}
+            stepIndex={progress.currentStepIndex}
+            isCompleted={isCompleted}
+            showQuiz={showQuiz}
+            onNext={nextStep}
+            onPrev={prevStep}
+            onComplete={complete}
+            onSkipQuiz={skipQuiz}
+          />
+        )}
       </div>
     </div>
   );

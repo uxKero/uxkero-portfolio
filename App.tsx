@@ -22,7 +22,7 @@ const AppContent: React.FC = () => {
   // Convertir slug de URL a slug interno si es necesario
   const blogPath = location.pathname.slice(1); // Remover el "/"
   // Excluir rutas reservadas de la detección de blog slugs
-  const reservedPaths = ['guia'];
+  const reservedPaths = ['guia', 'guide'];
   const blogSlug = blogPath && !reservedPaths.includes(blogPath)
     ? (getInternalSlug(blogPath) || blogPath)
     : null;
@@ -69,6 +69,7 @@ const App: React.FC = () => {
         <Route path="/admin/login" element={<Login />} />
         <Route path="/admin" element={<AdminPanel />} />
         <Route path="/guia" element={<div className="w-full min-h-screen overflow-y-auto"><GuiaPage /></div>} />
+        <Route path="/guide" element={<div className="w-full min-h-screen overflow-y-auto"><GuiaPage /></div>} />
         <Route path="/*" element={<AppContent />} />
       </Routes>
     </BrowserRouter>
