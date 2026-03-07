@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import LanguageIcon from '@mui/icons-material/Language';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
@@ -18,6 +19,7 @@ interface AboutSectionProps {
 
 const AboutSection: React.FC<AboutSectionProps> = ({ onNavigate, content, language, onToggleLanguage, onBlogClick, onBlogOpenInNewTab }) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const navigateToGuides = useNavigate();
   const [showListView, setShowListView] = useState(false);
   const [realBlogs, setRealBlogs] = useState<Array<{
     title: string;
@@ -199,8 +201,19 @@ const AboutSection: React.FC<AboutSectionProps> = ({ onNavigate, content, langua
                   language={language}
                 />
               ) : (
-                <div className="text-center text-zinc-500 py-8">
-                  {language === 'es' ? 'No hay blogs disponibles' : 'No blogs available'}
+                <div className="flex flex-col items-center gap-4 py-8">
+                  <p className="text-center text-zinc-600 text-xs">
+                    {language === 'es' ? 'No hay blogs disponibles' : 'No blogs available'}
+                  </p>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); navigateToGuides('/guides'); }}
+                    className="group flex items-center gap-2 text-zinc-400 hover:text-white transition-colors"
+                  >
+                    <span className="text-xs font-bold tracking-[0.2em] uppercase border-b border-zinc-800 group-hover:border-white pb-1 transition-all">
+                      {language === 'es' ? 'Ver guías' : 'View guides'}
+                    </span>
+                    <ArrowForwardIcon className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
+                  </button>
                 </div>
               )}
 
@@ -221,16 +234,27 @@ const AboutSection: React.FC<AboutSectionProps> = ({ onNavigate, content, langua
                 </button>
               )}
 
-              {/* CTA */}
-               <button 
-                 onClick={(e) => { e.stopPropagation(); onNavigate('experience'); }}
-                 className="group flex items-center gap-3 text-zinc-400 hover:text-white transition-colors mt-4 self-center"
-               >
+              {/* CTAs */}
+              <div className="flex flex-col gap-3 mt-4 self-center">
+                <button
+                  onClick={(e) => { e.stopPropagation(); navigateToGuides('/guides'); }}
+                  className="group flex items-center gap-3 text-zinc-400 hover:text-white transition-colors self-center"
+                >
+                  <span className="text-xs font-bold tracking-[0.2em] uppercase border-b border-zinc-800 group-hover:border-white pb-1 transition-all">
+                    {language === 'es' ? 'Ver guías' : 'Guides'}
+                  </span>
+                  <ArrowForwardIcon className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
+                </button>
+                <button
+                  onClick={(e) => { e.stopPropagation(); onNavigate('experience'); }}
+                  className="group flex items-center gap-3 text-zinc-400 hover:text-white transition-colors self-center"
+                >
                   <span className="text-xs font-bold tracking-[0.2em] uppercase border-b border-zinc-800 group-hover:border-white pb-1 transition-all">
                     {content.btn_case_studies}
                   </span>
                   <ArrowForwardIcon className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
-               </button>
+                </button>
+              </div>
            </div>
          ) : (
            <div className="max-w-4xl w-full flex flex-col z-10 py-12 sm:py-16 md:py-20">

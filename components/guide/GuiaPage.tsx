@@ -43,6 +43,37 @@ const TBL = (headers: string[], rows: string[][]): Block => ({ type: 'table', ta
 const CL  = (kind: CalloutKind, text: string, title?: string): Block => ({ type: 'callout', callout: { kind, text, title } });
 const LI  = (items: string[]): Block => ({ type: 'list', items });
 
+// ─── LANGUAGE STRINGS ─────────────────────────────────────────────────────────
+
+const LANG_STORAGE_KEY = 'guide-lang';
+
+const UI_STRINGS = {
+  en: {
+    allGuides: 'All guides',
+    guideName: 'OpenClaw Guide',
+    progress: 'Progress',
+    reset: 'Reset progress',
+    previous: 'Previous',
+    continue: 'Continue',
+    takeQuiz: 'Take quiz',
+    done: 'Done',
+    completed: 'Completed',
+    step: 'Step',
+  },
+  es: {
+    allGuides: 'Todas las guías',
+    guideName: 'Guía OpenClaw',
+    progress: 'Progreso',
+    reset: 'Reiniciar',
+    previous: 'Anterior',
+    continue: 'Continuar',
+    takeQuiz: 'Tomar quiz',
+    done: 'Completado',
+    completed: 'Completado',
+    step: 'Paso',
+  },
+} as const;
+
 // ─── MODULE DATA ──────────────────────────────────────────────────────────────
 
 const MODULES: Module[] = [
@@ -1137,29 +1168,66 @@ const BlockRenderer: React.FC<{ block: Block }> = ({ block }) => {
   }
 };
 
-// ─── STEP INDICATOR ───────────────────────────────────────────────────────────
+// ─── MODULE HEADER ────────────────────────────────────────────────────────────
 
-const StepIndicator: React.FC<{ steps: Step[]; current: number; completed: boolean }> = ({ steps, current, completed }) => (
-  <div className="flex items-center mb-8">
-    {steps.map((_, i) => {
-      const done = completed ? true : i < current;
-      const active = !completed && i === current;
-      return (
-        <React.Fragment key={i}>
-          <div className={`
-            flex items-center justify-center w-6 h-6 rounded-full text-[11px] font-mono shrink-0 transition-all
-            ${done ? 'bg-emerald-500 text-black font-bold' : active ? 'bg-white text-black font-bold' : 'bg-zinc-800 text-zinc-500 border border-zinc-700'}
-          `}>
-            {done ? <Check size={10} strokeWidth={3} /> : i + 1}
-          </div>
-          {i < steps.length - 1 && (
-            <div className={`flex-1 h-px mx-1 ${done ? 'bg-emerald-600' : 'bg-zinc-800'}`} />
-          )}
-        </React.Fragment>
-      );
-    })}
-  </div>
-);
+const ModuleHeader: React.FC<{
+  module: Module;
+  stepIndex: number;
+  isCompleted: boolean;
+  lang: 'en' | 'es';
+}> = ({ module, stepIndex, isCompleted, lang }) => {
+  const t = UI_STRINGS[lang];
+  return (
+    <div className="sticky top-0 z-10 bg-[#0a0a0a]/[0.97] backdrop-blur-sm border-b border-white/[0.06] -mx-8 px-8 pt-5 pb-4 mb-8">
+      {/* Breadcrumb */}
+      <div className="flex items-center gap-2 mb-2.5">
+        <span className="font-mono text-[11px] text-zinc-600 tracking-wider">{module.num}</span>
+        <span className="text-zinc-800 text-[11px]">·</span>
+        <span className="text-[11px] text-zinc-600">{module.group}</span>
+        {isCompleted ? (
+          <>
+            <span className="text-zinc-800 text-[11px]">·</span>
+            <span className="flex items-center gap-1 text-[11px] text-emerald-500">
+              <CheckCircle2 size={10} /> {t.completed}
+            </span>
+          </>
+        ) : (
+          <>
+            <span className="text-zinc-800 text-[11px]">·</span>
+            <span className="text-[11px] text-zinc-600 font-mono">{t.step} {stepIndex + 1}/{module.steps.length}</span>
+          </>
+        )}
+      </div>
+      {/* Title + subtitle */}
+      <h1 className="text-2xl font-bold text-white tracking-tight mb-0.5 leading-tight">{module.title}</h1>
+      <p className="text-xs text-zinc-500 mb-4 leading-relaxed">{module.subtitle}</p>
+      {/* Step progress dots */}
+      <div className="flex items-center">
+        {module.steps.map((step, i) => {
+          const done = isCompleted ? true : i < stepIndex;
+          const active = !isCompleted && i === stepIndex;
+          return (
+            <React.Fragment key={i}>
+              <div title={step.title} className={`
+                flex items-center justify-center w-5 h-5 rounded-full text-[9px] font-mono shrink-0 transition-all
+                ${done ? 'bg-emerald-500 text-black' : active ? 'bg-white text-black font-bold scale-110' : 'bg-zinc-800/80 text-zinc-600 border border-zinc-700/50'}
+              `}>
+                {done ? <Check size={8} strokeWidth={3} /> : i + 1}
+              </div>
+              {i < module.steps.length - 1 && (
+                <div className={`h-px flex-1 min-w-[12px] transition-colors duration-500 ${done ? 'bg-emerald-600/50' : 'bg-zinc-800'}`} />
+              )}
+            </React.Fragment>
+          );
+        })}
+      </div>
+      {/* Current step name */}
+      {!isCompleted && (
+        <div className="mt-2 text-[10px] text-zinc-600 font-mono truncate">→ {module.steps[stepIndex]?.title}</div>
+      )}
+    </div>
+  );
+};
 
 // ─── QUIZ VIEW ────────────────────────────────────────────────────────────────
 
@@ -1339,24 +1407,27 @@ const Sidebar: React.FC<{
   onReset: () => void;
   onHome: () => void;
   onBackToGuides: () => void;
-}> = ({ progress, onNavigate, onReset, onHome, onBackToGuides }) => {
+  lang: 'en' | 'es';
+  onToggleLang: () => void;
+}> = ({ progress, onNavigate, onReset, onHome, onBackToGuides, lang, onToggleLang }) => {
+  const t = UI_STRINGS[lang];
   const currentIdx = MODULES.findIndex(m => m.id === progress.currentModuleId);
   return (
     <aside className="w-[220px] shrink-0 h-full flex flex-col border-r border-white/[0.07] bg-[#0d0d0d] overflow-y-auto">
       <div className="px-4 pt-3 pb-3 border-b border-white/[0.07] shrink-0 space-y-2">
         <button onClick={onBackToGuides} className="flex items-center gap-1.5 text-zinc-700 hover:text-zinc-400 transition-colors">
-          <BackIcon size={11} /><span className="text-[11px]">All guides</span>
+          <BackIcon size={11} /><span className="text-[11px]">{t.allGuides}</span>
         </button>
         <button onClick={onHome} className="flex items-center gap-2 text-zinc-500 hover:text-zinc-300 transition-colors">
-          <Home size={13} /><span className="text-xs font-medium">OpenClaw Guide</span>
+          <Home size={13} /><span className="text-xs font-medium">{t.guideName}</span>
         </button>
       </div>
-      <nav className="flex-1 py-4 px-3">
+      <nav className="flex-1 py-4 px-2">
         {GROUPS.map(group => {
           const groupMods = MODULES.filter(m => m.group === group);
           return (
             <div key={group} className="mb-5 last:mb-0">
-              <div className="px-1 mb-2 text-[10px] font-semibold text-zinc-600 uppercase tracking-widest">{group}</div>
+              <div className="px-2 mb-2 text-[10px] font-semibold text-zinc-700 uppercase tracking-widest">{group}</div>
               <div className="space-y-0.5">
                 {groupMods.map(mod => {
                   const modIdx = MODULES.findIndex(m => m.id === mod.id);
@@ -1365,16 +1436,21 @@ const Sidebar: React.FC<{
                   const ahead   = modIdx > currentIdx && !done;
                   return (
                     <button key={mod.id} onClick={() => onNavigate(mod.id)}
-                      className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-md text-left transition-colors text-xs
-                        ${current ? 'bg-white/[0.08] text-white' : 'text-zinc-500 hover:text-zinc-300 hover:bg-white/[0.04]'}`}>
-                      <div className="shrink-0">
-                        {done    ? <CheckCircle2 size={13} className="text-emerald-500" />
-                        : current ? <div className="w-3 h-3 rounded-full bg-white" />
-                        : ahead   ? <Lock size={11} className="text-zinc-700" />
-                                  : <Circle size={13} className="text-zinc-700" />}
+                      className={`w-full flex items-center gap-2.5 px-2 py-2 rounded-md text-left transition-all text-xs border-l-2
+                        ${current
+                          ? 'border-white bg-white/[0.06] text-white'
+                          : done
+                          ? 'border-emerald-500/30 text-zinc-500 hover:text-zinc-300 hover:bg-white/[0.03] hover:border-emerald-500/50'
+                          : 'border-transparent text-zinc-600 hover:text-zinc-300 hover:bg-white/[0.03]'
+                        }`}>
+                      <div className="shrink-0 ml-0.5">
+                        {done    ? <CheckCircle2 size={12} className="text-emerald-500" />
+                        : current ? <div className="w-2 h-2 rounded-full bg-white" />
+                        : ahead   ? <Lock size={10} className="text-zinc-700" />
+                                  : <Circle size={12} className="text-zinc-700" />}
                       </div>
                       <span className="font-mono text-[10px] text-zinc-600 shrink-0">{mod.num}</span>
-                      <span className="truncate">{mod.title}</span>
+                      <span className="truncate leading-tight">{mod.title}</span>
                     </button>
                   );
                 })}
@@ -1383,10 +1459,10 @@ const Sidebar: React.FC<{
           );
         })}
       </nav>
-      <div className="px-3 py-4 border-t border-white/[0.07] shrink-0">
-        <div className="mb-3">
+      <div className="px-3 py-4 border-t border-white/[0.07] shrink-0 space-y-3">
+        <div>
           <div className="flex items-center justify-between text-[10px] text-zinc-600 mb-1.5">
-            <span>Progress</span><span>{progress.completedModules.length}/{MODULES.length}</span>
+            <span>{t.progress}</span><span>{progress.completedModules.length}/{MODULES.length}</span>
           </div>
           <div className="h-0.5 bg-zinc-800 rounded-full overflow-hidden">
             <div className="h-full bg-emerald-500 rounded-full transition-all duration-500"
@@ -1394,10 +1470,67 @@ const Sidebar: React.FC<{
           </div>
         </div>
         <button onClick={onReset} className="flex items-center gap-1.5 text-[11px] text-zinc-700 hover:text-zinc-400 transition-colors">
-          <RotateCcw size={10} />Reset progress
+          <RotateCcw size={10} />{t.reset}
         </button>
+        <div className="pt-2 border-t border-white/[0.05]">
+          <button onClick={onToggleLang}
+            className="flex items-center gap-1.5 w-full px-2.5 py-1.5 rounded-md bg-white/[0.04] border border-white/[0.07] hover:bg-white/[0.07] transition-colors">
+            <span className={`text-[10px] font-mono font-semibold ${lang === 'en' ? 'text-white' : 'text-zinc-600'}`}>EN</span>
+            <span className="text-zinc-700 text-[10px]">/</span>
+            <span className={`text-[10px] font-mono font-semibold ${lang === 'es' ? 'text-white' : 'text-zinc-600'}`}>ES</span>
+            <span className="text-[10px] text-zinc-600 ml-auto">{lang === 'en' ? 'Español' : 'English'}</span>
+          </button>
+        </div>
       </div>
     </aside>
+  );
+};
+
+// ─── FLOATING NAV ─────────────────────────────────────────────────────────────
+
+const FloatingNav: React.FC<{
+  onPrev: () => void;
+  onNext: () => void;
+  isFirst: boolean;
+  isLast: boolean;
+  isCompleted: boolean;
+  showQuiz: boolean;
+  stepIndex: number;
+  totalSteps: number;
+  lang: 'en' | 'es';
+}> = ({ onPrev, onNext, isFirst, isLast, isCompleted, showQuiz, stepIndex, totalSteps, lang }) => {
+  const t = UI_STRINGS[lang];
+  const showNext = !isCompleted && !(isLast && showQuiz);
+  const nextLabel = isLast && !isCompleted && !showQuiz ? t.takeQuiz : t.continue;
+  return (
+    <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2">
+      <motion.button
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: isFirst ? 0 : 1, y: 0 }}
+        onClick={onPrev}
+        disabled={isFirst}
+        className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-[#1a1a1a] border border-white/[0.1] text-zinc-400 hover:text-white hover:border-white/[0.2] text-xs font-medium transition-all disabled:pointer-events-none shadow-lg shadow-black/40 backdrop-blur-sm"
+      >
+        <ChevronLeft size={13} /> {t.previous}
+      </motion.button>
+      <div className="px-2.5 py-1.5 rounded-lg bg-[#111]/80 border border-white/[0.07] text-[10px] font-mono text-zinc-600 backdrop-blur-sm">
+        {stepIndex + 1}/{totalSteps}
+      </div>
+      {isCompleted ? (
+        <div className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-emerald-900/40 border border-emerald-500/30 text-emerald-400 text-xs font-medium">
+          <CheckCircle2 size={13} /> {t.done}
+        </div>
+      ) : showNext ? (
+        <motion.button
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          onClick={onNext}
+          className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-white text-black text-xs font-semibold hover:bg-zinc-100 transition-all shadow-lg shadow-black/40"
+        >
+          {nextLabel} <ChevronRight size={13} />
+        </motion.button>
+      ) : null}
+    </div>
   );
 };
 
@@ -1412,30 +1545,27 @@ const ModuleContent: React.FC<{
   onPrev: () => void;
   onComplete: () => void;
   onSkipQuiz: () => void;
-}> = ({ module, stepIndex, isCompleted, showQuiz, onNext, onPrev, onComplete, onSkipQuiz }) => {
+  lang: 'en' | 'es';
+}> = ({ module, stepIndex, isCompleted, showQuiz, onNext, onPrev, onComplete, onSkipQuiz, lang }) => {
   const step = module.steps[stepIndex];
   const isLast  = stepIndex === module.steps.length - 1;
   const isFirst = stepIndex === 0;
 
   return (
     <div className="flex-1 overflow-y-auto">
-      <div className="max-w-2xl mx-auto px-8 py-8">
-        <div className="mb-8">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="font-mono text-xs text-zinc-600">{module.num}</span>
-            <span className="text-zinc-700">·</span>
-            <span className="text-xs text-zinc-500">{module.group}</span>
-            {isCompleted && (
-              <><span className="text-zinc-700">·</span>
-              <span className="flex items-center gap-1 text-xs text-emerald-500"><CheckCircle2 size={11} /> Completed</span></>
-            )}
-          </div>
-          <h1 className="text-xl font-semibold text-white mb-1.5 tracking-tight">{module.title}</h1>
-          <p className="text-sm text-zinc-500">{module.subtitle}</p>
-        </div>
-
-        <StepIndicator steps={module.steps} current={stepIndex} completed={isCompleted} />
-
+      <FloatingNav
+        onPrev={onPrev}
+        onNext={onNext}
+        isFirst={isFirst}
+        isLast={isLast}
+        isCompleted={isCompleted}
+        showQuiz={showQuiz}
+        stepIndex={stepIndex}
+        totalSteps={module.steps.length}
+        lang={lang}
+      />
+      <div className="max-w-2xl mx-auto px-8 py-0">
+        <ModuleHeader module={module} stepIndex={stepIndex} isCompleted={isCompleted} lang={lang} />
         <AnimatePresence mode="wait">
           <motion.div key={`${module.id}-${stepIndex}`}
             initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
@@ -1451,26 +1581,8 @@ const ModuleContent: React.FC<{
               <QuizView quiz={module.quiz} onPass={onComplete} onSkip={onSkipQuiz} />
             )}
 
-            <div className="flex items-center justify-between mt-10 pt-6 border-t border-white/[0.07]">
-              <button onClick={onPrev} disabled={isFirst}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm text-zinc-400 hover:text-zinc-200 disabled:opacity-20 disabled:cursor-not-allowed transition-colors hover:bg-white/[0.04]">
-                <ChevronLeft size={14} />Previous
-              </button>
-              <span className="text-xs text-zinc-600 font-mono">{stepIndex + 1} / {module.steps.length}</span>
-              {isCompleted ? (
-                <span className="flex items-center gap-1.5 text-sm text-emerald-400"><CheckCircle2 size={14} /> Done</span>
-              ) : isLast ? (
-                !showQuiz ? (
-                  <button onClick={onNext} className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-white text-black text-sm font-medium hover:bg-zinc-100 transition-colors">
-                    Take quiz <ChevronRight size={14} />
-                  </button>
-                ) : null
-              ) : (
-                <button onClick={onNext} className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-white text-black text-sm font-medium hover:bg-zinc-100 transition-colors">
-                  Continue <ChevronRight size={14} />
-                </button>
-              )}
-            </div>
+            {/* Bottom padding to avoid content hidden behind floating nav */}
+            <div className="h-24" />
           </motion.div>
         </AnimatePresence>
       </div>
@@ -1490,6 +1602,16 @@ const GuiaPage: React.FC = () => {
   const [showReset, setShowReset]           = useState(false);
   const [forwardTarget, setForwardTarget]   = useState<Module | null>(null);
   const [showQuiz, setShowQuiz]             = useState(false);
+  const [language, setLanguage]             = useState<'en' | 'es'>(() => {
+    try { return (localStorage.getItem(LANG_STORAGE_KEY) as 'en' | 'es') || 'en'; } catch { return 'en'; }
+  });
+  const toggleLanguage = useCallback(() => {
+    setLanguage(l => {
+      const next = l === 'en' ? 'es' : 'en';
+      try { localStorage.setItem(LANG_STORAGE_KEY, next); } catch {}
+      return next;
+    });
+  }, []);
 
   const hasStoredProgress = (() => {
     try { return !!localStorage.getItem(STORAGE_KEY); } catch { return false; }
@@ -1582,6 +1704,8 @@ const GuiaPage: React.FC = () => {
             onReset={() => setShowReset(true)}
             onHome={() => setShowWelcome(true)}
             onBackToGuides={() => routerNavigate('/guides')}
+            lang={language}
+            onToggleLang={toggleLanguage}
           />
         )}
 
@@ -1603,6 +1727,7 @@ const GuiaPage: React.FC = () => {
             onPrev={prevStep}
             onComplete={complete}
             onSkipQuiz={skipQuiz}
+            lang={language}
           />
         )}
       </div>
