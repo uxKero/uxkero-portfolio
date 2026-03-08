@@ -201,18 +201,70 @@ const AboutSection: React.FC<AboutSectionProps> = ({ onNavigate, content, langua
                   language={language}
                 />
               ) : (
-                <div className="flex flex-col items-center gap-4 py-8">
-                  <p className="text-center text-zinc-600 text-xs">
-                    {language === 'es' ? 'No hay blogs disponibles' : 'No blogs available'}
-                  </p>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); navigateToGuides('/guides'); }}
-                    className="group flex items-center gap-2 text-zinc-400 hover:text-white transition-colors"
-                  >
-                    <span className="text-xs font-bold tracking-[0.2em] uppercase border-b border-zinc-800 group-hover:border-white pb-1 transition-all">
-                      {language === 'es' ? 'Ver guías' : 'View guides'}
+                /* ── Featured content when no blogs ── */
+                <div className="w-full flex flex-col gap-4 py-2">
+                  {/* Label */}
+                  <div className="flex items-center gap-3 mb-1">
+                    <span className="text-[9px] font-semibold text-zinc-700 uppercase tracking-[0.22em]">
+                      {language === 'es' ? 'Guía destacada' : 'Featured guide'}
                     </span>
-                    <ArrowForwardIcon className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
+                    <div className="flex-1 h-px bg-zinc-900" />
+                  </div>
+
+                  {/* Guide card */}
+                  <button
+                    onClick={(e) => { e.stopPropagation(); navigateToGuides('/guides/openclaw'); }}
+                    className="w-full text-left group rounded-xl border border-zinc-800/70 bg-zinc-950/60 hover:border-zinc-700/70 hover:bg-zinc-900/50 transition-all duration-300 p-5 relative overflow-hidden"
+                  >
+                    {/* Top accent */}
+                    <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-zinc-700/50 to-transparent" />
+
+                    {/* Header */}
+                    <div className="flex items-start justify-between gap-3 mb-4">
+                      <div>
+                        <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-emerald-950/70 border border-emerald-900/60 text-[9px] text-emerald-400 font-mono mb-2.5">
+                          <span className="w-1 h-1 rounded-full bg-emerald-400" />
+                          Complete
+                        </div>
+                        <div className="text-xl font-bold text-white tracking-tight leading-none">OpenClaw</div>
+                        <div className="text-[11px] text-zinc-500 mt-0.5 font-mono">
+                          {language === 'es' ? 'Agentes de IA en WhatsApp' : 'AI agents on WhatsApp'}
+                        </div>
+                      </div>
+                      <ArrowForwardIcon className="w-4 h-4 text-zinc-700 group-hover:text-zinc-400 group-hover:translate-x-0.5 transition-all duration-300 shrink-0 mt-1" />
+                    </div>
+
+                    {/* Description */}
+                    <p className="text-[11px] text-zinc-600 leading-relaxed mb-4">
+                      {language === 'es'
+                        ? 'Instalación, config, workspace, identidad, memoria y skills. 10 módulos paso a paso con comandos reales.'
+                        : 'Installation, config, workspace, identity, memory and skills. 10 step-by-step modules with real commands.'}
+                    </p>
+
+                    {/* Stats */}
+                    <div className="flex items-center gap-5">
+                      {[
+                        { v: '10', l: language === 'es' ? 'módulos' : 'modules' },
+                        { v: '42+', l: 'topics' },
+                        { v: '10', l: 'quizzes' },
+                      ].map(({ v, l }) => (
+                        <div key={l}>
+                          <div className="text-sm font-semibold text-zinc-300">{v}</div>
+                          <div className="text-[9px] text-zinc-600">{l}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </button>
+
+                  {/* Secondary CTA */}
+                  <button
+                    onClick={(e) => { e.stopPropagation(); onNavigate('experience'); }}
+                    className="group flex items-center gap-2 text-zinc-600 hover:text-zinc-300 transition-colors self-start mt-1"
+                  >
+                    <span className="text-[10px] font-bold tracking-[0.2em] uppercase border-b border-transparent group-hover:border-zinc-600 pb-0.5 transition-all">
+                      {content.btn_case_studies}
+                    </span>
+                    <ArrowForwardIcon className="w-3.5 h-3.5 transform group-hover:translate-x-1 transition-transform" />
                   </button>
                 </div>
               )}
@@ -234,27 +286,29 @@ const AboutSection: React.FC<AboutSectionProps> = ({ onNavigate, content, langua
                 </button>
               )}
 
-              {/* CTAs */}
-              <div className="flex flex-col gap-3 mt-4 self-center">
-                <button
-                  onClick={(e) => { e.stopPropagation(); navigateToGuides('/guides'); }}
-                  className="group flex items-center gap-3 text-zinc-400 hover:text-white transition-colors self-center"
-                >
-                  <span className="text-xs font-bold tracking-[0.2em] uppercase border-b border-zinc-800 group-hover:border-white pb-1 transition-all">
-                    {language === 'es' ? 'Ver guías' : 'Guides'}
-                  </span>
-                  <ArrowForwardIcon className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
-                </button>
-                <button
-                  onClick={(e) => { e.stopPropagation(); onNavigate('experience'); }}
-                  className="group flex items-center gap-3 text-zinc-400 hover:text-white transition-colors self-center"
-                >
-                  <span className="text-xs font-bold tracking-[0.2em] uppercase border-b border-zinc-800 group-hover:border-white pb-1 transition-all">
-                    {content.btn_case_studies}
-                  </span>
-                  <ArrowForwardIcon className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
-                </button>
-              </div>
+              {/* CTAs - only show when blogs exist */}
+              {realBlogs.length > 0 && (
+                <div className="flex flex-col gap-3 mt-4 self-center">
+                  <button
+                    onClick={(e) => { e.stopPropagation(); navigateToGuides('/guides'); }}
+                    className="group flex items-center gap-3 text-zinc-400 hover:text-white transition-colors self-center"
+                  >
+                    <span className="text-xs font-bold tracking-[0.2em] uppercase border-b border-zinc-800 group-hover:border-white pb-1 transition-all">
+                      {language === 'es' ? 'Ver guías' : 'Guides'}
+                    </span>
+                    <ArrowForwardIcon className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
+                  </button>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); onNavigate('experience'); }}
+                    className="group flex items-center gap-3 text-zinc-400 hover:text-white transition-colors self-center"
+                  >
+                    <span className="text-xs font-bold tracking-[0.2em] uppercase border-b border-zinc-800 group-hover:border-white pb-1 transition-all">
+                      {content.btn_case_studies}
+                    </span>
+                    <ArrowForwardIcon className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
+                  </button>
+                </div>
+              )}
            </div>
          ) : (
            <div className="max-w-4xl w-full flex flex-col z-10 py-12 sm:py-16 md:py-20">

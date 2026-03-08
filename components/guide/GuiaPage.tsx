@@ -1368,48 +1368,141 @@ const ForwardWarningModal: React.FC<{ target: Module; onConfirm: () => void; onC
 
 // ─── WELCOME SCREEN ───────────────────────────────────────────────────────────
 
-const WelcomeScreen: React.FC<{ onStart: () => void; hasProgress: boolean; onResume: () => void; onBackToGuides: () => void }> = ({ onStart, hasProgress, onResume, onBackToGuides }) => (
-  <div className="flex-1 flex items-center justify-center p-8">
-    <div className="max-w-lg w-full">
-      <button onClick={onBackToGuides} className="flex items-center gap-1.5 text-zinc-700 hover:text-zinc-400 transition-colors text-xs mb-8">
-        <BackIcon size={11} /> All guides
-      </button>
-      <div className="mb-8">
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.06] border border-white/[0.10] text-xs text-zinc-400 mb-6">
-          <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-          OpenClaw Complete Guide · 10 Modules
-        </div>
-        <h1 className="text-3xl font-semibold text-white mb-3 tracking-tight">Learn OpenClaw from scratch.</h1>
-        <p className="text-zinc-400 text-base leading-relaxed">
-          From installation to production deployment. Each module builds on the last —
-          interactive, hands-on, with real configuration examples from the actual system.
-        </p>
-      </div>
-      <div className="grid grid-cols-3 gap-3 mb-8">
-        {[{ label: 'Modules', value: '10' }, { label: 'Topics', value: '42+' }, { label: 'Quizzes', value: '10' }].map(item => (
-          <div key={item.label} className="p-4 rounded-lg bg-white/[0.03] border border-white/[0.08] text-center">
-            <div className="text-2xl font-semibold text-white mb-0.5">{item.value}</div>
-            <div className="text-xs text-zinc-500">{item.label}</div>
-          </div>
-        ))}
-      </div>
-      <div className="flex gap-3">
-        {hasProgress ? (
-          <>
-            <button onClick={onResume} className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-white text-black text-sm font-medium rounded-lg hover:bg-zinc-100 transition-colors">
-              Continue where I left off <ArrowRight size={15} />
-            </button>
-            <button onClick={onStart} className="px-5 py-3 border border-white/[0.12] text-zinc-400 text-sm rounded-lg hover:bg-white/[0.04] transition-colors">Start over</button>
-          </>
-        ) : (
-          <button onClick={onStart} className="flex items-center gap-2 px-8 py-3 bg-white text-black text-sm font-medium rounded-lg hover:bg-zinc-100 transition-colors">
-            Start learning <ArrowRight size={15} />
+const WelcomeScreen: React.FC<{
+  onStart: () => void;
+  hasProgress: boolean;
+  onResume: () => void;
+  onBackToGuides: () => void;
+  lang: 'en' | 'es';
+  modules: Module[];
+}> = ({ onStart, hasProgress, onResume, onBackToGuides, lang, modules }) => {
+  const en = lang === 'en';
+  const groups = Array.from(new Set(modules.map(m => m.group)));
+  return (
+    <div className="flex-1 relative flex flex-col overflow-y-auto bg-[#080808]">
+      {/* Subtle dot grid */}
+      <div className="fixed inset-0 bg-[radial-gradient(#ffffff07_1px,transparent_1px)] bg-[size:28px_28px] pointer-events-none" />
+      {/* Top ambient glow */}
+      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[700px] h-[320px] bg-white/[0.013] rounded-full blur-3xl pointer-events-none" />
+
+      <div className="relative z-10 max-w-5xl mx-auto w-full px-8 flex flex-col min-h-full py-8">
+
+        {/* Nav bar */}
+        <motion.div
+          initial={{ opacity: 0, y: -6 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex items-center justify-between mb-12"
+        >
+          <button onClick={onBackToGuides}
+            className="flex items-center gap-1.5 text-zinc-700 hover:text-zinc-400 transition-colors text-xs">
+            <BackIcon size={11} />
+            <span>{en ? 'All guides' : 'Todas las guías'}</span>
           </button>
-        )}
+          <span className="text-[10px] font-mono text-zinc-800 tracking-widest uppercase">OpenClaw</span>
+        </motion.div>
+
+        {/* Main grid */}
+        <div className="flex-1 flex flex-col xl:flex-row gap-10 xl:gap-16 items-start xl:items-center pb-16">
+
+          {/* ── Left column ── */}
+          <div className="flex-1 max-w-xl">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
+
+              {/* Badge */}
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-950/50 border border-emerald-800/40 text-[11px] text-emerald-400 font-mono mb-7">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                {en ? 'Complete guide · v1' : 'Guía completa · v1'}
+              </div>
+
+              {/* Title */}
+              <h1 className="text-6xl sm:text-7xl xl:text-8xl font-bold tracking-tighter text-white leading-none mb-3">
+                OpenClaw
+              </h1>
+              <p className="text-lg text-zinc-400 font-light mb-2">
+                {en ? 'Build AI agents that run on WhatsApp.' : 'Agentes de IA que corren en WhatsApp.'}
+              </p>
+              <p className="text-sm text-zinc-600 leading-relaxed mb-10 max-w-md">
+                {en
+                  ? 'From installation to production. Every config file mapped, every workspace file explained. Real commands, zero invented content.'
+                  : 'Desde la instalación hasta producción. Cada archivo de config mapeado, cada archivo del workspace explicado. Comandos reales, cero contenido inventado.'}
+              </p>
+
+              {/* Stats */}
+              <div className="flex items-center gap-8 mb-10">
+                {[
+                  { v: '10', l: en ? 'modules' : 'módulos' },
+                  { v: '42+', l: 'topics' },
+                  { v: '10', l: 'quizzes' },
+                ].map(({ v, l }) => (
+                  <div key={l}>
+                    <div className="text-3xl font-bold text-white leading-none">{v}</div>
+                    <div className="text-[11px] text-zinc-600 mt-0.5">{l}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* CTAs */}
+              <div className="flex items-center gap-3">
+                {hasProgress ? (
+                  <>
+                    <button onClick={onResume}
+                      className="flex items-center gap-2 px-6 py-3 bg-white text-black text-sm font-semibold rounded-xl hover:bg-zinc-100 transition-all shadow-lg shadow-black/40">
+                      {en ? 'Continue' : 'Continuar'} <ArrowRight size={14} />
+                    </button>
+                    <button onClick={onStart}
+                      className="px-5 py-3 border border-white/[0.1] text-zinc-400 text-sm rounded-xl hover:bg-white/[0.04] transition-colors">
+                      {en ? 'Start over' : 'Empezar de cero'}
+                    </button>
+                  </>
+                ) : (
+                  <button onClick={onStart}
+                    className="flex items-center gap-2.5 px-7 py-3.5 bg-white text-black text-sm font-semibold rounded-xl hover:bg-zinc-100 transition-all shadow-lg shadow-black/40 group">
+                    {en ? 'Start learning' : 'Comenzar'} <ArrowRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
+                  </button>
+                )}
+              </div>
+
+            </motion.div>
+          </div>
+
+          {/* ── Right column: module map ── */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.15, duration: 0.4 }}
+            className="w-full xl:w-72 shrink-0"
+          >
+            <div className="rounded-xl border border-white/[0.07] bg-white/[0.02] overflow-hidden">
+              <div className="px-4 py-3 border-b border-white/[0.06] flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-zinc-700" />
+                <span className="text-[10px] font-mono text-zinc-600 tracking-widest uppercase">
+                  {en ? 'Module map' : 'Mapa de módulos'}
+                </span>
+              </div>
+              <div className="p-2">
+                {groups.map(group => {
+                  const mods = modules.filter(m => m.group === group);
+                  return (
+                    <div key={group} className="mb-2 last:mb-0">
+                      <div className="px-2 pt-2 pb-1 text-[9px] font-semibold text-zinc-700 uppercase tracking-widest">{group}</div>
+                      {mods.map(m => (
+                        <div key={m.id} className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg hover:bg-white/[0.03] transition-colors group/mod">
+                          <span className="font-mono text-[10px] text-zinc-700 w-5 shrink-0">{m.num}</span>
+                          <span className="text-[11px] text-zinc-500 group-hover/mod:text-zinc-400 transition-colors leading-snug truncate">{m.title}</span>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </motion.div>
+
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 // ─── SIDEBAR ──────────────────────────────────────────────────────────────────
 
@@ -1732,6 +1825,8 @@ const GuiaPage: React.FC = () => {
             hasProgress={hasStoredProgress && progress.completedModules.length > 0}
             onResume={() => setShowWelcome(false)}
             onBackToGuides={() => routerNavigate('/guides')}
+            lang={language}
+            modules={modules}
           />
         ) : (
           <ModuleContent
