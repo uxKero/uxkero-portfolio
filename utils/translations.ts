@@ -3,8 +3,8 @@ export const translations = {
     about: {
       name: "ALAN PONCE",
       location: "Mar del Plata, Argentina (UTC-3) | Available for Remote/Global Roles.",
-      title: "PRODUCT DESIGN & STRATEGY LEAD",
-      subheader: "TRANSFORMING BUSINESS VISION INTO VIABLE DIGITAL EXPERIENCES.",
+      title: "PRODUCT MANAGER & AI BUILDER",
+      subheader: "SHIPPING AI-POWERED PRODUCTS FROM STRATEGY TO DEPLOYMENT.",
       summary: "Designer with expertise in Business Acumen and UX/UI Mastery. Focused on delivering scalable systems and measurable growth.",
       btn_experience: "Experience",
       btn_contact: "Contact",
@@ -56,7 +56,7 @@ export const translations = {
         6: "04",
         7: "LEADERSHIP & OPERATIONS",
         8: "05",
-        9: "AURORABOOK & EXECUTIVE ACUMEN"
+        9: "AI BUILDER & DIGITAL TOOLKIT"
       },
       strategy: {
         h1: "Business Acumen & Vision",
@@ -82,10 +82,13 @@ export const translations = {
         p4: "Implementing DesignOps and workflow automation (e.g., n8n) to streamline handoffs and increase system integrity."
       },
       projects: {
-        cronos_title: "Cronos Broker (Confidential)",
-        cronos_desc: "Led the system architecture and UX/UI design for a disruptive Digital Real Estate Contract platform, focusing on complex process flow resolution and system functionality.",
-        contablix_title: "Contablix (FinTech Redesign)",
-        contablix_desc: "Executed a complete, avant-garde UX/UI overhaul for a FinTech-adjacent digital accounting studio, driving brand modernization and user adoption through design."
+        cronos_title: "Cronos Cloud · Dir. de Proyecto",
+        cronos_desc: "Joined as UX Designer in Jan 2025, promoted to Director de Proyecto in Jan 2026. Leading platform architecture, cross-functional teams, and full product lifecycle for a confidential Digital Real Estate ecosystem.",
+        contablix_title: "Contablix · FinTech (Completed)",
+        contablix_desc: "Executed a full UX/UI overhaul for a FinTech digital accounting studio — completed Feb 2026. Drove brand modernization, user adoption, and product clarity from concept to delivery.",
+        aurorabook_title: "AuroraBook · CEO & Founder",
+        aurorabook_desc: "Founded Dec 2025. Location marketplace built end-to-end — product strategy, design, and development all under one roof.",
+        aurorabook_url: "https://aurorabookapp.com"
       },
       leadership: {
         h1: "Leadership & Resource Management",
@@ -94,23 +97,25 @@ export const translations = {
         h2: "Cross-Functional Leadership",
         p2: "Proven ability to drive results by aligning large, multi-disciplinary teams and managing expectations against budget and strategic KPIs."
       },
-      aurora: {
-        ecosystem_title: "Aurora Ecosystem",
-        ecosystem_sub: "(Full-Stack Product Ownership & Executive Vision)",
-        h1: "CEO & Ecosystem Visionary",
-        p1: "Sole founder, strategic leader, and technical mind behind the entire",
-        p1_strong: "AURORA platform ecosystem",
-        h2: "Platform Scope",
-        p2: "Direct oversight of core assets, including the",
-        p2_strong1: "AuroraBook",
-        p2_text: "Location Marketplace and the",
-        p2_strong2: "AURORAEVENTS",
-        p2_end: "platform (in development).",
-        h3: "Deep Expertise & Command",
-        p3: "Leading all development, design, and strategic teams (Marketing, Events Organization), leveraging",
-        p3_strong: "12+ years of expertise in large-scale event management and operational leadership",
-        h4: "Holistic Design",
-        p4: "Leveraging background in Executive Management, Marketing & Physical Events to design end-to-end service experiences that focus on budget control and strategic implementation."
+      ai_builder: {
+        section_title: "AI Builder & Digital Toolkit",
+        section_sub: "(Process Automation, AI Integration & Certified Practice)",
+        p_intro: "Building and deploying AI-powered workflows using Claude API, n8n, and custom agent systems. Certified across the full PM and AI stack — from enterprise project management to hands-on model deployment.",
+        certs_title: "Certifications",
+        cert1_name: "Enterprise Project Management",
+        cert1_issuer: "Microsoft · 2025",
+        cert1_url: "https://coursera.org/share/bedc68d91f72feae50a15a84f97b15d6",
+        cert2_name: "UX Design Professional",
+        cert2_issuer: "Google · 2025",
+        cert2_url: "https://coursera.org/share/98d640f2ee992c79f926de124cb17af0",
+        cert3_name: "AI Fluency Framework & Foundations",
+        cert3_issuer: "Anthropic · 2025",
+        cert4_name: "Claude Code in Action",
+        cert4_issuer: "Anthropic · 2025",
+        tools_title: "Core Stack",
+        tools_list: "Claude API · n8n · OpenClaw · Figma · React · Vite · Tailwind CSS · Vercel",
+        pm_title: "PM Methodology",
+        pm_text: "Roadmap definition, OKR alignment, sprint planning, stakeholder communication, and product lifecycle ownership across design-to-deployment cycles."
       }
     },
     contact: {
@@ -129,8 +134,8 @@ export const translations = {
     about: {
       name: "ALAN PONCE",
       location: "Mar del Plata, Argentina (UTC-3) | Disponible para Roles Remotos/Globales.",
-      title: "LÍDER DE ESTRATEGIA Y DISEÑO DE PRODUCTO",
-      subheader: "TRANSFORMANDO LA VISIÓN DE NEGOCIO EN EXPERIENCIAS DIGITALES VIABLES.",
+      title: "PRODUCT MANAGER & AI BUILDER",
+      subheader: "ENVIANDO PRODUCTOS CON IA DESDE LA ESTRATEGIA HASTA EL DEPLOYMENT.",
       summary: "Diseñador con experiencia en Visión de Negocios y Maestría en UX/UI. Enfocado en entregar sistemas escalables y crecimiento medible.",
       btn_experience: "Experiencia",
       btn_contact: "Contacto",
@@ -182,7 +187,7 @@ export const translations = {
         6: "04",
         7: "LIDERAZGO Y OPERACIONES",
         8: "05",
-        9: "AURORABOOK Y VISIÓN EJECUTIVA"
+        9: "AI BUILDER Y KIT DIGITAL"
       },
       strategy: {
         h1: "Visión y Negocios",
@@ -208,10 +213,13 @@ export const translations = {
         p4: "Implementación de DesignOps y automatización de flujos (ej. n8n) para agilizar entregas y aumentar la integridad del sistema."
       },
       projects: {
-        cronos_title: "Cronos Broker (Confidencial)",
-        cronos_desc: "Lideré la arquitectura del sistema y diseño UX/UI para una plataforma disruptiva de Contratos Inmobiliarios Digitales, enfocándome en la resolución de flujos complejos.",
-        contablix_title: "Contablix (Rediseño FinTech)",
-        contablix_desc: "Ejecuté una renovación completa y vanguardista de UX/UI para un estudio contable digital adyacente a FinTech, impulsando la modernización de la marca."
+        cronos_title: "Cronos Cloud · Dir. de Proyecto",
+        cronos_desc: "Ingresé como UX Designer en Jan 2025, promovido a Director de Proyecto en Jan 2026. Lidero arquitectura de plataforma, equipos multidisciplinarios y ciclo de vida completo del producto en un ecosistema inmobiliario digital confidencial.",
+        contablix_title: "Contablix · FinTech (Completado)",
+        contablix_desc: "Ejecuté un rediseño completo de UX/UI para un estudio contable digital — completado en Feb 2026. Impulsé la modernización de marca, adopción de usuarios y claridad de producto.",
+        aurorabook_title: "AuroraBook · CEO & Fundador",
+        aurorabook_desc: "Fundado en Dic 2025. Marketplace de locaciones construido end-to-end — estrategia de producto, diseño y desarrollo bajo el mismo techo.",
+        aurorabook_url: "https://aurorabookapp.com"
       },
       leadership: {
         h1: "Liderazgo y Gestión de Recursos",
@@ -220,23 +228,25 @@ export const translations = {
         h2: "Liderazgo Multifuncional",
         p2: "Capacidad probada para impulsar resultados alineando grandes equipos multidisciplinarios y gestionando expectativas contra presupuesto y KPIs estratégicos."
       },
-      aurora: {
-        ecosystem_title: "Ecosistema Aurora",
-        ecosystem_sub: "(Propiedad de Producto Full-Stack y Visión Ejecutiva)",
-        h1: "CEO y Visionario del Ecosistema",
-        p1: "Fundador único, líder estratégico y mente técnica detrás de todo el",
-        p1_strong: "ecosistema de plataformas AURORA",
-        h2: "Alcance de la Plataforma",
-        p2: "Supervisión directa de activos clave, incluyendo el Marketplace de Locaciones",
-        p2_strong1: "AuroraBook",
-        p2_text: "y la plataforma",
-        p2_strong2: "AURORAEVENTS",
-        p2_end: "(en desarrollo).",
-        h3: "Expertise Profunda y Comando",
-        p3: "Liderando todos los equipos de desarrollo, diseño y estrategia (Marketing, Eventos), aprovechando",
-        p3_strong: "12+ años de experiencia en gestión de eventos a gran escala y liderazgo operativo",
-        h4: "Diseño Holístico",
-        p4: "Aprovechando experiencia en Dirección Ejecutiva, Marketing y Eventos Físicos para diseñar experiencias de servicio end-to-end enfocadas en control presupuestario."
+      ai_builder: {
+        section_title: "AI Builder y Kit Digital",
+        section_sub: "(Automatización de Procesos, Integración IA y Práctica Certificada)",
+        p_intro: "Construyo y despliego workflows con IA usando Claude API, n8n y sistemas de agentes personalizados. Certificado en el stack completo de PM e IA — desde gestión de proyectos empresariales hasta deployment de modelos.",
+        certs_title: "Certificaciones",
+        cert1_name: "Enterprise Project Management",
+        cert1_issuer: "Microsoft · 2025",
+        cert1_url: "https://coursera.org/share/bedc68d91f72feae50a15a84f97b15d6",
+        cert2_name: "UX Design Professional",
+        cert2_issuer: "Google · 2025",
+        cert2_url: "https://coursera.org/share/98d640f2ee992c79f926de124cb17af0",
+        cert3_name: "AI Fluency Framework & Foundations",
+        cert3_issuer: "Anthropic · 2025",
+        cert4_name: "Claude Code in Action",
+        cert4_issuer: "Anthropic · 2025",
+        tools_title: "Stack Principal",
+        tools_list: "Claude API · n8n · OpenClaw · Figma · React · Vite · Tailwind CSS · Vercel",
+        pm_title: "Metodología PM",
+        pm_text: "Definición de roadmap, alineación de OKRs, sprint planning, comunicación con stakeholders y ownership del ciclo de vida del producto desde diseño hasta deployment."
       }
     },
     contact: {

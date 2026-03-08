@@ -106,15 +106,15 @@ const ExperienceSection: React.FC<ExperienceSectionProps> = ({ content }) => {
                      <span className="text-zinc-600 text-sm font-mono tracking-widest uppercase">{content.headers[4]}</span>
                      {content.headers[5]}
                   </h3>
-                  <div className="space-y-6 xl:space-y-8">
+                  <div className="space-y-4 xl:space-y-5">
                      {/* Cronos */}
                      <a 
                         href="https://www.linkedin.com/company/cronos-cloud-sa/" 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        className="block bg-zinc-900/20 border-l-2 border-purple-500 pl-6 py-4 hover:bg-zinc-900/40 transition-colors group"
+                        className="block bg-zinc-900/20 border-l-2 border-purple-500 pl-5 py-4 hover:bg-zinc-900/40 transition-colors group"
                      >
-                        <div className="flex items-center gap-2 mb-2">
+                        <div className="flex items-center gap-2 mb-1.5">
                             <h4 className="text-white text-sm font-bold uppercase tracking-wider group-hover:text-purple-400 transition-colors">{content.projects.cronos_title}</h4>
                             <OpenInNewIcon className="w-3 h-3 text-zinc-600 group-hover:text-purple-400 transition-colors" />
                         </div>
@@ -127,14 +127,29 @@ const ExperienceSection: React.FC<ExperienceSectionProps> = ({ content }) => {
                         href="https://contablix.ar/" 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        className="block bg-zinc-900/20 border-l-2 border-purple-500 pl-6 py-4 hover:bg-zinc-900/40 transition-colors group"
+                        className="block bg-zinc-900/20 border-l-2 border-zinc-600 pl-5 py-4 hover:bg-zinc-900/40 transition-colors group"
                      >
-                         <div className="flex items-center gap-2 mb-2">
-                            <h4 className="text-white text-sm font-bold uppercase tracking-wider group-hover:text-purple-400 transition-colors">{content.projects.contablix_title}</h4>
-                             <OpenInNewIcon className="w-3 h-3 text-zinc-600 group-hover:text-purple-400 transition-colors" />
+                         <div className="flex items-center gap-2 mb-1.5">
+                            <h4 className="text-white text-sm font-bold uppercase tracking-wider group-hover:text-zinc-400 transition-colors">{content.projects.contablix_title}</h4>
+                             <OpenInNewIcon className="w-3 h-3 text-zinc-600 group-hover:text-zinc-400 transition-colors" />
                         </div>
                         <p className="text-zinc-400 text-sm leading-relaxed">
                            {content.projects.contablix_desc}
+                        </p>
+                     </a>
+                     {/* AuroraBook */}
+                     <a 
+                        href={content.projects.aurorabook_url}
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="block bg-zinc-900/20 border-l-2 border-amber-500/70 pl-5 py-4 hover:bg-zinc-900/40 transition-colors group"
+                     >
+                         <div className="flex items-center gap-2 mb-1.5">
+                            <h4 className="text-white text-sm font-bold uppercase tracking-wider group-hover:text-amber-400 transition-colors">{content.projects.aurorabook_title}</h4>
+                             <OpenInNewIcon className="w-3 h-3 text-zinc-600 group-hover:text-amber-400 transition-colors" />
+                        </div>
+                        <p className="text-zinc-400 text-sm leading-relaxed">
+                           {content.projects.aurorabook_desc}
                         </p>
                      </a>
                   </div>
@@ -166,59 +181,80 @@ const ExperienceSection: React.FC<ExperienceSectionProps> = ({ content }) => {
         </div>
 
         {/* ================= LEVEL 2: BOTTOM FULL-WIDTH SECTION ================= */}
-        {/* BLOCK 5: AURORABOOK & EXECUTIVE ACUMEN */}
+        {/* BLOCK 5: AI BUILDER & DIGITAL TOOLKIT */}
         <section className="w-full">
            <h3 className="text-xl font-bold text-white mb-6 xl:mb-8 tracking-tight border-b border-zinc-800 pb-4 flex items-center gap-4">
              <span className="text-zinc-600 text-sm font-mono tracking-widest uppercase">{content.headers[8]}</span>
              {content.headers[9]}
           </h3>
-          <div className="bg-zinc-900/30 border border-zinc-800 p-6 lg:p-10 xl:p-12 rounded-sm space-y-8 lg:space-y-12">
+          <div className="bg-zinc-900/30 border border-zinc-800 p-6 lg:p-10 xl:p-12 rounded-sm space-y-8 lg:space-y-10">
              
-             {/* Aurora Ecosystem Content */}
-             <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-                <div className="lg:col-span-1">
-                    <div className="flex flex-col gap-2">
-                        <h4 className="text-white text-base font-bold uppercase tracking-wider text-purple-400">{content.aurora.ecosystem_title}</h4>
-                        <div className="text-[10px] text-zinc-500 font-mono uppercase tracking-widest leading-relaxed">
-                           {content.aurora.ecosystem_sub}
-                        </div>
-                        <a href="https://aurorabookapp.com" target="_blank" rel="noreferrer" className="text-[10px] text-zinc-500 font-mono hover:text-white transition-colors mt-2 flex items-center gap-1 w-fit">
-                            aurorabookapp.com <OpenInNewIcon className="w-2.5 h-2.5" />
-                        </a>
-                    </div>
-                </div>
-                
-                <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <div>
-                        <h5 className="text-white text-xs font-bold mb-2 uppercase tracking-wide">{content.aurora.h1}</h5>
-                        <p className="text-zinc-400 text-sm leading-relaxed">
-                           {content.aurora.p1} <span className="text-white font-medium">{content.aurora.p1_strong}</span>.
-                        </p>
-                    </div>
-                    <div>
-                        <h5 className="text-white text-xs font-bold mb-2 uppercase tracking-wide">{content.aurora.h2}</h5>
-                        <p className="text-zinc-400 text-sm leading-relaxed">
-                           {content.aurora.p2} <span className="text-white font-medium">{content.aurora.p2_strong1}</span> {content.aurora.p2_text} <span className="text-white font-medium">{content.aurora.p2_strong2}</span> {content.aurora.p2_end}
-                        </p>
-                    </div>
-                    <div>
-                        <h5 className="text-white text-xs font-bold mb-2 uppercase tracking-wide">{content.aurora.h3}</h5>
-                        <p className="text-zinc-400 text-sm leading-relaxed">
-                           {content.aurora.p3} <span className="text-white font-medium">{content.aurora.p3_strong}</span>.
-                        </p>
-                    </div>
-                </div>
-             </div>
+             {/* Intro */}
+             <p className="text-zinc-400 text-sm leading-relaxed max-w-3xl">
+               {content.ai_builder.p_intro}
+             </p>
 
-             {/* Divider */}
-             <div className="h-[1px] w-full bg-zinc-800/50"></div>
+             <div className="h-px w-full bg-zinc-800/50" />
 
-             {/* Holistic Design Content */}
-             <div>
-                <h4 className="text-white text-sm font-bold mb-3 uppercase tracking-wider text-purple-400">{content.aurora.h4}</h4>
-                <p className="text-zinc-400 text-sm leading-relaxed max-w-4xl">
-                   {content.aurora.p4}
-                </p>
+             {/* Certifications + Tools Grid */}
+             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 xl:gap-16">
+               
+               {/* Certifications */}
+               <div>
+                 <h4 className="text-xs font-bold uppercase tracking-widest text-amber-400 mb-5">{content.ai_builder.certs_title}</h4>
+                 <div className="space-y-3">
+                   {/* Cert 1 — Microsoft */}
+                   <a href={content.ai_builder.cert1_url} target="_blank" rel="noopener noreferrer"
+                     className="flex items-center justify-between px-4 py-3 rounded-lg border border-zinc-800 bg-zinc-900/40 hover:border-zinc-600 hover:bg-zinc-900/70 transition-all group"
+                   >
+                     <div>
+                       <div className="text-white text-sm font-medium group-hover:text-amber-300 transition-colors">{content.ai_builder.cert1_name}</div>
+                       <div className="text-zinc-600 text-xs mt-0.5 font-mono">{content.ai_builder.cert1_issuer}</div>
+                     </div>
+                     <OpenInNewIcon className="w-3 h-3 text-zinc-700 group-hover:text-amber-400 transition-colors shrink-0" />
+                   </a>
+                   {/* Cert 2 — Google */}
+                   <a href={content.ai_builder.cert2_url} target="_blank" rel="noopener noreferrer"
+                     className="flex items-center justify-between px-4 py-3 rounded-lg border border-zinc-800 bg-zinc-900/40 hover:border-zinc-600 hover:bg-zinc-900/70 transition-all group"
+                   >
+                     <div>
+                       <div className="text-white text-sm font-medium group-hover:text-amber-300 transition-colors">{content.ai_builder.cert2_name}</div>
+                       <div className="text-zinc-600 text-xs mt-0.5 font-mono">{content.ai_builder.cert2_issuer}</div>
+                     </div>
+                     <OpenInNewIcon className="w-3 h-3 text-zinc-700 group-hover:text-amber-400 transition-colors shrink-0" />
+                   </a>
+                   {/* Cert 3 — Anthropic */}
+                   <div className="flex items-center justify-between px-4 py-3 rounded-lg border border-zinc-800 bg-zinc-900/40">
+                     <div>
+                       <div className="text-white text-sm font-medium">{content.ai_builder.cert3_name}</div>
+                       <div className="text-zinc-600 text-xs mt-0.5 font-mono">{content.ai_builder.cert3_issuer}</div>
+                     </div>
+                   </div>
+                   {/* Cert 4 — Anthropic */}
+                   <div className="flex items-center justify-between px-4 py-3 rounded-lg border border-zinc-800 bg-zinc-900/40">
+                     <div>
+                       <div className="text-white text-sm font-medium">{content.ai_builder.cert4_name}</div>
+                       <div className="text-zinc-600 text-xs mt-0.5 font-mono">{content.ai_builder.cert4_issuer}</div>
+                     </div>
+                   </div>
+                 </div>
+               </div>
+
+               {/* Stack + PM Method */}
+               <div className="space-y-8">
+                 <div>
+                   <h4 className="text-xs font-bold uppercase tracking-widest text-blue-400 mb-3">{content.ai_builder.tools_title}</h4>
+                   <p className="text-zinc-400 text-sm font-mono leading-loose tracking-wide">
+                     {content.ai_builder.tools_list}
+                   </p>
+                 </div>
+                 <div>
+                   <h4 className="text-xs font-bold uppercase tracking-widest text-blue-400 mb-3">{content.ai_builder.pm_title}</h4>
+                   <p className="text-zinc-400 text-sm leading-relaxed border-l border-zinc-800 pl-4">
+                     {content.ai_builder.pm_text}
+                   </p>
+                 </div>
+               </div>
              </div>
           </div>
         </section>
