@@ -1641,19 +1641,74 @@ const FloatingNav: React.FC<{
   );
 };
 
+// ─── COMPLETION SECTION ──────────────────────────────────────────────────────
+
+const CompletionSection: React.FC<{ lang: 'en' | 'es' }> = ({ lang }) => {
+  const en = lang === 'en';
+  return (
+    <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.5 }}>
+      {/* Gradient divider */}
+      <div className="h-px bg-gradient-to-r from-transparent via-white/[0.12] to-transparent my-14" />
+
+      {/* Congrats */}
+      <div className="text-center mb-10">
+        <div className="text-5xl mb-5 select-none">🎉</div>
+        <h2 className="text-2xl font-bold text-white tracking-tight mb-3">
+          {en ? 'You finished the guide!' : '¡Completaste la guía!'}
+        </h2>
+        <p className="text-zinc-400 text-sm leading-relaxed max-w-sm mx-auto">
+          {en
+            ? 'You now know how to install, configure, and run production-grade OpenClaw agents. Time to build something great.'
+            : 'Ya sabés instalar, configurar y correr agentes OpenClaw listos para producción. Ahora a construir algo genial.'}
+        </p>
+      </div>
+
+      {/* Cafecito banner */}
+      <div className="max-w-sm mx-auto rounded-xl border border-amber-800/30 bg-gradient-to-b from-amber-950/25 to-amber-950/10 p-5 relative overflow-hidden">
+        {/* Top accent line */}
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-600/30 to-transparent" />
+
+        <div className="flex items-start gap-3.5">
+          <div className="text-2xl shrink-0 mt-0.5">☕</div>
+          <div className="flex-1 min-w-0">
+            <div className="text-sm font-semibold text-white mb-1">
+              {en ? 'Support this free guide' : 'Apoyá esta guía gratuita'}
+            </div>
+            <p className="text-[11px] text-zinc-500 leading-relaxed mb-4">
+              {en
+                ? 'If this guide helped you, a coffee goes a long way to keep this content free and updated.'
+                : 'Si esta guía te fue útil, un cafecito ayuda a mantener este contenido gratuito y actualizado.'}
+            </p>
+            <a
+              href="https://cafecito.app/keroclow"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={e => e.stopPropagation()}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-500/15 border border-amber-500/25 text-amber-300 text-xs font-medium hover:bg-amber-500/25 hover:border-amber-500/40 transition-all"
+            >
+              ☕ {en ? 'Buy me a coffee' : 'Invitame un cafecito'}
+            </a>
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
 // ─── MODULE CONTENT ───────────────────────────────────────────────────────────
 
 const ModuleContent: React.FC<{
   module: Module;
   stepIndex: number;
   isCompleted: boolean;
+  isLastModule: boolean;
   showQuiz: boolean;
   onNext: () => void;
   onPrev: () => void;
   onComplete: () => void;
   onSkipQuiz: () => void;
   lang: 'en' | 'es';
-}> = ({ module, stepIndex, isCompleted, showQuiz, onNext, onPrev, onComplete, onSkipQuiz, lang }) => {
+}> = ({ module, stepIndex, isCompleted, isLastModule, showQuiz, onNext, onPrev, onComplete, onSkipQuiz, lang }) => {
   const step = module.steps[stepIndex];
   const isLast  = stepIndex === module.steps.length - 1;
   const isFirst = stepIndex === 0;
@@ -1686,6 +1741,11 @@ const ModuleContent: React.FC<{
 
             {isLast && !isCompleted && showQuiz && (
               <QuizView quiz={module.quiz} onPass={onComplete} onSkip={onSkipQuiz} />
+            )}
+
+            {/* All modules done: show completion + donation section */}
+            {isCompleted && isLastModule && (
+              <CompletionSection lang={lang} />
             )}
 
             {/* Bottom padding to avoid content hidden behind floating nav */}
@@ -1834,6 +1894,7 @@ const GuiaPage: React.FC = () => {
             module={currentModule}
             stepIndex={progress.currentStepIndex}
             isCompleted={isCompleted}
+            isLastModule={currentModIdx === modules.length - 1}
             showQuiz={showQuiz}
             onNext={nextStep}
             onPrev={prevStep}
