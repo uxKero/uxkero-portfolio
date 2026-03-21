@@ -30,6 +30,38 @@ const AboutSection: React.FC<AboutSectionProps> = ({ onNavigate, content, langua
     slug?: string;
   }>>([]);
   const [loadingBlogs, setLoadingBlogs] = useState(true);
+  const featuredGuides = [
+    {
+      slug: '/guides/openclaw',
+      badge: 'Complete',
+      badgeClass: 'bg-emerald-950/70 border-emerald-900/60 text-emerald-400',
+      title: 'OpenClaw',
+      subtitle: language === 'es' ? 'Agentes de IA en WhatsApp' : 'AI agents on WhatsApp',
+      description: language === 'es'
+        ? 'Instalación, config, workspace, identidad, memoria y skills. 10 módulos paso a paso con comandos reales.'
+        : 'Installation, config, workspace, identity, memory and skills. 10 step-by-step modules with real commands.',
+      stats: [
+        { v: '10', l: language === 'es' ? 'módulos' : 'modules' },
+        { v: '42+', l: 'topics' },
+        { v: '10', l: 'quizzes' },
+      ],
+    },
+    {
+      slug: '/guides/openclaw-avanzado',
+      badge: language === 'es' ? 'Avanzada' : 'Advanced',
+      badgeClass: 'bg-sky-950/70 border-sky-900/60 text-sky-300',
+      title: 'Openclaw Avanzado',
+      subtitle: language === 'es' ? 'Testing, seguridad y operación real' : 'Testing, security, and real operations',
+      description: language === 'es'
+        ? 'Seguridad, multi-agente, APIs, prompt engineering, skills, equipos, testing, visión comercial y optimización.'
+        : 'Security, multi-agent, APIs, prompt engineering, skills, teams, testing, commercial framing, and optimization.',
+      stats: [
+        { v: '9', l: language === 'es' ? 'módulos' : 'modules' },
+        { v: '71+', l: 'topics' },
+        { v: '9', l: 'quizzes' },
+      ],
+    },
+  ];
 
   // Reset scroll position on mount
   useEffect(() => {
@@ -201,72 +233,69 @@ const AboutSection: React.FC<AboutSectionProps> = ({ onNavigate, content, langua
                   language={language}
                 />
               ) : (
-                /* ── Featured content when no blogs ── */
-                <div className="w-full flex flex-col gap-4 py-2">
-                  {/* Label */}
+                <div className="text-center text-zinc-600 py-4 text-sm">
+                  {language === 'es' ? 'Todavía no hay blogs publicados.' : 'No published blog posts yet.'}
+                </div>
+              )}
+
+              {!loadingBlogs && (
+                <div className="w-full flex flex-col gap-4 py-2 mb-2">
                   <div className="flex items-center gap-3 mb-1">
                     <span className="text-[9px] font-semibold text-zinc-700 uppercase tracking-[0.22em]">
-                      {language === 'es' ? 'Guía destacada' : 'Featured guide'}
+                      {language === 'es' ? 'Guías destacadas' : 'Featured guides'}
                     </span>
                     <div className="flex-1 h-px bg-zinc-900" />
                   </div>
 
-                  {/* Guide card */}
-                  <button
-                    onClick={(e) => { e.stopPropagation(); navigateToGuides('/guides/openclaw'); }}
-                    className="w-full text-left group rounded-xl border border-zinc-800/70 bg-zinc-950/60 hover:border-zinc-700/70 hover:bg-zinc-900/50 transition-all duration-300 p-5 relative overflow-hidden"
-                  >
-                    {/* Top accent */}
-                    <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-zinc-700/50 to-transparent" />
+                  {featuredGuides.map((guide) => (
+                    <button
+                      key={guide.slug}
+                      onClick={(e) => { e.stopPropagation(); navigateToGuides(guide.slug); }}
+                      className="w-full text-left group rounded-xl border border-zinc-800/70 bg-zinc-950/60 hover:border-zinc-700/70 hover:bg-zinc-900/50 transition-all duration-300 p-5 relative overflow-hidden"
+                    >
+                      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-zinc-700/50 to-transparent" />
 
-                    {/* Header */}
-                    <div className="flex items-start justify-between gap-3 mb-4">
-                      <div>
-                        <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-emerald-950/70 border border-emerald-900/60 text-[9px] text-emerald-400 font-mono mb-2.5">
-                          <span className="w-1 h-1 rounded-full bg-emerald-400" />
-                          Complete
+                      <div className="flex items-start justify-between gap-3 mb-4">
+                        <div>
+                          <div className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md border text-[9px] font-mono mb-2.5 ${guide.badgeClass}`}>
+                            <span className="w-1 h-1 rounded-full bg-current" />
+                            {guide.badge}
+                          </div>
+                          <div className="text-xl font-bold text-white tracking-tight leading-none">{guide.title}</div>
+                          <div className="text-[11px] text-zinc-500 mt-0.5 font-mono">
+                            {guide.subtitle}
+                          </div>
                         </div>
-                        <div className="text-xl font-bold text-white tracking-tight leading-none">OpenClaw</div>
-                        <div className="text-[11px] text-zinc-500 mt-0.5 font-mono">
-                          {language === 'es' ? 'Agentes de IA en WhatsApp' : 'AI agents on WhatsApp'}
-                        </div>
+                        <ArrowForwardIcon className="w-4 h-4 text-zinc-700 group-hover:text-zinc-400 group-hover:translate-x-0.5 transition-all duration-300 shrink-0 mt-1" />
                       </div>
-                      <ArrowForwardIcon className="w-4 h-4 text-zinc-700 group-hover:text-zinc-400 group-hover:translate-x-0.5 transition-all duration-300 shrink-0 mt-1" />
-                    </div>
 
-                    {/* Description */}
-                    <p className="text-[11px] text-zinc-600 leading-relaxed mb-4">
-                      {language === 'es'
-                        ? 'Instalación, config, workspace, identidad, memoria y skills. 10 módulos paso a paso con comandos reales.'
-                        : 'Installation, config, workspace, identity, memory and skills. 10 step-by-step modules with real commands.'}
-                    </p>
+                      <p className="text-[11px] text-zinc-600 leading-relaxed mb-4">
+                        {guide.description}
+                      </p>
 
-                    {/* Stats */}
-                    <div className="flex items-center gap-5">
-                      {[
-                        { v: '10', l: language === 'es' ? 'módulos' : 'modules' },
-                        { v: '42+', l: 'topics' },
-                        { v: '10', l: 'quizzes' },
-                      ].map(({ v, l }) => (
-                        <div key={l}>
-                          <div className="text-sm font-semibold text-zinc-300">{v}</div>
-                          <div className="text-[9px] text-zinc-600">{l}</div>
-                        </div>
-                      ))}
-                    </div>
-                  </button>
-
-                  {/* Secondary CTA */}
-                  <button
-                    onClick={(e) => { e.stopPropagation(); onNavigate('experience'); }}
-                    className="group flex items-center gap-2 text-zinc-600 hover:text-zinc-300 transition-colors self-start mt-1"
-                  >
-                    <span className="text-[10px] font-bold tracking-[0.2em] uppercase border-b border-transparent group-hover:border-zinc-600 pb-0.5 transition-all">
-                      {content.btn_case_studies}
-                    </span>
-                    <ArrowForwardIcon className="w-3.5 h-3.5 transform group-hover:translate-x-1 transition-transform" />
-                  </button>
+                      <div className="flex items-center gap-5">
+                        {guide.stats.map(({ v, l }) => (
+                          <div key={l}>
+                            <div className="text-sm font-semibold text-zinc-300">{v}</div>
+                            <div className="text-[9px] text-zinc-600">{l}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </button>
+                  ))}
                 </div>
+              )}
+
+              {!loadingBlogs && realBlogs.length === 0 && (
+                <button
+                  onClick={(e) => { e.stopPropagation(); onNavigate('experience'); }}
+                  className="group flex items-center gap-2 text-zinc-600 hover:text-zinc-300 transition-colors self-start mt-1"
+                >
+                  <span className="text-[10px] font-bold tracking-[0.2em] uppercase border-b border-transparent group-hover:border-zinc-600 pb-0.5 transition-all">
+                    {content.btn_case_studies}
+                  </span>
+                  <ArrowForwardIcon className="w-3.5 h-3.5 transform group-hover:translate-x-1 transition-transform" />
+                </button>
               )}
 
               {/* Ver más button - solo mostrar si hay blogs */}

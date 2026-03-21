@@ -73,7 +73,7 @@ function getModuleNumber(rawNum: string): string {
 function getGroup(rawId: string, lang: 'en' | 'es'): string {
   if (rawId === 'm1') return lang === 'en' ? 'Security' : 'Seguridad';
   if (['m2', 'm3', 'm4', 'm5'].includes(rawId)) return lang === 'en' ? 'Architecture' : 'Arquitectura';
-  if (['m6', 'm7'].includes(rawId)) return lang === 'en' ? 'Scale' : 'Escala';
+  if (['m6', 'm7', 'm8'].includes(rawId)) return lang === 'en' ? 'Scale' : 'Escala';
   return lang === 'en' ? 'Optimization' : 'Optimizacion';
 }
 
@@ -92,7 +92,7 @@ function getQuiz(rawId: string, lang: 'en' | 'es'): Quiz {
       ],
       answer: 'a',
       explanation: en
-        ? 'Guide 2 starts by treating SECURITY.md as the contract that governs secrets, sensitive files, and incident handling.'
+        ? 'Openclaw Avanzado starts by treating SECURITY.md as the contract that governs secrets, sensitive files, and incident handling.'
         : 'La Guia 2 arranca tratando a SECURITY.md como el contrato que gobierna secretos, archivos sensibles y manejo de incidentes.',
     },
     m2: {
@@ -185,6 +185,21 @@ function getQuiz(rawId: string, lang: 'en' | 'es'): Quiz {
         ? 'The business module is about becoming the person who operates AI systems for real clients, not only the person who consumes them.'
         : 'El modulo de vision comercial empuja el cambio de ser usuario de herramientas a ser quien opera sistemas de IA para clientes reales.',
     },
+    m8: {
+      question: en
+        ? 'Which native command is meant to flag risky DM policies, mixed sessions, and unsafe elevated tools?'
+        : 'Que comando nativo sirve para detectar politicas de DM riesgosas, sesiones mezcladas y tools elevated inseguras?',
+      options: [
+        { id: 'a', label: 'openclaw doctor' },
+        { id: 'b', label: 'openclaw sessions clear' },
+        { id: 'c', label: 'openclaw gateway restart' },
+        { id: 'd', label: 'openclaw heartbeat run' },
+      ],
+      answer: 'a',
+      explanation: en
+        ? 'The testing module uses `openclaw doctor` as the first diagnostic pass because it surfaces risky access, session, and tool configuration issues.'
+        : 'El modulo de testing usa `openclaw doctor` como primera pasada de diagnostico porque expone riesgos de acceso, sesiones y configuracion de tools.',
+    },
     m9: {
       question: en
         ? 'Which technique from the optimization module lowers spend when context is reused repeatedly?'
@@ -244,34 +259,34 @@ const guide2Config: GuidePageConfig = {
     quiz: getQuiz(rawModule.id, lang),
   })),
   copy: {
-    brandLabel: 'OpenClaw Guide 2',
+    brandLabel: 'Openclaw Avanzado',
     guideName: {
-      en: 'OpenClaw Advanced',
-      es: 'Guia OpenClaw 2',
+      en: 'Openclaw Avanzado',
+      es: 'Openclaw Avanzado',
     },
     welcomeBadge: {
       en: 'Advanced guide · v2',
       es: 'Guia avanzada · v2',
     },
     welcomeTitle: {
-      en: 'OpenClaw',
-      es: 'OpenClaw',
+      en: 'Openclaw Avanzado',
+      es: 'Openclaw Avanzado',
     },
     welcomeSubtitle: {
-      en: 'Advanced systems, real operations, real tradeoffs.',
-      es: 'Sistemas avanzados, operacion real y decisiones concretas.',
+      en: 'Testing, systems, pricing, and real operational tradeoffs.',
+      es: 'Testing, sistemas, pricing y decisiones operativas reales.',
     },
     welcomeDescription: {
-      en: 'Security, multi-agent, APIs, prompt engineering, advanced skills, teams, commercial framing, and cost control based on the actual Guide 2 modules.',
-      es: 'Seguridad, multi-agente, APIs, prompt engineering, skills avanzados, equipos, vision comercial y control de costos basados en los modulos reales de la Guia 2.',
+      en: 'Security, multi-agent, APIs, prompt engineering, advanced skills, teams, testing, commercial framing, and cost control based on the actual source PDFs.',
+      es: 'Seguridad, multi-agente, APIs, prompt engineering, skills avanzados, equipos, testing, vision comercial y control de costos basados en los PDFs reales de la Guia 2.',
     },
     completionTitle: {
-      en: 'You finished Guide 2!',
-      es: 'Completaste la Guia 2!',
+      en: 'You finished Openclaw Avanzado!',
+      es: 'Completaste Openclaw Avanzado!',
     },
     completionDescription: {
-      en: 'You now have the advanced layer: security, orchestration, integrations, team workflows, pricing, and cost optimization.',
-      es: 'Ya recorriste la capa avanzada: seguridad, orquestacion, integraciones, trabajo en equipo, pricing y optimizacion de costos.',
+      en: 'You now have the full advanced layer: security, orchestration, integrations, team workflows, testing, pricing, and cost optimization.',
+      es: 'Ya recorriste la capa avanzada completa: seguridad, orquestacion, integraciones, trabajo en equipo, testing, pricing y optimizacion de costos.',
     },
     supportTitle: {
       en: 'Support this advanced guide',

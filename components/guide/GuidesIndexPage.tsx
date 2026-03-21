@@ -36,16 +36,16 @@ const GUIDES: GuideInfo[] = [
   },
   {
     slug: 'openclaw-avanzado',
-    title: 'OpenClaw Guide 2',
-    tagline: 'Security, systems, pricing, and optimization',
+    title: 'Openclaw Avanzado',
+    tagline: 'Security, testing, systems, pricing, and optimization',
     description:
-      'Advanced OpenClaw operations built from the real Guide 2 modules: security and privacy, orchestration, APIs, prompt engineering, skills, team workflows, commercial framing, and cost control.',
-    modules: 8,
-    topics: 64,
+      'Advanced OpenClaw operations built from the real source PDFs: security and privacy, orchestration, APIs, prompt engineering, skills, team workflows, testing, commercial framing, and cost control.',
+    modules: 9,
+    topics: 71,
     level: 'Advanced',
     badge: 'New',
     storageKey: 'openclaw-guide-2-v1',
-    moduleList: ['01 Security', '02 Multi-agent', '03 APIs', '04 Prompt Engineering', '05 Skills', '06 Teams', '07 Commercial', '09 Optimization'],
+    moduleList: ['01 Security', '02 Multi-agent', '03 APIs', '04 Prompt Engineering', '05 Skills', '06 Teams', '07 Commercial', '08 Testing', '09 Optimization'],
     icon: <BookOpen size={18} />,
   },
 ];
