@@ -10,13 +10,13 @@ import {
 // ─── TYPES ───────────────────────────────────────────────────────────────────
 
 type BlockType = 'text' | 'code' | 'table' | 'callout' | 'heading' | 'list' | 'divider';
-type CalloutKind = 'tip' | 'warning' | 'info' | 'note';
+export type CalloutKind = 'tip' | 'warning' | 'info' | 'note';
 
 interface CodeData  { lang: string; code: string; filename?: string; }
 interface TableData { headers: string[]; rows: string[][]; }
 interface CalloutData { kind: CalloutKind; title?: string; text: string; }
 
-interface Block {
+export interface Block {
   type: BlockType;
   text?: string;
   level?: 2 | 3;
@@ -26,22 +26,22 @@ interface Block {
   items?: string[];
 }
 
-interface Step  { title: string; blocks: Block[]; }
-interface QuizOption { id: string; label: string; }
-interface Quiz  { question: string; options: QuizOption[]; answer: string; explanation: string; }
-interface Module {
+export interface Step  { title: string; blocks: Block[]; }
+export interface QuizOption { id: string; label: string; }
+export interface Quiz  { question: string; options: QuizOption[]; answer: string; explanation: string; }
+export interface Module {
   id: string; num: string; title: string; subtitle: string; group: string;
   steps: Step[]; quiz: Quiz;
 }
 
 // ─── BLOCK HELPERS ───────────────────────────────────────────────────────────
 
-const T   = (text: string): Block => ({ type: 'text', text });
-const H   = (text: string, level: 2 | 3 = 2): Block => ({ type: 'heading', text, level });
-const C   = (code: string, lang = 'bash', filename?: string): Block => ({ type: 'code', code: { lang, code, filename } });
-const TBL = (headers: string[], rows: string[][]): Block => ({ type: 'table', table: { headers, rows } });
-const CL  = (kind: CalloutKind, text: string, title?: string): Block => ({ type: 'callout', callout: { kind, text, title } });
-const LI  = (items: string[]): Block => ({ type: 'list', items });
+export const T   = (text: string): Block => ({ type: 'text', text });
+export const H   = (text: string, level: 2 | 3 = 2): Block => ({ type: 'heading', text, level });
+export const C   = (code: string, lang = 'bash', filename?: string): Block => ({ type: 'code', code: { lang, code, filename } });
+export const TBL = (headers: string[], rows: string[][]): Block => ({ type: 'table', table: { headers, rows } });
+export const CL  = (kind: CalloutKind, text: string, title?: string): Block => ({ type: 'callout', callout: { kind, text, title } });
+export const LI  = (items: string[]): Block => ({ type: 'list', items });
 
 // ─── LANGUAGE STRINGS ─────────────────────────────────────────────────────────
 
@@ -1037,19 +1037,84 @@ metadata: |
 
 // ─── PROGRESS ────────────────────────────────────────────────────────────────
 
+export interface GuidePageCopy {
+  brandLabel: string;
+  guideName: { en: string; es: string };
+  welcomeBadge: { en: string; es: string };
+  welcomeTitle: { en: string; es: string };
+  welcomeSubtitle: { en: string; es: string };
+  welcomeDescription: { en: string; es: string };
+  completionTitle: { en: string; es: string };
+  completionDescription: { en: string; es: string };
+  supportTitle?: { en: string; es: string };
+  supportDescription?: { en: string; es: string };
+}
+
+export interface GuidePageConfig {
+  storageKey: string;
+  initialModuleId: string;
+  getModules: (lang: 'en' | 'es') => Module[];
+  copy: GuidePageCopy;
+  showLanguageToggle?: boolean;
+}
+
+const DEFAULT_GUIDE_CONFIG: GuidePageConfig = {
+  storageKey: 'openclaw-guide-v2',
+  initialModuleId: 'mod-00',
+  getModules,
+  copy: {
+    brandLabel: 'OpenClaw',
+    guideName: {
+      en: 'OpenClaw Guide',
+      es: 'Guía OpenClaw',
+    },
+    welcomeBadge: {
+      en: 'Complete guide · v1',
+      es: 'Guía completa · v1',
+    },
+    welcomeTitle: {
+      en: 'OpenClaw',
+      es: 'OpenClaw',
+    },
+    welcomeSubtitle: {
+      en: 'Build AI agents that run on WhatsApp.',
+      es: 'Agentes de IA que corren en WhatsApp.',
+    },
+    welcomeDescription: {
+      en: 'From installation to production. Every config file mapped, every workspace file explained. Real commands, zero invented content.',
+      es: 'Desde la instalación hasta producción. Cada archivo de config mapeado, cada archivo del workspace explicado. Comandos reales, cero contenido inventado.',
+    },
+    completionTitle: {
+      en: 'You finished the guide!',
+      es: '¡Completaste la guía!',
+    },
+    completionDescription: {
+      en: 'You now know how to install, configure, and run production-grade OpenClaw agents. Time to build something great.',
+      es: 'Ya sabés instalar, configurar y correr agentes OpenClaw listos para producción. Ahora a construir algo genial.',
+    },
+    supportTitle: {
+      en: 'Support this free guide',
+      es: 'Apoyá esta guía gratuita',
+    },
+    supportDescription: {
+      en: 'If this guide helped you, a coffee goes a long way to keep this content free and updated.',
+      es: 'Si esta guía te fue útil, un cafecito ayuda a mantener este contenido gratuito y actualizado.',
+    },
+  },
+  showLanguageToggle: true,
+};
+
 interface Progress {
   currentModuleId: string;
   currentStepIndex: number;
   completedModules: string[];
 }
 
-const defaultProgress = (): Progress => ({
-  currentModuleId: 'mod-00',
+const defaultProgress = (initialModuleId = 'mod-00'): Progress => ({
+  currentModuleId: initialModuleId,
   currentStepIndex: 0,
   completedModules: [],
 });
-
-const STORAGE_KEY = 'openclaw-guide-v2';
 
 // ─── COPY BUTTON ──────────────────────────────────────────────────────────────
 
@@ -1313,7 +1378,7 @@ const QuizView: React.FC<{ quiz: Quiz; onPass: () => void; onSkip: () => void }>
 
 // ─── RESET MODAL ──────────────────────────────────────────────────────────────
 
-const ResetModal: React.FC<{ onConfirm: () => void; onCancel: () => void }> = ({ onConfirm, onCancel }) => (
+const ResetModal: React.FC<{ onConfirm: () => void; onCancel: () => void; lang: 'en' | 'es' }> = ({ onConfirm, onCancel, lang }) => (
   <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onCancel}>
     <motion.div initial={{ scale: 0.96, opacity: 0, y: 8 }} animate={{ scale: 1, opacity: 1, y: 0 }}
       transition={{ type: 'spring', stiffness: 400, damping: 30 }}
@@ -1324,13 +1389,13 @@ const ResetModal: React.FC<{ onConfirm: () => void; onCancel: () => void }> = ({
           <RotateCcw size={16} className="text-red-400" />
         </div>
         <div>
-          <h3 className="text-white font-semibold text-sm mb-1">Reset all progress?</h3>
-          <p className="text-zinc-400 text-xs leading-relaxed">This will clear all completed modules, quiz results, and return you to Module 00. This cannot be undone.</p>
+          <h3 className="text-white font-semibold text-sm mb-1">{lang === 'en' ? 'Reset all progress?' : 'Reiniciar todo el progreso?'}</h3>
+          <p className="text-zinc-400 text-xs leading-relaxed">{lang === 'en' ? 'This will clear all completed modules, quiz results, and return you to the first module. This cannot be undone.' : 'Esto va a borrar los modulos completados, los quizzes aprobados y te va a devolver al primer modulo. No se puede deshacer.'}</p>
         </div>
       </div>
       <div className="flex gap-2.5">
-        <button onClick={onCancel} className="flex-1 px-4 py-2.5 rounded-lg border border-white/[0.1] text-zinc-300 text-sm hover:bg-white/[0.04] transition-colors">Cancel</button>
-        <button onClick={onConfirm} className="flex-1 px-4 py-2.5 rounded-lg bg-red-600 text-white text-sm font-medium hover:bg-red-700 transition-colors">Reset progress</button>
+        <button onClick={onCancel} className="flex-1 px-4 py-2.5 rounded-lg border border-white/[0.1] text-zinc-300 text-sm hover:bg-white/[0.04] transition-colors">{lang === 'en' ? 'Cancel' : 'Cancelar'}</button>
+        <button onClick={onConfirm} className="flex-1 px-4 py-2.5 rounded-lg bg-red-600 text-white text-sm font-medium hover:bg-red-700 transition-colors">{lang === 'en' ? 'Reset progress' : 'Reiniciar progreso'}</button>
       </div>
     </motion.div>
   </div>
@@ -1338,7 +1403,7 @@ const ResetModal: React.FC<{ onConfirm: () => void; onCancel: () => void }> = ({
 
 // ─── FORWARD WARNING MODAL ────────────────────────────────────────────────────
 
-const ForwardWarningModal: React.FC<{ target: Module; onConfirm: () => void; onCancel: () => void }> = ({ target, onConfirm, onCancel }) => (
+const ForwardWarningModal: React.FC<{ target: Module; onConfirm: () => void; onCancel: () => void; lang: 'en' | 'es' }> = ({ target, onConfirm, onCancel, lang }) => (
   <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onCancel}>
     <motion.div initial={{ scale: 0.96, opacity: 0, y: 8 }} animate={{ scale: 1, opacity: 1, y: 0 }}
       transition={{ type: 'spring', stiffness: 400, damping: 30 }}
@@ -1349,18 +1414,20 @@ const ForwardWarningModal: React.FC<{ target: Module; onConfirm: () => void; onC
           <AlertTriangle size={16} className="text-amber-400" />
         </div>
         <div>
-          <h3 className="text-white font-semibold text-sm mb-1">Jumping ahead</h3>
+          <h3 className="text-white font-semibold text-sm mb-1">{lang === 'en' ? 'Jumping ahead' : 'Saltando etapas'}</h3>
           <p className="text-zinc-400 text-xs leading-relaxed mb-2">
-            You're navigating to <span className="text-white font-medium">{target.num} — {target.title}</span> without completing the previous modules.
+            {lang === 'en'
+              ? <>You're navigating to <span className="text-white font-medium">{target.num} — {target.title}</span> without completing the previous modules.</>
+              : <>Vas a abrir <span className="text-white font-medium">{target.num} — {target.title}</span> sin completar los modulos anteriores.</>}
           </p>
           <p className="text-zinc-500 text-xs leading-relaxed">
-            Some content may be harder to follow without the foundation. You can always come back.
+            {lang === 'en' ? 'Some content may be harder to follow without the foundation. You can always come back.' : 'Parte del contenido puede costar mas sin la base anterior. Siempre podes volver.'}
           </p>
         </div>
       </div>
       <div className="flex gap-2.5">
-        <button onClick={onCancel} className="flex-1 px-4 py-2.5 rounded-lg border border-white/[0.1] text-zinc-300 text-sm hover:bg-white/[0.04] transition-colors">Go back</button>
-        <button onClick={onConfirm} className="flex-1 px-4 py-2.5 rounded-lg bg-white text-black text-sm font-medium hover:bg-zinc-200 transition-colors">Continue anyway</button>
+        <button onClick={onCancel} className="flex-1 px-4 py-2.5 rounded-lg border border-white/[0.1] text-zinc-300 text-sm hover:bg-white/[0.04] transition-colors">{lang === 'en' ? 'Go back' : 'Volver'}</button>
+        <button onClick={onConfirm} className="flex-1 px-4 py-2.5 rounded-lg bg-white text-black text-sm font-medium hover:bg-zinc-200 transition-colors">{lang === 'en' ? 'Continue anyway' : 'Continuar igual'}</button>
       </div>
     </motion.div>
   </div>
@@ -1375,9 +1442,11 @@ const WelcomeScreen: React.FC<{
   onBackToGuides: () => void;
   lang: 'en' | 'es';
   modules: Module[];
-}> = ({ onStart, hasProgress, onResume, onBackToGuides, lang, modules }) => {
+  copy: GuidePageCopy;
+}> = ({ onStart, hasProgress, onResume, onBackToGuides, lang, modules, copy }) => {
   const en = lang === 'en';
   const groups = Array.from(new Set(modules.map(m => m.group)));
+  const totalTopics = modules.reduce((sum, module) => sum + module.steps.length, 0);
   return (
     <div className="flex-1 relative flex flex-col overflow-y-auto bg-[#080808]">
       {/* Subtle dot grid */}
@@ -1398,7 +1467,7 @@ const WelcomeScreen: React.FC<{
             <BackIcon size={11} />
             <span>{en ? 'All guides' : 'Todas las guías'}</span>
           </button>
-          <span className="text-[10px] font-mono text-zinc-800 tracking-widest uppercase">OpenClaw</span>
+          <span className="text-[10px] font-mono text-zinc-800 tracking-widest uppercase">{copy.brandLabel}</span>
         </motion.div>
 
         {/* Main grid */}
@@ -1411,28 +1480,26 @@ const WelcomeScreen: React.FC<{
               {/* Badge */}
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-950/50 border border-emerald-800/40 text-[11px] text-emerald-400 font-mono mb-7">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                {en ? 'Complete guide · v1' : 'Guía completa · v1'}
+                {en ? copy.welcomeBadge.en : copy.welcomeBadge.es}
               </div>
 
               {/* Title */}
               <h1 className="text-6xl sm:text-7xl xl:text-8xl font-bold tracking-tighter text-white leading-none mb-3">
-                OpenClaw
+                {en ? copy.welcomeTitle.en : copy.welcomeTitle.es}
               </h1>
               <p className="text-lg text-zinc-400 font-light mb-2">
-                {en ? 'Build AI agents that run on WhatsApp.' : 'Agentes de IA que corren en WhatsApp.'}
+                {en ? copy.welcomeSubtitle.en : copy.welcomeSubtitle.es}
               </p>
               <p className="text-sm text-zinc-600 leading-relaxed mb-10 max-w-md">
-                {en
-                  ? 'From installation to production. Every config file mapped, every workspace file explained. Real commands, zero invented content.'
-                  : 'Desde la instalación hasta producción. Cada archivo de config mapeado, cada archivo del workspace explicado. Comandos reales, cero contenido inventado.'}
+                {en ? copy.welcomeDescription.en : copy.welcomeDescription.es}
               </p>
 
               {/* Stats */}
               <div className="flex items-center gap-8 mb-10">
                 {[
-                  { v: '10', l: en ? 'modules' : 'módulos' },
-                  { v: '42+', l: 'topics' },
-                  { v: '10', l: 'quizzes' },
+                  { v: modules.length.toString(), l: en ? 'modules' : 'módulos' },
+                  { v: `${totalTopics}+`, l: 'topics' },
+                  { v: modules.length.toString(), l: 'quizzes' },
                 ].map(({ v, l }) => (
                   <div key={l}>
                     <div className="text-3xl font-bold text-white leading-none">{v}</div>
@@ -1515,7 +1582,9 @@ const Sidebar: React.FC<{
   onBackToGuides: () => void;
   lang: 'en' | 'es';
   onToggleLang: () => void;
-}> = ({ modules, progress, onNavigate, onReset, onHome, onBackToGuides, lang, onToggleLang }) => {
+  guideName?: string;
+  showLanguageToggle?: boolean;
+}> = ({ modules, progress, onNavigate, onReset, onHome, onBackToGuides, lang, onToggleLang, guideName, showLanguageToggle = true }) => {
   const t = UI_STRINGS[lang];
   const groups = Array.from(new Set(modules.map(m => m.group)));
   const currentIdx = modules.findIndex(m => m.id === progress.currentModuleId);
@@ -1526,7 +1595,7 @@ const Sidebar: React.FC<{
           <BackIcon size={11} /><span className="text-[11px]">{t.allGuides}</span>
         </button>
         <button onClick={onHome} className="flex items-center gap-2 text-zinc-500 hover:text-zinc-300 transition-colors">
-          <Home size={13} /><span className="text-xs font-medium">{t.guideName}</span>
+          <Home size={13} /><span className="text-xs font-medium">{guideName || t.guideName}</span>
         </button>
       </div>
       <nav className="flex-1 py-4 px-2">
@@ -1579,7 +1648,7 @@ const Sidebar: React.FC<{
         <button onClick={onReset} className="flex items-center gap-1.5 text-[11px] text-zinc-700 hover:text-zinc-400 transition-colors">
           <RotateCcw size={10} />{t.reset}
         </button>
-        <div className="pt-2 border-t border-white/[0.05]">
+        {showLanguageToggle && <div className="pt-2 border-t border-white/[0.05]">
           <button onClick={onToggleLang}
             className="flex items-center gap-1.5 w-full px-2.5 py-1.5 rounded-md bg-white/[0.04] border border-white/[0.07] hover:bg-white/[0.07] transition-colors">
             <span className={`text-[10px] font-mono font-semibold ${lang === 'en' ? 'text-white' : 'text-zinc-600'}`}>EN</span>
@@ -1587,7 +1656,7 @@ const Sidebar: React.FC<{
             <span className={`text-[10px] font-mono font-semibold ${lang === 'es' ? 'text-white' : 'text-zinc-600'}`}>ES</span>
             <span className="text-[10px] text-zinc-600 ml-auto">{lang === 'en' ? 'Español' : 'English'}</span>
           </button>
-        </div>
+        </div>}
       </div>
     </aside>
   );
@@ -1643,7 +1712,7 @@ const FloatingNav: React.FC<{
 
 // ─── COMPLETION SECTION ──────────────────────────────────────────────────────
 
-const CompletionSection: React.FC<{ lang: 'en' | 'es' }> = ({ lang }) => {
+const CompletionSection: React.FC<{ lang: 'en' | 'es'; copy: GuidePageCopy }> = ({ lang, copy }) => {
   const en = lang === 'en';
   return (
     <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.5 }}>
@@ -1654,12 +1723,10 @@ const CompletionSection: React.FC<{ lang: 'en' | 'es' }> = ({ lang }) => {
       <div className="text-center mb-10">
         <div className="text-5xl mb-5 select-none">🎉</div>
         <h2 className="text-2xl font-bold text-white tracking-tight mb-3">
-          {en ? 'You finished the guide!' : '¡Completaste la guía!'}
+          {en ? copy.completionTitle.en : copy.completionTitle.es}
         </h2>
         <p className="text-zinc-400 text-sm leading-relaxed max-w-sm mx-auto">
-          {en
-            ? 'You now know how to install, configure, and run production-grade OpenClaw agents. Time to build something great.'
-            : 'Ya sabés instalar, configurar y correr agentes OpenClaw listos para producción. Ahora a construir algo genial.'}
+          {en ? copy.completionDescription.en : copy.completionDescription.es}
         </p>
       </div>
 
@@ -1672,12 +1739,12 @@ const CompletionSection: React.FC<{ lang: 'en' | 'es' }> = ({ lang }) => {
           <div className="text-2xl shrink-0 mt-0.5">☕</div>
           <div className="flex-1 min-w-0">
             <div className="text-sm font-semibold text-white mb-1">
-              {en ? 'Support this free guide' : 'Apoyá esta guía gratuita'}
+              {en ? (copy.supportTitle?.en || 'Support this free guide') : (copy.supportTitle?.es || 'Apoyá esta guía gratuita')}
             </div>
             <p className="text-[11px] text-zinc-500 leading-relaxed mb-4">
               {en
-                ? 'If this guide helped you, a coffee goes a long way to keep this content free and updated.'
-                : 'Si esta guía te fue útil, un cafecito ayuda a mantener este contenido gratuito y actualizado.'}
+                ? (copy.supportDescription?.en || 'If this guide helped you, a coffee goes a long way to keep this content free and updated.')
+                : (copy.supportDescription?.es || 'Si esta guía te fue útil, un cafecito ayuda a mantener este contenido gratuito y actualizado.')}
             </p>
             <a
               href="https://cafecito.app/keroclow"
@@ -1708,7 +1775,8 @@ const ModuleContent: React.FC<{
   onComplete: () => void;
   onSkipQuiz: () => void;
   lang: 'en' | 'es';
-}> = ({ module, stepIndex, isCompleted, isLastModule, showQuiz, onNext, onPrev, onComplete, onSkipQuiz, lang }) => {
+  copy: GuidePageCopy;
+}> = ({ module, stepIndex, isCompleted, isLastModule, showQuiz, onNext, onPrev, onComplete, onSkipQuiz, lang, copy }) => {
   const step = module.steps[stepIndex];
   const isLast  = stepIndex === module.steps.length - 1;
   const isFirst = stepIndex === 0;
@@ -1745,7 +1813,7 @@ const ModuleContent: React.FC<{
 
             {/* All modules done: show completion + donation section */}
             {isCompleted && isLastModule && (
-              <CompletionSection lang={lang} />
+              <CompletionSection lang={lang} copy={copy} />
             )}
 
             {/* Bottom padding to avoid content hidden behind floating nav */}
@@ -1759,17 +1827,25 @@ const ModuleContent: React.FC<{
 
 // ─── MAIN ─────────────────────────────────────────────────────────────────────
 
-const GuiaPage: React.FC = () => {
+export interface GuiaPageProps {
+  config?: GuidePageConfig;
+  initialLanguage?: 'en' | 'es';
+}
+
+const GuiaPage: React.FC<GuiaPageProps> = ({ config = DEFAULT_GUIDE_CONFIG, initialLanguage }) => {
   const routerNavigate = useRouterNavigate();
+  const storageKey = config.storageKey;
+  const guideCopy = config.copy;
   const [progress, setProgress] = useState<Progress>(() => {
-    try { const s = localStorage.getItem(STORAGE_KEY); if (s) return JSON.parse(s); } catch {}
-    return defaultProgress();
+    try { const s = localStorage.getItem(storageKey); if (s) return JSON.parse(s); } catch {}
+    return defaultProgress(config.initialModuleId);
   });
   const [showWelcome, setShowWelcome]       = useState(true);
   const [showReset, setShowReset]           = useState(false);
   const [forwardTarget, setForwardTarget]   = useState<Module | null>(null);
   const [showQuiz, setShowQuiz]             = useState(false);
   const [language, setLanguage]             = useState<'en' | 'es'>(() => {
+    if (initialLanguage) return initialLanguage;
     try { return (localStorage.getItem(LANG_STORAGE_KEY) as 'en' | 'es') || 'en'; } catch { return 'en'; }
   });
   const toggleLanguage = useCallback(() => {
@@ -1780,15 +1856,15 @@ const GuiaPage: React.FC = () => {
     });
   }, []);
 
-  const modules = useMemo(() => getModules(language), [language]);
+  const modules = useMemo(() => config.getModules(language), [config, language]);
 
   const hasStoredProgress = (() => {
-    try { return !!localStorage.getItem(STORAGE_KEY); } catch { return false; }
+    try { return !!localStorage.getItem(storageKey); } catch { return false; }
   })();
 
   useEffect(() => {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(progress)); } catch {}
-  }, [progress]);
+    try { localStorage.setItem(storageKey, JSON.stringify(progress)); } catch {}
+  }, [progress, storageKey]);
 
   useEffect(() => { setShowQuiz(false); }, [progress.currentModuleId, progress.currentStepIndex]);
 
@@ -1851,19 +1927,19 @@ const GuiaPage: React.FC = () => {
   }, [currentModule.id, currentModIdx]);
 
   const reset = useCallback(() => {
-    setProgress(defaultProgress());
+    setProgress(defaultProgress(config.initialModuleId));
     setShowReset(false);
     setShowWelcome(true);
     setShowQuiz(false);
-    try { localStorage.removeItem(STORAGE_KEY); } catch {}
-  }, []);
+    try { localStorage.removeItem(storageKey); } catch {}
+  }, [config.initialModuleId, storageKey]);
 
   return (
     <div className="w-full h-screen flex flex-col bg-[#0a0a0a] text-white overflow-hidden"
       style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
 
-      {showReset    && <ResetModal onConfirm={reset} onCancel={() => setShowReset(false)} />}
-      {forwardTarget && <ForwardWarningModal target={forwardTarget} onConfirm={confirmForward} onCancel={() => setForwardTarget(null)} />}
+      {showReset    && <ResetModal onConfirm={reset} onCancel={() => setShowReset(false)} lang={language} />}
+      {forwardTarget && <ForwardWarningModal target={forwardTarget} onConfirm={confirmForward} onCancel={() => setForwardTarget(null)} lang={language} />}
 
       <div className="flex-1 flex overflow-hidden">
         {!showWelcome && (
@@ -1876,17 +1952,20 @@ const GuiaPage: React.FC = () => {
             onBackToGuides={() => routerNavigate('/guides')}
             lang={language}
             onToggleLang={toggleLanguage}
+            guideName={language === 'en' ? guideCopy.guideName.en : guideCopy.guideName.es}
+            showLanguageToggle={config.showLanguageToggle !== false}
           />
         )}
 
         {showWelcome ? (
           <WelcomeScreen
-            onStart={() => { setProgress(defaultProgress()); setShowWelcome(false); }}
+            onStart={() => { setProgress(defaultProgress(config.initialModuleId)); setShowWelcome(false); }}
             hasProgress={hasStoredProgress && progress.completedModules.length > 0}
             onResume={() => setShowWelcome(false)}
             onBackToGuides={() => routerNavigate('/guides')}
             lang={language}
             modules={modules}
+            copy={guideCopy}
           />
         ) : (
           <ModuleContent
@@ -1901,6 +1980,7 @@ const GuiaPage: React.FC = () => {
             onComplete={complete}
             onSkipQuiz={skipQuiz}
             lang={language}
+            copy={guideCopy}
           />
         )}
       </div>

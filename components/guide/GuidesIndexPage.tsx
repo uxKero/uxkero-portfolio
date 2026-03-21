@@ -34,17 +34,31 @@ const GUIDES: GuideInfo[] = [
     moduleList: ['00 Setting Up', '01 Config File', '02 Workspace', '03 Identity Stack', '04 Conversation Flow', '05 Plugins', '06 Multi-Agent', '07 Memory', '08 Production', '09 Skills'],
     icon: <Terminal size={18} />,
   },
+  {
+    slug: 'openclaw-avanzado',
+    title: 'OpenClaw Guide 2',
+    tagline: 'Security, systems, pricing, and optimization',
+    description:
+      'Advanced OpenClaw operations built from the real Guide 2 modules: security and privacy, orchestration, APIs, prompt engineering, skills, team workflows, commercial framing, and cost control.',
+    modules: 8,
+    topics: 64,
+    level: 'Advanced',
+    badge: 'New',
+    storageKey: 'openclaw-guide-2-v1',
+    moduleList: ['01 Security', '02 Multi-agent', '03 APIs', '04 Prompt Engineering', '05 Skills', '06 Teams', '07 Commercial', '09 Optimization'],
+    icon: <BookOpen size={18} />,
+  },
 ];
 
 // ─── PROGRESS ────────────────────────────────────────────────────────────────
 
-function readProgress(key?: string): { completed: number; total: number } | null {
+function readProgress(key?: string, total = 0): { completed: number; total: number } | null {
   if (!key) return null;
   try {
     const raw = localStorage.getItem(key);
     if (!raw) return null;
     const d = JSON.parse(raw);
-    if (Array.isArray(d.completedModules)) return { completed: d.completedModules.length, total: 10 };
+    if (Array.isArray(d.completedModules)) return { completed: d.completedModules.length, total: total || d.completedModules.length || 1 };
   } catch {}
   return null;
 }
@@ -52,7 +66,7 @@ function readProgress(key?: string): { completed: number; total: number } | null
 // ─── FEATURED CARD ────────────────────────────────────────────────────────────
 
 const FeaturedCard: React.FC<{ guide: GuideInfo; onOpen: () => void }> = ({ guide, onOpen }) => {
-  const progress = readProgress(guide.storageKey);
+  const progress = readProgress(guide.storageKey, guide.modules);
   const pct = progress ? Math.round((progress.completed / progress.total) * 100) : 0;
   const hasProgress = !!progress && progress.completed > 0;
 
@@ -194,6 +208,7 @@ const ComingSoonCard: React.FC<{ index: number }> = ({ index }) => (
 const GuidesIndexPage: React.FC = () => {
   const navigate = useNavigate();
   const featured = GUIDES[0];
+  const moreGuides = GUIDES.slice(1);
 
   return (
     <div
@@ -285,7 +300,7 @@ const GuidesIndexPage: React.FC = () => {
           </div>
         )}
 
-        {/* Coming soon placeholders */}
+        {/* More guides */}
         <div className="mb-16">
           <motion.div
             initial={{ opacity: 0 }}
@@ -297,8 +312,10 @@ const GuidesIndexPage: React.FC = () => {
             <div className="flex-1 h-px bg-white/[0.04]" />
           </motion.div>
           <div className="space-y-3">
-            <ComingSoonCard index={0} />
-            <ComingSoonCard index={1} />
+            {moreGuides.map((guide) => (
+              <FeaturedCard key={guide.slug} guide={guide} onOpen={() => navigate(`/guides/${guide.slug}`)} />
+            ))}
+            <ComingSoonCard index={moreGuides.length} />
           </div>
         </div>
 

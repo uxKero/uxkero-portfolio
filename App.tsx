@@ -5,6 +5,7 @@ import BlogPost from './components/blog/BlogPost';
 import AdminPanel from './components/admin/AdminPanel';
 import Login from './components/admin/Login';
 import GuiaPage from './components/guide/GuiaPage';
+import Guia2Page from './components/guide/Guia2Page';
 import GuidesIndexPage from './components/guide/GuidesIndexPage';
 import { getInternalSlug } from './utils/blog-slugs';
 import { useSEO } from './utils/useSEO';
@@ -71,6 +72,7 @@ const App: React.FC = () => {
         <Route path="/admin" element={<AdminPanel />} />
         <Route path="/guides" element={<GuidesIndexPage />} />
         <Route path="/guides/openclaw" element={<div className="w-full h-screen overflow-hidden"><GuiaPage /></div>} />
+        <Route path="/guides/openclaw-avanzado" element={<div className="w-full h-screen overflow-hidden"><Guia2Page /></div>} />
         {/* Legacy routes — kept for backwards compatibility */}
         <Route path="/guia" element={<div className="w-full h-screen overflow-hidden"><GuiaPage /></div>} />
         <Route path="/guide" element={<div className="w-full h-screen overflow-hidden"><GuiaPage /></div>} />
