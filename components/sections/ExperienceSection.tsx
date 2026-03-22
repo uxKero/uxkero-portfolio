@@ -106,52 +106,70 @@ const ExperienceSection: React.FC<ExperienceSectionProps> = ({ content }) => {
                      <span className="text-zinc-600 text-sm font-mono tracking-widest uppercase">{content.headers[4]}</span>
                      {content.headers[5]}
                   </h3>
-                  <div className="space-y-4 xl:space-y-5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 xl:gap-4">
                      {/* Cronos */}
-                     <a 
-                        href="https://www.linkedin.com/company/cronos-cloud-sa/" 
-                        target="_blank" 
+                     <a
+                        href="https://www.linkedin.com/company/cronos-cloud-sa/"
+                        target="_blank"
                         rel="noopener noreferrer"
-                        className="block bg-zinc-900/20 border-l-2 border-purple-500 pl-5 py-4 hover:bg-zinc-900/40 transition-colors group"
+                        className="flex flex-col bg-zinc-900/20 border border-zinc-800 border-l-2 border-l-purple-500 pl-4 pr-4 py-4 hover:bg-zinc-900/40 hover:border-zinc-700 hover:border-l-purple-400 transition-all group rounded-sm"
                      >
-                        <div className="flex items-center gap-2 mb-1.5">
-                            <h4 className="text-white text-sm font-bold uppercase tracking-wider group-hover:text-purple-400 transition-colors">{content.projects.cronos_title}</h4>
-                            <OpenInNewIcon className="w-3 h-3 text-zinc-600 group-hover:text-purple-400 transition-colors" />
+                        <div className="flex items-start justify-between gap-2 mb-2">
+                            <h4 className="text-white text-xs font-bold uppercase tracking-wider group-hover:text-purple-400 transition-colors leading-tight">{content.projects.cronos_title}</h4>
+                            <OpenInNewIcon sx={{ fontSize: 12 }} className="text-zinc-600 group-hover:text-purple-400 transition-colors shrink-0 mt-0.5" />
                         </div>
-                        <p className="text-zinc-400 text-sm leading-relaxed">
+                        <p className="text-zinc-500 text-xs leading-relaxed">
                            {content.projects.cronos_desc}
                         </p>
                      </a>
                      {/* Contablix */}
-                     <a 
-                        href="https://contablix.ar/" 
-                        target="_blank" 
+                     <a
+                        href="https://contablix.ar/"
+                        target="_blank"
                         rel="noopener noreferrer"
-                        className="block bg-zinc-900/20 border-l-2 border-zinc-600 pl-5 py-4 hover:bg-zinc-900/40 transition-colors group"
+                        className="flex flex-col bg-zinc-900/20 border border-zinc-800 border-l-2 border-l-zinc-500 pl-4 pr-4 py-4 hover:bg-zinc-900/40 hover:border-zinc-700 hover:border-l-zinc-400 transition-all group rounded-sm"
                      >
-                         <div className="flex items-center gap-2 mb-1.5">
-                            <h4 className="text-white text-sm font-bold uppercase tracking-wider group-hover:text-zinc-400 transition-colors">{content.projects.contablix_title}</h4>
-                             <OpenInNewIcon className="w-3 h-3 text-zinc-600 group-hover:text-zinc-400 transition-colors" />
+                         <div className="flex items-start justify-between gap-2 mb-2">
+                            <h4 className="text-white text-xs font-bold uppercase tracking-wider group-hover:text-zinc-300 transition-colors leading-tight">{content.projects.contablix_title}</h4>
+                            <OpenInNewIcon sx={{ fontSize: 12 }} className="text-zinc-600 group-hover:text-zinc-400 transition-colors shrink-0 mt-0.5" />
                         </div>
-                        <p className="text-zinc-400 text-sm leading-relaxed">
+                        <p className="text-zinc-500 text-xs leading-relaxed">
                            {content.projects.contablix_desc}
                         </p>
                      </a>
                      {/* AuroraBook */}
-                     <a 
+                     <a
                         href={content.projects.aurorabook_url}
-                        target="_blank" 
+                        target="_blank"
                         rel="noopener noreferrer"
-                        className="block bg-zinc-900/20 border-l-2 border-amber-500/70 pl-5 py-4 hover:bg-zinc-900/40 transition-colors group"
+                        className="flex flex-col bg-zinc-900/20 border border-zinc-800 border-l-2 border-l-amber-500/70 pl-4 pr-4 py-4 hover:bg-zinc-900/40 hover:border-zinc-700 hover:border-l-amber-400 transition-all group rounded-sm"
                      >
-                         <div className="flex items-center gap-2 mb-1.5">
-                            <h4 className="text-white text-sm font-bold uppercase tracking-wider group-hover:text-amber-400 transition-colors">{content.projects.aurorabook_title}</h4>
-                             <OpenInNewIcon className="w-3 h-3 text-zinc-600 group-hover:text-amber-400 transition-colors" />
+                         <div className="flex items-start justify-between gap-2 mb-2">
+                            <h4 className="text-white text-xs font-bold uppercase tracking-wider group-hover:text-amber-400 transition-colors leading-tight">{content.projects.aurorabook_title}</h4>
+                            <OpenInNewIcon sx={{ fontSize: 12 }} className="text-zinc-600 group-hover:text-amber-400 transition-colors shrink-0 mt-0.5" />
                         </div>
-                        <p className="text-zinc-400 text-sm leading-relaxed">
+                        <p className="text-zinc-500 text-xs leading-relaxed">
                            {content.projects.aurorabook_desc}
                         </p>
                      </a>
+                     {/* Cultura Interactiva */}
+                     <div className="flex flex-col bg-zinc-900/20 border border-zinc-800 border-l-2 border-l-emerald-500 pl-4 pr-4 py-4 rounded-sm">
+                         <div className="flex items-start justify-between gap-2 mb-2">
+                            <h4 className="text-white text-xs font-bold uppercase tracking-wider leading-tight">{content.projects.culturainteractiva_title}</h4>
+                        </div>
+                        <p className="text-zinc-500 text-xs leading-relaxed">
+                           {content.projects.culturainteractiva_desc}
+                        </p>
+                     </div>
+                     {/* EDUCABOT */}
+                     <div className="flex flex-col bg-zinc-900/20 border border-zinc-800 border-l-2 border-l-blue-500 pl-4 pr-4 py-4 rounded-sm">
+                         <div className="flex items-start justify-between gap-2 mb-2">
+                            <h4 className="text-white text-xs font-bold uppercase tracking-wider leading-tight">{content.projects.educabot_title}</h4>
+                        </div>
+                        <p className="text-zinc-500 text-xs leading-relaxed">
+                           {content.projects.educabot_desc}
+                        </p>
+                     </div>
                   </div>
                 </section>
 
