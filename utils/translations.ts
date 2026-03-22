@@ -88,7 +88,11 @@ export const translations = {
         contablix_desc: "Executed a full UX/UI overhaul for a FinTech digital accounting studio — completed Feb 2026. Drove brand modernization, user adoption, and product clarity from concept to delivery.",
         aurorabook_title: "AuroraBook · CEO & Founder",
         aurorabook_desc: "Founded Dec 2025. Location marketplace built end-to-end — product strategy, design, and development all under one roof.",
-        aurorabook_url: "https://aurorabookapp.com"
+        aurorabook_url: "https://aurorabookapp.com",
+        culturainteractiva_title: "Cultura Interactiva · Internal Ops & AI",
+        culturainteractiva_desc: "Streamlining internal operations and driving AI adoption across the organization. Designing intelligent workflows and tools that increase team velocity and reduce operational friction.",
+        educabot_title: "EDUCABOT · AI Experience Lead",
+        educabot_desc: "Leading the design and delivery of AI-powered educational experiences. Building interactive learning tools at the intersection of artificial intelligence and pedagogy."
       },
       leadership: {
         h1: "Leadership & Resource Management",
@@ -219,7 +223,11 @@ export const translations = {
         contablix_desc: "Ejecuté un rediseño completo de UX/UI para un estudio contable digital — completado en Feb 2026. Impulsé la modernización de marca, adopción de usuarios y claridad de producto.",
         aurorabook_title: "AuroraBook · CEO & Fundador",
         aurorabook_desc: "Fundado en Dic 2025. Marketplace de locaciones construido end-to-end — estrategia de producto, diseño y desarrollo bajo el mismo techo.",
-        aurorabook_url: "https://aurorabookapp.com"
+        aurorabook_url: "https://aurorabookapp.com",
+        culturainteractiva_title: "Cultura Interactiva · Ops & AI Interno",
+        culturainteractiva_desc: "Optimización de operaciones internas e implementación de IA en la organización. Diseño de workflows inteligentes y herramientas que aumentan la velocidad del equipo y reducen la fricción operativa.",
+        educabot_title: "EDUCABOT · AI Experience Lead",
+        educabot_desc: "Liderazgo en diseño y entrega de experiencias educativas potenciadas por IA. Construcción de herramientas de aprendizaje interactivas en la intersección de inteligencia artificial y pedagogía."
       },
       leadership: {
         h1: "Liderazgo y Gestión de Recursos",
