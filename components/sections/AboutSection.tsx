@@ -232,11 +232,7 @@ const AboutSection: React.FC<AboutSectionProps> = ({ onNavigate, content, langua
                   onBlogClick={onBlogClick}
                   language={language}
                 />
-              ) : (
-                <div className="text-center text-zinc-600 py-4 text-sm">
-                  {language === 'es' ? 'Todavía no hay blogs publicados.' : 'No published blog posts yet.'}
-                </div>
-              )}
+              ) : null}
 
               {!loadingBlogs && (
                 <div className="w-full flex flex-col gap-4 py-2 mb-2">
@@ -245,6 +241,15 @@ const AboutSection: React.FC<AboutSectionProps> = ({ onNavigate, content, langua
                       {language === 'es' ? 'Guías destacadas' : 'Featured guides'}
                     </span>
                     <div className="flex-1 h-px bg-zinc-900" />
+                    <button
+                      onClick={(e) => { e.stopPropagation(); navigateToGuides('/guides'); }}
+                      className="flex items-center gap-0.5 text-zinc-600 hover:text-zinc-400 transition-colors shrink-0"
+                    >
+                      <span className="text-[9px] font-semibold uppercase tracking-[0.22em]">
+                        {language === 'es' ? 'Ver todas' : 'View all'}
+                      </span>
+                      <ArrowForwardIcon sx={{ fontSize: 10 }} />
+                    </button>
                   </div>
 
                   {featuredGuides.map((guide) => (
