@@ -2,7 +2,7 @@ import React, { useRef, useEffect } from 'react';
 import EmailIcon from '@mui/icons-material/Email';
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import XIcon from '@mui/icons-material/X';
-import BusinessIcon from '@mui/icons-material/Business';
+import LanguageIcon from '@mui/icons-material/Language';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 
 interface ContactSectionProps {
@@ -43,8 +43,8 @@ const ContactSection: React.FC<ContactSectionProps> = ({ content }) => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 w-full max-w-4xl animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-200">
         
         {/* Email */}
-        <a 
-          href="mailto:alan@aurorabookapp.com" 
+        <a
+          href="mailto:uxkero@gmail.com"
           className="group flex items-center justify-between p-4 md:p-6 border border-zinc-800 bg-zinc-950/30 hover:bg-zinc-900/80 hover:border-emerald-500/50 transition-all duration-300"
         >
           <div className="flex items-center gap-4 md:gap-5">
@@ -53,7 +53,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({ content }) => {
             </div>
             <div className="text-left">
               <div className="text-[9px] md:text-[10px] text-zinc-500 uppercase tracking-widest mb-1 group-hover:text-emerald-500/70 transition-colors">{content.labels.email_sub}</div>
-              <div className="text-white text-sm md:text-lg font-medium tracking-tight break-all">alan@aurorabookapp.com</div>
+              <div className="text-white text-sm md:text-lg font-medium tracking-tight break-all">uxkero@gmail.com</div>
             </div>
           </div>
           <OpenInNewIcon className="w-4 h-4 text-zinc-700 group-hover:text-emerald-400 group-hover:rotate-45 transition-all duration-300 md:w-[18px] md:h-[18px]" />
@@ -97,20 +97,20 @@ const ContactSection: React.FC<ContactSectionProps> = ({ content }) => {
           <OpenInNewIcon className="w-4 h-4 text-zinc-700 group-hover:text-white group-hover:rotate-45 transition-all duration-300 md:w-[18px] md:h-[18px]" />
         </a>
 
-        {/* Company Ref */}
-        <a 
-          href="https://www.linkedin.com/company/aurorabook/" 
-          target="_blank" 
+        {/* Portfolio */}
+        <a
+          href="https://uxkero.vercel.app"
+          target="_blank"
           rel="noopener noreferrer"
           className="group flex items-center justify-between p-4 md:p-6 border border-zinc-800 bg-zinc-950/30 hover:bg-zinc-900/80 hover:border-purple-500/50 transition-all duration-300"
         >
           <div className="flex items-center gap-4 md:gap-5">
              <div className="p-2 md:p-3 rounded-sm bg-zinc-900 group-hover:bg-purple-500/10 text-zinc-500 group-hover:text-purple-400 transition-colors">
-               <BusinessIcon className="w-5 h-5 md:w-6 md:h-6" />
+               <LanguageIcon className="w-5 h-5 md:w-6 md:h-6" />
             </div>
             <div className="text-left">
-              <div className="text-[9px] md:text-[10px] text-zinc-500 uppercase tracking-widest mb-1 group-hover:text-purple-500/70 transition-colors">{content.labels.company_sub}</div>
-              <div className="text-white text-sm md:text-lg font-medium tracking-tight">Company Reference</div>
+              <div className="text-[9px] md:text-[10px] text-zinc-500 uppercase tracking-widest mb-1 group-hover:text-purple-500/70 transition-colors">{content.labels.portfolio_sub}</div>
+              <div className="text-white text-sm md:text-lg font-medium tracking-tight">uxkero.vercel.app</div>
             </div>
           </div>
           <OpenInNewIcon className="w-4 h-4 text-zinc-700 group-hover:text-purple-400 group-hover:rotate-45 transition-all duration-300 md:w-[18px] md:h-[18px]" />

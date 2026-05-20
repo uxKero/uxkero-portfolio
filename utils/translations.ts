@@ -3,9 +3,9 @@ export const translations = {
     about: {
       name: "ALAN PONCE",
       location: "Mar del Plata, Argentina (UTC-3) | Available for Remote/Global Roles.",
-      title: "PRODUCT MANAGER & AI BUILDER",
-      subheader: "SHIPPING AI-POWERED PRODUCTS FROM STRATEGY TO DEPLOYMENT.",
-      summary: "Designer with expertise in Business Acumen and UX/UI Mastery. Focused on delivering scalable systems and measurable growth.",
+      title: "AI EXPERIENCE DESIGNER & PRODUCT LEAD",
+      subheader: "DESIGNING INTELLIGENT SYSTEMS, DRIVING AI ENABLEMENT, AND SHIPPING PRODUCTS END-TO-END.",
+      summary: "Specializing in agentic AI across EdTech, real estate, and digital consultancy. From internal operations and AI enablement to my own products — I turn complex agentic technology into measurable value.",
       btn_experience: "Experience",
       btn_contact: "Contact",
       btn_case_studies: "View Case Studies",
@@ -46,65 +46,71 @@ export const translations = {
       ]
     },
     experience: {
-      headers: {
-        0: "01",
-        1: "STRATEGY & LEADERSHIP",
-        2: "02",
-        3: "PRACTICE & TECHNICAL VIABILITY",
-        4: "03",
-        5: "KEY PROJECT HIGHLIGHTS",
-        6: "04",
-        7: "LEADERSHIP & OPERATIONS",
-        8: "05",
-        9: "AI BUILDER & DIGITAL TOOLKIT"
+      roles: {
+        num: "01",
+        title: "ROLES",
+        educabot: {
+          name: "AI Experience Designer · Educabot",
+          tag: "EdTech · Argentina · Current",
+          desc: "Designing the experience layer of TUNI/Ada, an AI tutoring platform for students. Prompt engineering for tutor behavior (peer-companion tone, anti-hallucination, self-contained context), agent behavior design, and conversational UX between AI tutor and learner.",
+          url: "https://educabot.com"
+        },
+        cultura: {
+          name: "Internal Operations & AI Enablement · Cultura Interactiva",
+          tag: "Digital consultancy · 20+ LATAM countries · Current",
+          desc: "Mapping employee workflows across the company and introducing AI-based improvements iteratively. Built a React internal discovery tool for structured meeting notes and cross-area analysis, ran discovery calls with team leads, and propose AI integrations matched to real operational pain points — not hype.",
+          url: "https://culturainteractiva.com"
+        },
+        independent: {
+          name: "Product Lead & Builder · Independent",
+          tag: "Solo practice · Mar del Plata · Ongoing",
+          desc: "Solo product work, AI consulting, and original product development under the KeroClow name. Clients across EdTech, real estate, and digital communication.",
+          url: ""
+        }
       },
-      strategy: {
-        h1: "Business Acumen & Vision",
-        p1: "Defining the UX vision and strategy aligned with annual business goals and OKRs.",
-        h2: "Strategic Leadership",
-        p2: "Guiding cross-functional teams and presenting strategic rationale to C-Suite executives.",
-        h3: "Visionary Alignment",
-        p3: "Defining product strategy and elevating growth that reduces costs.",
-        h4: "Organizational Scale",
-        p4: "Leading end-to-end design for high-traction, scalable products."
+      products: {
+        num: "02",
+        title: "OWN PRODUCTS",
+        prodegame: {
+          name: "PRODEGAME",
+          desc: "A free World Cup 2026 prediction game. Predict all 104 matches, pick a champion, compete with friends in private groups, and climb a global ranking in real time. Includes a B2B layer that activates PRODEGAME inside company Slack workspaces for internal tournament engagement.",
+          status: "Live · 200+ registered users · active company partnerships",
+          role: "Founder · Product · UX · AI-assisted dev",
+          stack: "Next.js · Vercel · Supabase",
+          url: "https://prodegame.fun"
+        },
+        voybien: {
+          name: "VoyBien",
+          desc: "A collaborative neighborhood safety map of Mar del Plata. Residents rate each block (+1 / 0 / -1) to surface how safe each street feels. Live, anonymous, built on open data — with route planning that suggests the safest path based on community input.",
+          status: "Live · focused on Mar del Plata",
+          role: "Founder · Product · UX · Development",
+          stack: "Next.js · Mapping libraries · Open data",
+          url: "https://voybien.com.ar"
+        }
       },
-      practice: {
-        h1: "UX/UI Mastery",
-        p1: "Dominating end-to-end design methodologies, from research synthesis to final accessible, responsive component design.",
-        h2: "Tool & System Expertise",
-        p2_strong: "Figma Expert:",
-        p2: "Leading design workflows and systems creation, complemented by proficiency in Sketch and Adobe XD.",
-        h3: "Engineering Viability",
-        p3_strong: "Front-End Utility:",
-        p3: "Leveraging HTML5, CSS3, and JavaScript to create functional prototypes and significantly reduce engineering rework.",
-        h4: "Design Ops & Automation",
-        p4_strong: "Process Automation:",
-        p4: "Implementing DesignOps and workflow automation (e.g., n8n) to streamline handoffs and increase system integrity."
+      what_i_do: {
+        num: "03",
+        title: "WHAT I DO",
+        cat1_title: "Product & Design",
+        cat1_tags: "Product strategy · UX/UI design · AI experience design · Discovery research · Service design · Information architecture",
+        cat2_title: "AI & Agentic Systems",
+        cat2_tags: "Prompt engineering · Agent behavior design · Multi-agent architectures · MCP integrations · Conversational UX · Local AI stacks (Ollama, Open WebUI)",
+        cat3_title: "Development",
+        cat3_tags: "Next.js · React · Tailwind · TypeScript · Python (FastAPI) · Playwright · Supabase · Vercel · VPS administration (Ubuntu)",
+        cat4_title: "Operations & Enablement",
+        cat4_tags: "AI workflow mapping · Internal tooling · Process automation · Team enablement · Google Ads automation · WhatsApp Business integrations"
       },
-      projects: {
-        cronos_title: "Cronos Cloud · Dir. de Proyecto",
-        cronos_desc: "Joined as UX Designer in Jan 2025, promoted to Director de Proyecto in Jan 2026. Leading platform architecture, cross-functional teams, and full product lifecycle for a confidential Digital Real Estate ecosystem.",
-        contablix_title: "Contablix · FinTech (Completed)",
-        contablix_desc: "Executed a full UX/UI overhaul for a FinTech digital accounting studio — completed Feb 2026. Drove brand modernization, user adoption, and product clarity from concept to delivery.",
-        aurorabook_title: "AuroraBook · CEO & Founder",
-        aurorabook_desc: "Founded Dec 2025. Location marketplace built end-to-end — product strategy, design, and development all under one roof.",
-        aurorabook_url: "https://aurorabookapp.com",
-        culturainteractiva_title: "Cultura Interactiva · Internal Ops & AI",
-        culturainteractiva_desc: "Streamlining internal operations and driving AI adoption across the organization. Designing intelligent workflows and tools that increase team velocity and reduce operational friction.",
-        educabot_title: "EDUCABOT · AI Experience Lead",
-        educabot_desc: "Leading the design and delivery of AI-powered educational experiences. Building interactive learning tools at the intersection of artificial intelligence and pedagogy."
+      background: {
+        num: "04",
+        title: "BACKGROUND",
+        p1: "Senior product professional with a multidisciplinary background since 2013 — UX/UI design, product management, commercial management, and AI agent development across EdTech, real estate, and digital consultancy.",
+        highlight: "Currently bringing Pequeños Creadores con IA to life — an AI workshop for kids in Mar del Plata, sponsored by v0.",
+        cv_label: "Download CV"
       },
-      leadership: {
-        h1: "Leadership & Resource Management",
-        p1_strong: "Operational Management:",
-        p1: "Direct resource allocation and process oversight for large-scale operations (translating to effective management of complex product lifecycles).",
-        h2: "Cross-Functional Leadership",
-        p2: "Proven ability to drive results by aligning large, multi-disciplinary teams and managing expectations against budget and strategic KPIs."
-      },
-      ai_builder: {
-        section_title: "AI Builder & Digital Toolkit",
-        section_sub: "(Process Automation, AI Integration & Certified Practice)",
-        p_intro: "Building and deploying AI-powered workflows using Claude API, n8n, and custom agent systems. Certified across the full PM and AI stack — from enterprise project management to hands-on model deployment.",
+      certs: {
+        num: "05",
+        title: "CERTIFICATIONS & STACK",
+        intro: "Building and deploying AI-powered workflows and agentic systems. Certified across the product and AI stack — from enterprise project management to hands-on model deployment.",
         certs_title: "Certifications",
         cert1_name: "Enterprise Project Management",
         cert1_issuer: "Microsoft · 2025",
@@ -116,21 +122,19 @@ export const translations = {
         cert3_issuer: "Anthropic · 2025",
         cert4_name: "Claude Code in Action",
         cert4_issuer: "Anthropic · 2025",
-        tools_title: "Core Stack",
-        tools_list: "Claude API · n8n · OpenClaw · Figma · React · Vite · Tailwind CSS · Vercel",
-        pm_title: "PM Methodology",
-        pm_text: "Roadmap definition, OKR alignment, sprint planning, stakeholder communication, and product lifecycle ownership across design-to-deployment cycles."
+        stack_title: "Core Stack",
+        stack_list: "Next.js · React · TypeScript · Tailwind · Python (FastAPI) · Claude API · MCP · n8n · OpenClaw · Supabase · Vercel · Playwright"
       }
     },
     contact: {
-      confidential: "Confidential & Direct",
-      header: "READY TO BUILD\nTHE NEXT VISION?",
-      sub: "Let's discuss strategy, product viability, or leadership opportunities.",
+      confidential: "Open for Collaboration",
+      header: "READY TO BUILD\nTHE NEXT THING?",
+      sub: "Let's talk product, AI enablement, or building something from zero.",
       labels: {
         email_sub: "Direct Email",
-        linkedin_sub: "LinkedIn (Personal)",
-        x_sub: "X (Design/Social)",
-        company_sub: "Aurora Ecosystem"
+        linkedin_sub: "LinkedIn",
+        x_sub: "X / Twitter",
+        portfolio_sub: "Portfolio"
       }
     }
   },
@@ -138,9 +142,9 @@ export const translations = {
     about: {
       name: "ALAN PONCE",
       location: "Mar del Plata, Argentina (UTC-3) | Disponible para Roles Remotos/Globales.",
-      title: "PRODUCT MANAGER & AI BUILDER",
-      subheader: "ENVIANDO PRODUCTOS CON IA DESDE LA ESTRATEGIA HASTA EL DEPLOYMENT.",
-      summary: "Diseñador con experiencia en Visión de Negocios y Maestría en UX/UI. Enfocado en entregar sistemas escalables y crecimiento medible.",
+      title: "AI EXPERIENCE DESIGNER & PRODUCT LEAD",
+      subheader: "DISEÑO SISTEMAS INTELIGENTES, IMPULSO LA ADOPCIÓN DE IA Y ENVÍO PRODUCTOS DE PUNTA A PUNTA.",
+      summary: "Especializado en IA agéntica en EdTech, real estate y consultoría digital. Desde operaciones internas y AI enablement hasta mis propios productos — convierto tecnología agéntica compleja en valor medible.",
       btn_experience: "Experiencia",
       btn_contact: "Contacto",
       btn_case_studies: "Ver Casos de Estudio",
@@ -181,65 +185,71 @@ export const translations = {
       ]
     },
     experience: {
-      headers: {
-        0: "01",
-        1: "ESTRATEGIA Y LIDERAZGO",
-        2: "02",
-        3: "PRÁCTICA Y VIABILIDAD TÉCNICA",
-        4: "03",
-        5: "PROYECTOS DESTACADOS",
-        6: "04",
-        7: "LIDERAZGO Y OPERACIONES",
-        8: "05",
-        9: "AI BUILDER Y KIT DIGITAL"
+      roles: {
+        num: "01",
+        title: "ROLES",
+        educabot: {
+          name: "AI Experience Designer · Educabot",
+          tag: "EdTech · Argentina · Actual",
+          desc: "Diseño la capa de experiencia de TUNI/Ada, una plataforma de tutoría con IA para estudiantes. Prompt engineering para el comportamiento del tutor (tono de compañero-par, anti-alucinación, contexto autocontenido), diseño de comportamiento de agentes y UX conversacional entre el tutor IA y quien aprende.",
+          url: "https://educabot.com"
+        },
+        cultura: {
+          name: "Internal Operations & AI Enablement · Cultura Interactiva",
+          tag: "Consultora digital · +20 países de LATAM · Actual",
+          desc: "Mapeo los flujos de trabajo de los equipos de toda la empresa e introduzco mejoras basadas en IA de forma iterativa. Construí una herramienta interna de discovery en React para notas de reuniones estructuradas y análisis entre áreas, llevé adelante entrevistas con líderes de equipo y propongo integraciones de IA atadas a dolores operativos reales — no al hype.",
+          url: "https://culturainteractiva.com"
+        },
+        independent: {
+          name: "Product Lead & Builder · Independiente",
+          tag: "Práctica propia · Mar del Plata · En curso",
+          desc: "Trabajo de producto en solitario, consultoría de IA y desarrollo de productos originales bajo el nombre KeroClow. Clientes en EdTech, real estate y comunicación digital.",
+          url: ""
+        }
       },
-      strategy: {
-        h1: "Visión y Negocios",
-        p1: "Definición de la visión y estrategia UX alineada con los objetivos comerciales anuales y OKRs.",
-        h2: "Liderazgo Estratégico",
-        p2: "Guía de equipos multifuncionales y presentación de fundamentos estratégicos a ejecutivos C-Suite.",
-        h3: "Alineación Visionaria",
-        p3: "Definición de estrategia de producto y elevación del crecimiento reduciendo costos.",
-        h4: "Escala Organizacional",
-        p4: "Liderazgo de diseño end-to-end para productos escalables de alta tracción."
+      products: {
+        num: "02",
+        title: "PRODUCTOS PROPIOS",
+        prodegame: {
+          name: "PRODEGAME",
+          desc: "Un juego gratuito de pronósticos del Mundial 2026. Predecí los 104 partidos, elegí campeón, competí con amigos en grupos privados y escalá un ranking global en tiempo real. Incluye una capa B2B que activa PRODEGAME dentro del Slack de cada empresa para engagement de torneos internos.",
+          status: "En vivo · +200 usuarios registrados · alianzas con empresas activas",
+          role: "Founder · Producto · UX · Desarrollo asistido por IA",
+          stack: "Next.js · Vercel · Supabase",
+          url: "https://prodegame.fun"
+        },
+        voybien: {
+          name: "VoyBien",
+          desc: "Un mapa colaborativo de seguridad barrial de Mar del Plata. Los vecinos puntúan cada cuadra (+1 / 0 / -1) para mostrar qué tan segura se siente cada calle. En vivo, anónimo, construido sobre datos abiertos — con planificación de rutas que sugiere el camino más seguro según el aporte de la comunidad.",
+          status: "En vivo · enfocado en Mar del Plata",
+          role: "Founder · Producto · UX · Desarrollo",
+          stack: "Next.js · Librerías de mapas · Datos abiertos",
+          url: "https://voybien.com.ar"
+        }
       },
-      practice: {
-        h1: "Maestría UX/UI",
-        p1: "Dominio de metodologías de diseño end-to-end, desde síntesis de investigación hasta diseño de componentes accesibles y responsivos.",
-        h2: "Expertise en Herramientas y Sistemas",
-        p2_strong: "Experto en Figma:",
-        p2: "Liderazgo en flujos de trabajo de diseño y creación de sistemas, complementado con Sketch y Adobe XD.",
-        h3: "Viabilidad de Ingeniería",
-        p3_strong: "Utilidad Front-End:",
-        p3: "Aprovechamiento de HTML5, CSS3 y JavaScript para crear prototipos funcionales y reducir significativamente el retrabajo de ingeniería.",
-        h4: "Design Ops y Automatización",
-        p4_strong: "Automatización de Procesos:",
-        p4: "Implementación de DesignOps y automatización de flujos (ej. n8n) para agilizar entregas y aumentar la integridad del sistema."
+      what_i_do: {
+        num: "03",
+        title: "QUÉ HAGO",
+        cat1_title: "Producto y Diseño",
+        cat1_tags: "Estrategia de producto · Diseño UX/UI · Diseño de experiencia IA · Investigación de discovery · Service design · Arquitectura de información",
+        cat2_title: "IA y Sistemas Agénticos",
+        cat2_tags: "Prompt engineering · Diseño de comportamiento de agentes · Arquitecturas multi-agente · Integraciones MCP · UX conversacional · Stacks de IA local (Ollama, Open WebUI)",
+        cat3_title: "Desarrollo",
+        cat3_tags: "Next.js · React · Tailwind · TypeScript · Python (FastAPI) · Playwright · Supabase · Vercel · Administración de VPS (Ubuntu)",
+        cat4_title: "Operaciones y Enablement",
+        cat4_tags: "Mapeo de flujos con IA · Herramientas internas · Automatización de procesos · Enablement de equipos · Automatización de Google Ads · Integraciones con WhatsApp Business"
       },
-      projects: {
-        cronos_title: "Cronos Cloud · Dir. de Proyecto",
-        cronos_desc: "Ingresé como UX Designer en Jan 2025, promovido a Director de Proyecto en Jan 2026. Lidero arquitectura de plataforma, equipos multidisciplinarios y ciclo de vida completo del producto en un ecosistema inmobiliario digital confidencial.",
-        contablix_title: "Contablix · FinTech (Completado)",
-        contablix_desc: "Ejecuté un rediseño completo de UX/UI para un estudio contable digital — completado en Feb 2026. Impulsé la modernización de marca, adopción de usuarios y claridad de producto.",
-        aurorabook_title: "AuroraBook · CEO & Fundador",
-        aurorabook_desc: "Fundado en Dic 2025. Marketplace de locaciones construido end-to-end — estrategia de producto, diseño y desarrollo bajo el mismo techo.",
-        aurorabook_url: "https://aurorabookapp.com",
-        culturainteractiva_title: "Cultura Interactiva · Ops & AI Interno",
-        culturainteractiva_desc: "Optimización de operaciones internas e implementación de IA en la organización. Diseño de workflows inteligentes y herramientas que aumentan la velocidad del equipo y reducen la fricción operativa.",
-        educabot_title: "EDUCABOT · AI Experience Lead",
-        educabot_desc: "Liderazgo en diseño y entrega de experiencias educativas potenciadas por IA. Construcción de herramientas de aprendizaje interactivas en la intersección de inteligencia artificial y pedagogía."
+      background: {
+        num: "04",
+        title: "TRAYECTORIA",
+        p1: "Profesional de producto Senior con un background multidisciplinario desde 2013 — diseño UX/UI, gestión de producto, gestión comercial y desarrollo de agentes de IA en EdTech, real estate y consultoría digital.",
+        highlight: "Actualmente dando vida a Pequeños Creadores con IA — un taller de IA para chicos en Mar del Plata, auspiciado por v0.",
+        cv_label: "Descargar CV"
       },
-      leadership: {
-        h1: "Liderazgo y Gestión de Recursos",
-        p1_strong: "Gestión Operativa:",
-        p1: "Asignación directa de recursos y supervisión de procesos para operaciones a gran escala (traduciéndose en gestión efectiva de ciclos de vida de productos complejos).",
-        h2: "Liderazgo Multifuncional",
-        p2: "Capacidad probada para impulsar resultados alineando grandes equipos multidisciplinarios y gestionando expectativas contra presupuesto y KPIs estratégicos."
-      },
-      ai_builder: {
-        section_title: "AI Builder y Kit Digital",
-        section_sub: "(Automatización de Procesos, Integración IA y Práctica Certificada)",
-        p_intro: "Construyo y despliego workflows con IA usando Claude API, n8n y sistemas de agentes personalizados. Certificado en el stack completo de PM e IA — desde gestión de proyectos empresariales hasta deployment de modelos.",
+      certs: {
+        num: "05",
+        title: "CERTIFICACIONES Y STACK",
+        intro: "Construyo y despliego workflows y sistemas agénticos con IA. Certificado en el stack completo de producto e IA — desde gestión de proyectos empresariales hasta deployment hands-on de modelos.",
         certs_title: "Certificaciones",
         cert1_name: "Enterprise Project Management",
         cert1_issuer: "Microsoft · 2025",
@@ -251,21 +261,19 @@ export const translations = {
         cert3_issuer: "Anthropic · 2025",
         cert4_name: "Claude Code in Action",
         cert4_issuer: "Anthropic · 2025",
-        tools_title: "Stack Principal",
-        tools_list: "Claude API · n8n · OpenClaw · Figma · React · Vite · Tailwind CSS · Vercel",
-        pm_title: "Metodología PM",
-        pm_text: "Definición de roadmap, alineación de OKRs, sprint planning, comunicación con stakeholders y ownership del ciclo de vida del producto desde diseño hasta deployment."
+        stack_title: "Stack Principal",
+        stack_list: "Next.js · React · TypeScript · Tailwind · Python (FastAPI) · Claude API · MCP · n8n · OpenClaw · Supabase · Vercel · Playwright"
       }
     },
     contact: {
-      confidential: "Confidencial y Directo",
-      header: "¿LISTO PARA CONSTRUIR\nLA PRÓXIMA VISIÓN?",
-      sub: "Hablemos de estrategia, viabilidad de producto u oportunidades de liderazgo.",
+      confidential: "Abierto a Colaborar",
+      header: "¿LISTO PARA CONSTRUIR\nLO QUE SIGUE?",
+      sub: "Hablemos de producto, AI enablement o de construir algo desde cero.",
       labels: {
         email_sub: "Email Directo",
-        linkedin_sub: "LinkedIn (Personal)",
-        x_sub: "X (Diseño/Social)",
-        company_sub: "Ecosistema Aurora"
+        linkedin_sub: "LinkedIn",
+        x_sub: "X / Twitter",
+        portfolio_sub: "Portfolio"
       }
     }
   }

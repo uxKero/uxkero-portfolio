@@ -1,9 +1,50 @@
 import React, { useEffect, useRef } from 'react';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import DownloadIcon from '@mui/icons-material/Download';
 
 interface ExperienceSectionProps {
   content: any; // Using any for simplicity with the complex translation object
 }
+
+// Served from /public — filename kept as-is, space URL-encoded.
+const CV_URL = '/alan-ponce-cv%20(may-2026).pdf';
+
+// Section heading: mono number + title, matching the panel's editorial style.
+const SectionHeader: React.FC<{ num: string; title: string }> = ({ num, title }) => (
+  <h3 className="text-xl font-bold text-white mb-6 xl:mb-8 tracking-tight border-b border-zinc-800 pb-4 flex items-center gap-4">
+    <span className="text-zinc-600 text-sm font-mono tracking-widest uppercase">{num}</span>
+    {title}
+  </h3>
+);
+
+// A single role/product entry. Renders as a link when a url is provided.
+const EntryCard: React.FC<{
+  href?: string;
+  accent: string; // border color class, e.g. 'border-purple-500'
+  hover: string; // hover text color class, e.g. 'group-hover:text-purple-400'
+  title: string;
+  children: React.ReactNode;
+}> = ({ href, accent, hover, title, children }) => {
+  const inner = (
+    <>
+      <div className="flex items-center gap-2 mb-1.5">
+        <h4 className={`text-white text-sm font-bold uppercase tracking-wider transition-colors ${href ? hover : ''}`}>
+          {title}
+        </h4>
+        {href && <OpenInNewIcon className={`w-3 h-3 text-zinc-600 transition-colors ${hover}`} />}
+      </div>
+      {children}
+    </>
+  );
+  const cls = `block bg-zinc-900/20 border-l-2 ${accent} pl-5 py-4 transition-colors group`;
+  return href ? (
+    <a href={href} target="_blank" rel="noopener noreferrer" className={`${cls} hover:bg-zinc-900/40`}>
+      {inner}
+    </a>
+  ) : (
+    <div className={cls}>{inner}</div>
+  );
+};
 
 const ExperienceSection: React.FC<ExperienceSectionProps> = ({ content }) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -15,270 +56,187 @@ const ExperienceSection: React.FC<ExperienceSectionProps> = ({ content }) => {
     }
   }, []);
 
+  const { roles, products, what_i_do, background, certs } = content;
+
+  const whatIDo = [
+    { title: what_i_do.cat1_title, tags: what_i_do.cat1_tags, color: 'text-emerald-400' },
+    { title: what_i_do.cat2_title, tags: what_i_do.cat2_tags, color: 'text-blue-400' },
+    { title: what_i_do.cat3_title, tags: what_i_do.cat3_tags, color: 'text-purple-400' },
+    { title: what_i_do.cat4_title, tags: what_i_do.cat4_tags, color: 'text-amber-400' },
+  ];
+
   return (
     <div ref={containerRef} className="w-full h-full bg-black overflow-y-auto overflow-x-hidden custom-scrollbar px-6 py-12 md:p-12 xl:p-16">
       <div className="max-w-[1800px] mx-auto space-y-12 xl:space-y-16">
-        
-        {/* ================= LEVEL 1: TOP DUAL-COLUMN SECTION ================= */}
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-12 xl:gap-24">
-            
-            {/* COLUMN A (LEFT): CORE METHODOLOGY */}
-            <div className="space-y-12 md:space-y-16">
-                
-                {/* BLOCK 1: STRATEGY & LEADERSHIP */}
-                <section>
-                  <h3 className="text-xl font-bold text-white mb-6 xl:mb-8 tracking-tight border-b border-zinc-800 pb-4 flex items-center gap-4">
-                     <span className="text-zinc-600 text-sm font-mono tracking-widest uppercase">{content.headers[0]}</span>
-                     {content.headers[1]}
-                  </h3>
-                  {/* Internal 2-Column Grid */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-8 xl:gap-y-10">
-                    <div>
-                      <h4 className="text-white text-xs font-bold mb-3 uppercase tracking-wider text-emerald-400">{content.strategy.h1}</h4>
-                      <p className="text-zinc-400 text-sm leading-relaxed border-l border-zinc-800 pl-4">
-                        {content.strategy.p1}
-                      </p>
-                    </div>
-                    <div>
-                      <h4 className="text-white text-xs font-bold mb-3 uppercase tracking-wider text-emerald-400">{content.strategy.h2}</h4>
-                      <p className="text-zinc-400 text-sm leading-relaxed border-l border-zinc-800 pl-4">
-                        {content.strategy.p2}
-                      </p>
-                    </div>
-                    <div>
-                      <h4 className="text-white text-xs font-bold mb-3 uppercase tracking-wider text-emerald-400">{content.strategy.h3}</h4>
-                      <p className="text-zinc-400 text-sm leading-relaxed border-l border-zinc-800 pl-4">
-                        {content.strategy.p3}
-                      </p>
-                    </div>
-                    <div>
-                      <h4 className="text-white text-xs font-bold mb-3 uppercase tracking-wider text-emerald-400">{content.strategy.h4}</h4>
-                      <p className="text-zinc-400 text-sm leading-relaxed border-l border-zinc-800 pl-4">
-                        {content.strategy.p4}
-                      </p>
-                    </div>
-                  </div>
-                </section>
 
-                {/* BLOCK 2: PRACTICE & TECHNICAL VIABILITY */}
-                <section>
-                  <h3 className="text-xl font-bold text-white mb-6 xl:mb-8 tracking-tight border-b border-zinc-800 pb-4 flex items-center gap-4">
-                     <span className="text-zinc-600 text-sm font-mono tracking-widest uppercase">{content.headers[2]}</span>
-                     {content.headers[3]}
-                  </h3>
-                  {/* Internal 2-Column Grid */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-8 xl:gap-y-10">
-                    <div>
-                      <h4 className="text-white text-xs font-bold mb-3 uppercase tracking-wider text-blue-400">{content.practice.h1}</h4>
-                      <p className="text-zinc-400 text-sm leading-relaxed border-l border-zinc-800 pl-4">
-                        {content.practice.p1}
-                      </p>
-                    </div>
-                    <div>
-                      <h4 className="text-white text-xs font-bold mb-3 uppercase tracking-wider text-blue-400">{content.practice.h2}</h4>
-                      <p className="text-zinc-400 text-sm leading-relaxed border-l border-zinc-800 pl-4">
-                        <span className="text-white font-medium">{content.practice.p2_strong}</span> {content.practice.p2}
-                      </p>
-                    </div>
-                    <div>
-                      <h4 className="text-white text-xs font-bold mb-3 uppercase tracking-wider text-blue-400">{content.practice.h3}</h4>
-                      <p className="text-zinc-400 text-sm leading-relaxed border-l border-zinc-800 pl-4">
-                         <span className="text-white font-medium">{content.practice.p3_strong}</span> {content.practice.p3}
-                      </p>
-                    </div>
-                    <div>
-                      <h4 className="text-white text-xs font-bold mb-3 uppercase tracking-wider text-blue-400">{content.practice.h4}</h4>
-                      <p className="text-zinc-400 text-sm leading-relaxed border-l border-zinc-800 pl-4">
-                         <span className="text-white font-medium">{content.practice.p4_strong}</span> {content.practice.p4}
-                      </p>
-                    </div>
-                  </div>
-                </section>
+        {/* ================= LEVEL 1: 2×2 GRID =================
+            Flat grid so row 2 (What I Do / Background) aligns regardless
+            of how tall row 1 (Roles / Own Products) is. */}
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-x-12 xl:gap-x-24 gap-y-12 md:gap-y-16">
 
+          {/* BLOCK 01: ROLES */}
+          <section>
+            <SectionHeader num={roles.num} title={roles.title} />
+            <div className="space-y-4 xl:space-y-5">
+              <EntryCard
+                href={roles.educabot.url}
+                accent="border-emerald-500"
+                hover="group-hover:text-emerald-400"
+                title={roles.educabot.name}
+              >
+                <p className="text-zinc-500 text-[11px] font-mono uppercase tracking-wider mb-2">{roles.educabot.tag}</p>
+                <p className="text-zinc-400 text-sm leading-relaxed">{roles.educabot.desc}</p>
+              </EntryCard>
+              <EntryCard
+                href={roles.cultura.url}
+                accent="border-blue-500"
+                hover="group-hover:text-blue-400"
+                title={roles.cultura.name}
+              >
+                <p className="text-zinc-500 text-[11px] font-mono uppercase tracking-wider mb-2">{roles.cultura.tag}</p>
+                <p className="text-zinc-400 text-sm leading-relaxed">{roles.cultura.desc}</p>
+              </EntryCard>
+              <EntryCard
+                href={roles.independent.url}
+                accent="border-amber-500/70"
+                hover="group-hover:text-amber-400"
+                title={roles.independent.name}
+              >
+                <p className="text-zinc-500 text-[11px] font-mono uppercase tracking-wider mb-2">{roles.independent.tag}</p>
+                <p className="text-zinc-400 text-sm leading-relaxed">{roles.independent.desc}</p>
+              </EntryCard>
             </div>
+          </section>
 
-            {/* COLUMN B (RIGHT): PROJECT VALIDATION */}
-            <div className="space-y-12 md:space-y-16">
-
-                {/* BLOCK 3: KEY PROJECT HIGHLIGHTS */}
-                <section>
-                  <h3 className="text-xl font-bold text-white mb-6 xl:mb-8 tracking-tight border-b border-zinc-800 pb-4 flex items-center gap-4">
-                     <span className="text-zinc-600 text-sm font-mono tracking-widest uppercase">{content.headers[4]}</span>
-                     {content.headers[5]}
-                  </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 xl:gap-4">
-                     {/* Cronos */}
-                     <a
-                        href="https://www.linkedin.com/company/cronos-cloud-sa/"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex flex-col bg-zinc-900/20 border border-zinc-800 border-l-2 border-l-purple-500 pl-4 pr-4 py-4 hover:bg-zinc-900/40 hover:border-zinc-700 hover:border-l-purple-400 transition-all group rounded-sm"
-                     >
-                        <div className="flex items-start justify-between gap-2 mb-2">
-                            <h4 className="text-white text-xs font-bold uppercase tracking-wider group-hover:text-purple-400 transition-colors leading-tight">{content.projects.cronos_title}</h4>
-                            <OpenInNewIcon sx={{ fontSize: 12 }} className="text-zinc-600 group-hover:text-purple-400 transition-colors shrink-0 mt-0.5" />
-                        </div>
-                        <p className="text-zinc-500 text-xs leading-relaxed">
-                           {content.projects.cronos_desc}
-                        </p>
-                     </a>
-                     {/* Contablix */}
-                     <a
-                        href="https://contablix.ar/"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex flex-col bg-zinc-900/20 border border-zinc-800 border-l-2 border-l-zinc-500 pl-4 pr-4 py-4 hover:bg-zinc-900/40 hover:border-zinc-700 hover:border-l-zinc-400 transition-all group rounded-sm"
-                     >
-                         <div className="flex items-start justify-between gap-2 mb-2">
-                            <h4 className="text-white text-xs font-bold uppercase tracking-wider group-hover:text-zinc-300 transition-colors leading-tight">{content.projects.contablix_title}</h4>
-                            <OpenInNewIcon sx={{ fontSize: 12 }} className="text-zinc-600 group-hover:text-zinc-400 transition-colors shrink-0 mt-0.5" />
-                        </div>
-                        <p className="text-zinc-500 text-xs leading-relaxed">
-                           {content.projects.contablix_desc}
-                        </p>
-                     </a>
-                     {/* AuroraBook */}
-                     <a
-                        href={content.projects.aurorabook_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex flex-col bg-zinc-900/20 border border-zinc-800 border-l-2 border-l-amber-500/70 pl-4 pr-4 py-4 hover:bg-zinc-900/40 hover:border-zinc-700 hover:border-l-amber-400 transition-all group rounded-sm"
-                     >
-                         <div className="flex items-start justify-between gap-2 mb-2">
-                            <h4 className="text-white text-xs font-bold uppercase tracking-wider group-hover:text-amber-400 transition-colors leading-tight">{content.projects.aurorabook_title}</h4>
-                            <OpenInNewIcon sx={{ fontSize: 12 }} className="text-zinc-600 group-hover:text-amber-400 transition-colors shrink-0 mt-0.5" />
-                        </div>
-                        <p className="text-zinc-500 text-xs leading-relaxed">
-                           {content.projects.aurorabook_desc}
-                        </p>
-                     </a>
-                     {/* Cultura Interactiva */}
-                     <div className="flex flex-col bg-zinc-900/20 border border-zinc-800 border-l-2 border-l-emerald-500 pl-4 pr-4 py-4 rounded-sm">
-                         <div className="flex items-start justify-between gap-2 mb-2">
-                            <h4 className="text-white text-xs font-bold uppercase tracking-wider leading-tight">{content.projects.culturainteractiva_title}</h4>
-                        </div>
-                        <p className="text-zinc-500 text-xs leading-relaxed">
-                           {content.projects.culturainteractiva_desc}
-                        </p>
-                     </div>
-                     {/* EDUCABOT */}
-                     <div className="flex flex-col bg-zinc-900/20 border border-zinc-800 border-l-2 border-l-blue-500 pl-4 pr-4 py-4 rounded-sm">
-                         <div className="flex items-start justify-between gap-2 mb-2">
-                            <h4 className="text-white text-xs font-bold uppercase tracking-wider leading-tight">{content.projects.educabot_title}</h4>
-                        </div>
-                        <p className="text-zinc-500 text-xs leading-relaxed">
-                           {content.projects.educabot_desc}
-                        </p>
-                     </div>
-                  </div>
-                </section>
-
-                {/* BLOCK 4: LEADERSHIP & OPERATIONAL COMMAND */}
-                <section>
-                   <h3 className="text-xl font-bold text-white mb-6 xl:mb-8 tracking-tight border-b border-zinc-800 pb-4 flex items-center gap-4">
-                     <span className="text-zinc-600 text-sm font-mono tracking-widest uppercase">{content.headers[6]}</span>
-                     {content.headers[7]}
-                  </h3>
-                  <div className="grid grid-cols-1 gap-6 xl:gap-8">
-                     <div>
-                        <h4 className="text-white text-xs font-bold mb-2 uppercase tracking-wider text-purple-400">{content.leadership.h1}</h4>
-                        <p className="text-zinc-400 text-sm leading-relaxed">
-                          <span className="text-white font-medium">{content.leadership.p1_strong}</span> {content.leadership.p1}
-                        </p>
-                     </div>
-                     <div>
-                        <h4 className="text-white text-xs font-bold mb-2 uppercase tracking-wider text-purple-400">{content.leadership.h2}</h4>
-                        <p className="text-zinc-400 text-sm leading-relaxed">
-                          {content.leadership.p2}
-                        </p>
-                     </div>
-                  </div>
-                </section>
-
+          {/* BLOCK 02: OWN PRODUCTS */}
+          <section>
+            <SectionHeader num={products.num} title={products.title} />
+            <div className="space-y-4 xl:space-y-5">
+              {[products.prodegame, products.voybien].map((p) => (
+                <EntryCard
+                  key={p.name}
+                  href={p.url || undefined}
+                  accent="border-purple-500"
+                  hover="group-hover:text-purple-400"
+                  title={p.name}
+                >
+                  <p className="text-zinc-400 text-sm leading-relaxed mb-3">{p.desc}</p>
+                  <dl className="space-y-1 text-xs">
+                    <div className="flex gap-2">
+                      <dt className="text-zinc-600 font-mono uppercase tracking-wider shrink-0 w-14">Status</dt>
+                      <dd className="text-zinc-400">{p.status}</dd>
+                    </div>
+                    <div className="flex gap-2">
+                      <dt className="text-zinc-600 font-mono uppercase tracking-wider shrink-0 w-14">Role</dt>
+                      <dd className="text-zinc-400">{p.role}</dd>
+                    </div>
+                    {p.stack && (
+                      <div className="flex gap-2">
+                        <dt className="text-zinc-600 font-mono uppercase tracking-wider shrink-0 w-14">Stack</dt>
+                        <dd className="text-zinc-400 font-mono">{p.stack}</dd>
+                      </div>
+                    )}
+                  </dl>
+                </EntryCard>
+              ))}
             </div>
+          </section>
+
+          {/* BLOCK 03: WHAT I DO */}
+          <section>
+            <SectionHeader num={what_i_do.num} title={what_i_do.title} />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-8 xl:gap-y-10">
+              {whatIDo.map((cat) => (
+                <div key={cat.title}>
+                  <h4 className={`text-xs font-bold mb-3 uppercase tracking-wider ${cat.color}`}>{cat.title}</h4>
+                  <p className="text-zinc-400 text-sm leading-relaxed border-l border-zinc-800 pl-4">{cat.tags}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* BLOCK 04: BACKGROUND */}
+          <section>
+            <SectionHeader num={background.num} title={background.title} />
+            <div className="space-y-4">
+              <p className="text-zinc-400 text-sm leading-relaxed">{background.p1}</p>
+              <p className="text-zinc-300 text-sm leading-relaxed border-l-2 border-emerald-500/70 pl-4">{background.highlight}</p>
+              <a
+                href={CV_URL}
+                download
+                className="inline-flex items-center gap-2 mt-1 px-4 py-2.5 rounded-lg border border-zinc-800 bg-zinc-900/40 text-sm font-medium text-white hover:border-zinc-600 hover:bg-zinc-900/70 transition-all group"
+              >
+                <DownloadIcon className="w-4 h-4 text-zinc-500 group-hover:text-white transition-colors" />
+                {background.cv_label}
+              </a>
+            </div>
+          </section>
+
         </div>
 
-        {/* ================= LEVEL 2: BOTTOM FULL-WIDTH SECTION ================= */}
-        {/* BLOCK 5: AI BUILDER & DIGITAL TOOLKIT */}
+        {/* ================= LEVEL 2: CERTIFICATIONS & STACK ================= */}
         <section className="w-full">
-           <h3 className="text-xl font-bold text-white mb-6 xl:mb-8 tracking-tight border-b border-zinc-800 pb-4 flex items-center gap-4">
-             <span className="text-zinc-600 text-sm font-mono tracking-widest uppercase">{content.headers[8]}</span>
-             {content.headers[9]}
-          </h3>
+          <SectionHeader num={certs.num} title={certs.title} />
           <div className="bg-zinc-900/30 border border-zinc-800 p-6 lg:p-10 xl:p-12 rounded-sm space-y-8 lg:space-y-10">
-             
-             {/* Intro */}
-             <p className="text-zinc-400 text-sm leading-relaxed max-w-3xl">
-               {content.ai_builder.p_intro}
-             </p>
 
-             <div className="h-px w-full bg-zinc-800/50" />
+            <p className="text-zinc-400 text-sm leading-relaxed max-w-3xl">{certs.intro}</p>
 
-             {/* Certifications + Tools Grid */}
-             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 xl:gap-16">
-               
-               {/* Certifications */}
-               <div>
-                 <h4 className="text-xs font-bold uppercase tracking-widest text-amber-400 mb-5">{content.ai_builder.certs_title}</h4>
-                 <div className="space-y-3">
-                   {/* Cert 1 — Microsoft */}
-                   <a href={content.ai_builder.cert1_url} target="_blank" rel="noopener noreferrer"
-                     className="flex items-center justify-between px-4 py-3 rounded-lg border border-zinc-800 bg-zinc-900/40 hover:border-zinc-600 hover:bg-zinc-900/70 transition-all group"
-                   >
-                     <div>
-                       <div className="text-white text-sm font-medium group-hover:text-amber-300 transition-colors">{content.ai_builder.cert1_name}</div>
-                       <div className="text-zinc-600 text-xs mt-0.5 font-mono">{content.ai_builder.cert1_issuer}</div>
-                     </div>
-                     <OpenInNewIcon className="w-3 h-3 text-zinc-700 group-hover:text-amber-400 transition-colors shrink-0" />
-                   </a>
-                   {/* Cert 2 — Google */}
-                   <a href={content.ai_builder.cert2_url} target="_blank" rel="noopener noreferrer"
-                     className="flex items-center justify-between px-4 py-3 rounded-lg border border-zinc-800 bg-zinc-900/40 hover:border-zinc-600 hover:bg-zinc-900/70 transition-all group"
-                   >
-                     <div>
-                       <div className="text-white text-sm font-medium group-hover:text-amber-300 transition-colors">{content.ai_builder.cert2_name}</div>
-                       <div className="text-zinc-600 text-xs mt-0.5 font-mono">{content.ai_builder.cert2_issuer}</div>
-                     </div>
-                     <OpenInNewIcon className="w-3 h-3 text-zinc-700 group-hover:text-amber-400 transition-colors shrink-0" />
-                   </a>
-                   {/* Cert 3 — Anthropic */}
-                   <div className="flex items-center justify-between px-4 py-3 rounded-lg border border-zinc-800 bg-zinc-900/40">
-                     <div>
-                       <div className="text-white text-sm font-medium">{content.ai_builder.cert3_name}</div>
-                       <div className="text-zinc-600 text-xs mt-0.5 font-mono">{content.ai_builder.cert3_issuer}</div>
-                     </div>
-                   </div>
-                   {/* Cert 4 — Anthropic */}
-                   <div className="flex items-center justify-between px-4 py-3 rounded-lg border border-zinc-800 bg-zinc-900/40">
-                     <div>
-                       <div className="text-white text-sm font-medium">{content.ai_builder.cert4_name}</div>
-                       <div className="text-zinc-600 text-xs mt-0.5 font-mono">{content.ai_builder.cert4_issuer}</div>
-                     </div>
-                   </div>
-                 </div>
-               </div>
+            <div className="h-px w-full bg-zinc-800/50" />
 
-               {/* Stack + PM Method */}
-               <div className="space-y-8">
-                 <div>
-                   <h4 className="text-xs font-bold uppercase tracking-widest text-blue-400 mb-3">{content.ai_builder.tools_title}</h4>
-                   <p className="text-zinc-400 text-sm font-mono leading-loose tracking-wide">
-                     {content.ai_builder.tools_list}
-                   </p>
-                 </div>
-                 <div>
-                   <h4 className="text-xs font-bold uppercase tracking-widest text-blue-400 mb-3">{content.ai_builder.pm_title}</h4>
-                   <p className="text-zinc-400 text-sm leading-relaxed border-l border-zinc-800 pl-4">
-                     {content.ai_builder.pm_text}
-                   </p>
-                 </div>
-               </div>
-             </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 xl:gap-16">
+
+              {/* Certifications */}
+              <div>
+                <h4 className="text-xs font-bold uppercase tracking-widest text-amber-400 mb-5">{certs.certs_title}</h4>
+                <div className="space-y-3">
+                  {/* Cert 1 — Microsoft */}
+                  <a href={certs.cert1_url} target="_blank" rel="noopener noreferrer"
+                    className="flex items-center justify-between px-4 py-3 rounded-lg border border-zinc-800 bg-zinc-900/40 hover:border-zinc-600 hover:bg-zinc-900/70 transition-all group"
+                  >
+                    <div>
+                      <div className="text-white text-sm font-medium group-hover:text-amber-300 transition-colors">{certs.cert1_name}</div>
+                      <div className="text-zinc-600 text-xs mt-0.5 font-mono">{certs.cert1_issuer}</div>
+                    </div>
+                    <OpenInNewIcon className="w-3 h-3 text-zinc-700 group-hover:text-amber-400 transition-colors shrink-0" />
+                  </a>
+                  {/* Cert 2 — Google */}
+                  <a href={certs.cert2_url} target="_blank" rel="noopener noreferrer"
+                    className="flex items-center justify-between px-4 py-3 rounded-lg border border-zinc-800 bg-zinc-900/40 hover:border-zinc-600 hover:bg-zinc-900/70 transition-all group"
+                  >
+                    <div>
+                      <div className="text-white text-sm font-medium group-hover:text-amber-300 transition-colors">{certs.cert2_name}</div>
+                      <div className="text-zinc-600 text-xs mt-0.5 font-mono">{certs.cert2_issuer}</div>
+                    </div>
+                    <OpenInNewIcon className="w-3 h-3 text-zinc-700 group-hover:text-amber-400 transition-colors shrink-0" />
+                  </a>
+                  {/* Cert 3 — Anthropic */}
+                  <div className="flex items-center justify-between px-4 py-3 rounded-lg border border-zinc-800 bg-zinc-900/40">
+                    <div>
+                      <div className="text-white text-sm font-medium">{certs.cert3_name}</div>
+                      <div className="text-zinc-600 text-xs mt-0.5 font-mono">{certs.cert3_issuer}</div>
+                    </div>
+                  </div>
+                  {/* Cert 4 — Anthropic */}
+                  <div className="flex items-center justify-between px-4 py-3 rounded-lg border border-zinc-800 bg-zinc-900/40">
+                    <div>
+                      <div className="text-white text-sm font-medium">{certs.cert4_name}</div>
+                      <div className="text-zinc-600 text-xs mt-0.5 font-mono">{certs.cert4_issuer}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Core Stack */}
+              <div>
+                <h4 className="text-xs font-bold uppercase tracking-widest text-blue-400 mb-3">{certs.stack_title}</h4>
+                <p className="text-zinc-400 text-sm font-mono leading-loose tracking-wide">{certs.stack_list}</p>
+              </div>
+            </div>
           </div>
         </section>
-        
-         {/* Bottom Spacer */}
-         <div className="h-12 md:h-0"></div>
+
+        {/* Bottom Spacer */}
+        <div className="h-12 md:h-0"></div>
 
       </div>
     </div>

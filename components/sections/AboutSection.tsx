@@ -133,11 +133,11 @@ const AboutSection: React.FC<AboutSectionProps> = ({ onNavigate, content, langua
       
       {/* LEFT COLUMN: STATIC HERO */}
       <div className="w-full lg:w-[40%] p-8 lg:p-16 flex flex-col justify-center border-b lg:border-b-0 lg:border-r border-zinc-900 relative z-10 shrink-0 min-h-min">
-        <div className="space-y-6 lg:space-y-8 py-8 lg:py-0">
-          
+        <div className="space-y-4 lg:space-y-5 py-8 lg:py-0">
+
           {/* Header 1: ALAN PONCE (Prominent) */}
           <div className="flex items-center gap-3 mb-0">
-            <div className="text-white text-3xl md:text-4xl font-bold tracking-tighter uppercase leading-none">
+            <div className="text-white text-2xl md:text-3xl font-bold tracking-tighter uppercase leading-none">
               {content.name}
             </div>
             {/* Subtle LinkedIn Icon */}
@@ -153,24 +153,24 @@ const AboutSection: React.FC<AboutSectionProps> = ({ onNavigate, content, langua
           </div>
           
           {/* Header 2: Location (Subtle) */}
-          <div className="text-zinc-500 text-xs md:text-sm font-medium tracking-[0.2em] uppercase mb-4 leading-relaxed">
+          <div className="text-zinc-500 text-[10px] md:text-xs font-medium tracking-[0.2em] uppercase mb-1 leading-relaxed">
             {content.location}
           </div>
 
-          <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tighter text-white leading-[0.9]">
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tighter text-white leading-[0.95]">
             {content.title}
           </h1>
-          <h2 className="text-xl md:text-2xl lg:text-3xl text-zinc-400 tracking-wide font-light max-w-lg">
+          <h2 className="text-sm md:text-base lg:text-lg text-zinc-400 tracking-wide font-light max-w-lg leading-snug">
             {content.subheader}
           </h2>
-          <div className="h-[1px] w-12 bg-zinc-800 my-8"></div>
-          <p className="text-zinc-500 text-base md:text-lg leading-relaxed max-w-md">
+          <div className="h-[1px] w-12 bg-zinc-800 my-4"></div>
+          <p className="text-zinc-500 text-sm md:text-[15px] leading-relaxed max-w-md">
             {content.summary}
           </p>
         </div>
 
         {/* BOTTOM ROW: LANGUAGE & NAVIGATION */}
-        <div className="mt-12 lg:mt-auto flex flex-col md:flex-row items-start md:items-end justify-between w-full gap-8 md:gap-0">
+        <div className="mt-8 lg:mt-auto flex flex-col md:flex-row items-start md:items-end justify-between w-full gap-8 md:gap-0">
           
           {/* LEFT: Language Toggle */}
           <button 
@@ -205,10 +205,10 @@ const AboutSection: React.FC<AboutSectionProps> = ({ onNavigate, content, langua
       {/* MIDDLE STRIP: VERTICAL MENU (Desktop Only) */}
       <div className="hidden lg:flex w-14 border-r border-zinc-900 flex-col justify-between py-12 items-center bg-zinc-950/30 shrink-0">
         <div style={{ writingMode: 'vertical-rl' }} className="rotate-180 text-[10px] tracking-[0.3em] text-zinc-700 hover:text-white transition-colors duration-300 font-mono uppercase whitespace-nowrap cursor-default">
-          Practice & Tech Viability
+          Own Products & Education
         </div>
         <div style={{ writingMode: 'vertical-rl' }} className="rotate-180 text-[10px] tracking-[0.3em] text-zinc-700 hover:text-white transition-colors duration-300 font-mono uppercase whitespace-nowrap cursor-default">
-          Strategy & Leadership
+          Roles & AI Enablement
         </div>
       </div>
 
