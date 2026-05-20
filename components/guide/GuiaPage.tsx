@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   CheckCircle2, Circle, ChevronRight, ChevronLeft, RotateCcw,
   Copy, Check, AlertTriangle, Info, Lightbulb, BookOpen,
-  Lock, Home, ArrowRight, ChevronLeft as BackIcon,
+  Lock, Home, ArrowRight, ChevronLeft as BackIcon, Menu, X,
 } from 'lucide-react';
 
 // ─── TYPES ───────────────────────────────────────────────────────────────────
@@ -1257,7 +1257,7 @@ const ModuleHeader: React.FC<{
 }> = ({ module, stepIndex, isCompleted, lang }) => {
   const t = UI_STRINGS[lang];
   return (
-    <div className="sticky top-0 z-10 bg-[#0a0a0a]/[0.97] backdrop-blur-sm border-b border-white/[0.06] -mx-8 px-8 pt-5 pb-4 mb-8">
+    <div className="sticky top-0 z-10 bg-[#0a0a0a]/[0.97] backdrop-blur-sm border-b border-white/[0.06] -mx-4 sm:-mx-8 px-4 sm:px-8 pt-5 pb-4 mb-8">
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 mb-2.5">
         <span className="font-mono text-[11px] text-zinc-600 tracking-wider">{module.num}</span>
@@ -1584,16 +1584,24 @@ const Sidebar: React.FC<{
   onToggleLang: () => void;
   guideName?: string;
   showLanguageToggle?: boolean;
-}> = ({ modules, progress, onNavigate, onReset, onHome, onBackToGuides, lang, onToggleLang, guideName, showLanguageToggle = true }) => {
+  onCloseMobile?: () => void;
+}> = ({ modules, progress, onNavigate, onReset, onHome, onBackToGuides, lang, onToggleLang, guideName, showLanguageToggle = true, onCloseMobile }) => {
   const t = UI_STRINGS[lang];
   const groups = Array.from(new Set(modules.map(m => m.group)));
   const currentIdx = modules.findIndex(m => m.id === progress.currentModuleId);
   return (
     <aside className="w-[220px] shrink-0 h-full flex flex-col border-r border-white/[0.07] bg-[#0d0d0d] overflow-y-auto">
       <div className="px-4 pt-3 pb-3 border-b border-white/[0.07] shrink-0 space-y-2">
-        <button onClick={onBackToGuides} className="flex items-center gap-1.5 text-zinc-700 hover:text-zinc-400 transition-colors">
-          <BackIcon size={11} /><span className="text-[11px]">{t.allGuides}</span>
-        </button>
+        <div className="flex items-center justify-between">
+          <button onClick={onBackToGuides} className="flex items-center gap-1.5 text-zinc-700 hover:text-zinc-400 transition-colors">
+            <BackIcon size={11} /><span className="text-[11px]">{t.allGuides}</span>
+          </button>
+          {onCloseMobile && (
+            <button onClick={onCloseMobile} className="text-zinc-600 hover:text-zinc-300 transition-colors">
+              <X size={14} />
+            </button>
+          )}
+        </div>
         <button onClick={onHome} className="flex items-center gap-2 text-zinc-500 hover:text-zinc-300 transition-colors">
           <Home size={13} /><span className="text-xs font-medium">{guideName || t.guideName}</span>
         </button>
@@ -1794,7 +1802,7 @@ const ModuleContent: React.FC<{
         totalSteps={module.steps.length}
         lang={lang}
       />
-      <div className="max-w-2xl mx-auto px-8 py-0">
+      <div className="max-w-2xl mx-auto px-4 sm:px-8 py-0">
         <ModuleHeader module={module} stepIndex={stepIndex} isCompleted={isCompleted} lang={lang} />
         <AnimatePresence mode="wait">
           <motion.div key={`${module.id}-${stepIndex}`}
@@ -1848,6 +1856,7 @@ const GuiaPage: React.FC<GuiaPageProps> = ({ config = DEFAULT_GUIDE_CONFIG, init
     if (initialLanguage) return initialLanguage;
     try { return (localStorage.getItem(LANG_STORAGE_KEY) as 'en' | 'es') || 'en'; } catch { return 'en'; }
   });
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
   const toggleLanguage = useCallback(() => {
     setLanguage(l => {
       const next = l === 'en' ? 'es' : 'en';
@@ -1941,20 +1950,44 @@ const GuiaPage: React.FC<GuiaPageProps> = ({ config = DEFAULT_GUIDE_CONFIG, init
       {showReset    && <ResetModal onConfirm={reset} onCancel={() => setShowReset(false)} lang={language} />}
       {forwardTarget && <ForwardWarningModal target={forwardTarget} onConfirm={confirmForward} onCancel={() => setForwardTarget(null)} lang={language} />}
 
+      {/* Mobile top bar — only in module view, only on small screens */}
+      {!showWelcome && (
+        <div className="lg:hidden flex items-center justify-between px-4 py-3 border-b border-white/[0.07] bg-[#0d0d0d] shrink-0">
+          <button
+            onClick={() => routerNavigate('/guides')}
+            className="flex items-center gap-1.5 text-zinc-600 hover:text-zinc-300 transition-colors text-xs"
+          >
+            <BackIcon size={11} />
+            <span>{language === 'en' ? 'All guides' : 'Todas las guías'}</span>
+          </button>
+          <span className="text-xs text-zinc-500 truncate max-w-[40%] text-center font-medium">{currentModule.title}</span>
+          <button
+            onClick={() => setShowMobileMenu(true)}
+            className="text-zinc-500 hover:text-zinc-300 transition-colors p-1"
+            aria-label={language === 'en' ? 'Open navigation' : 'Abrir navegación'}
+          >
+            <Menu size={16} />
+          </button>
+        </div>
+      )}
+
       <div className="flex-1 flex overflow-hidden">
+        {/* Desktop sidebar — hidden on mobile */}
         {!showWelcome && (
-          <Sidebar
-            modules={modules}
-            progress={progress}
-            onNavigate={navigate}
-            onReset={() => setShowReset(true)}
-            onHome={() => setShowWelcome(true)}
-            onBackToGuides={() => routerNavigate('/guides')}
-            lang={language}
-            onToggleLang={toggleLanguage}
-            guideName={language === 'en' ? guideCopy.guideName.en : guideCopy.guideName.es}
-            showLanguageToggle={config.showLanguageToggle !== false}
-          />
+          <div className="hidden lg:flex h-full">
+            <Sidebar
+              modules={modules}
+              progress={progress}
+              onNavigate={navigate}
+              onReset={() => setShowReset(true)}
+              onHome={() => setShowWelcome(true)}
+              onBackToGuides={() => routerNavigate('/guides')}
+              lang={language}
+              onToggleLang={toggleLanguage}
+              guideName={language === 'en' ? guideCopy.guideName.en : guideCopy.guideName.es}
+              showLanguageToggle={config.showLanguageToggle !== false}
+            />
+          </div>
         )}
 
         {showWelcome ? (
@@ -1984,6 +2017,28 @@ const GuiaPage: React.FC<GuiaPageProps> = ({ config = DEFAULT_GUIDE_CONFIG, init
           />
         )}
       </div>
+
+      {/* Mobile sidebar overlay drawer */}
+      {!showWelcome && showMobileMenu && (
+        <div className="lg:hidden fixed inset-0 z-50 flex">
+          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setShowMobileMenu(false)} />
+          <div className="relative z-10">
+            <Sidebar
+              modules={modules}
+              progress={progress}
+              onNavigate={(id) => { navigate(id); setShowMobileMenu(false); }}
+              onReset={() => { setShowReset(true); setShowMobileMenu(false); }}
+              onHome={() => { setShowWelcome(true); setShowMobileMenu(false); }}
+              onBackToGuides={() => routerNavigate('/guides')}
+              lang={language}
+              onToggleLang={toggleLanguage}
+              guideName={language === 'en' ? guideCopy.guideName.en : guideCopy.guideName.es}
+              showLanguageToggle={config.showLanguageToggle !== false}
+              onCloseMobile={() => setShowMobileMenu(false)}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
