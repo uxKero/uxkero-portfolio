@@ -1,6 +1,6 @@
 # UXKERO Portfolio
 
-Portfolio profesional de Alan Ponce - Product Design & Strategy Lead
+Portfolio profesional de Alan Ponce - AI Experience Designer & Product Lead
 
 ## 🚀 Tecnologías
 

@@ -32,8 +32,8 @@ const AppContent: React.FC = () => {
   // SEO para página principal
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
   useSEO({
-    title: 'Alan Ponce | Product Design & Strategy Lead | UXKERO',
-    description: 'Product Design & Strategy Lead specializing in Business Acumen and UX/UI Mastery. Transforming business vision into viable digital experiences.',
+    title: 'Alan Ponce | AI Experience Designer & Product Lead | UXKERO',
+    description: 'AI Experience Designer & Product Lead specializing in agentic AI. Designing intelligent systems, driving AI enablement, and shipping products end-to-end across EdTech, real estate, and digital consultancy.',
     url: baseUrl,
     type: 'website',
   });
