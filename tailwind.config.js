@@ -12,8 +12,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Inter', 'sans-serif'],
-        mono: ['JetBrains Mono', 'monospace'],
+        sans: ['Geist', 'Inter', 'system-ui', 'sans-serif'],
+        mono: ['Geist Mono', 'JetBrains Mono', 'monospace'],
       },
       colors: {
         background: "hsl(var(--background))",

@@ -1,14 +1,14 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
-import HeroSection from './components/HeroSection';
+import Lifeline from './components/Lifeline';
 import BlogPost from './components/blog/BlogPost';
+import WritingIndexPage from './components/blog/WritingIndexPage';
 import AdminPanel from './components/admin/AdminPanel';
 import Login from './components/admin/Login';
 import GuiaPage from './components/guide/GuiaPage';
 import Guia2Page from './components/guide/Guia2Page';
 import GuidesIndexPage from './components/guide/GuidesIndexPage';
 import { getInternalSlug } from './utils/blog-slugs';
-import { useSEO } from './utils/useSEO';
 
 const AppContent: React.FC = () => {
   const location = useLocation();
@@ -24,19 +24,10 @@ const AppContent: React.FC = () => {
   // Convertir slug de URL a slug interno si es necesario
   const blogPath = location.pathname.slice(1); // Remover el "/"
   // Excluir rutas reservadas de la detección de blog slugs
-  const reservedPaths = ['guia', 'guide', 'guides'];
+  const reservedPaths = ['guia', 'guide', 'guides', 'writing'];
   const blogSlug = blogPath && !reservedPaths.some(p => blogPath === p || blogPath.startsWith(p + '/'))
     ? (getInternalSlug(blogPath) || blogPath)
     : null;
-
-  // SEO para página principal
-  const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
-  useSEO({
-    title: 'Alan Ponce | AI Experience Designer & Product Lead | UXKERO',
-    description: 'AI Experience Designer & Product Lead specializing in agentic AI. Designing intelligent systems, driving AI enablement, and shipping products end-to-end across EdTech, real estate, and digital consultancy.',
-    url: baseUrl,
-    type: 'website',
-  });
 
   const toggleLanguage = () => {
     setLanguage(prev => prev === 'en' ? 'es' : 'en');
@@ -56,12 +47,8 @@ const AppContent: React.FC = () => {
     );
   }
 
-  // Si no hay blog en la URL, mostrar el portfolio normal
-  return (
-    <main className="w-full h-screen overflow-hidden bg-black">
-      <HeroSection />
-    </main>
-  );
+  // Si no hay blog en la URL, mostrar el portfolio (Lifeline)
+  return <Lifeline />;
 };
 
 const App: React.FC = () => {
@@ -70,6 +57,7 @@ const App: React.FC = () => {
       <Routes>
         <Route path="/admin/login" element={<Login />} />
         <Route path="/admin" element={<AdminPanel />} />
+        <Route path="/writing" element={<WritingIndexPage />} />
         <Route path="/guides" element={<GuidesIndexPage />} />
         <Route path="/guides/openclaw" element={<div className="w-full h-screen overflow-hidden"><GuiaPage /></div>} />
         <Route path="/guides/openclaw-avanzado" element={<div className="w-full h-screen overflow-hidden"><Guia2Page /></div>} />

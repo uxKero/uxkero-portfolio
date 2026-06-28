@@ -1,0 +1,85 @@
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "_meta": {
+    "source": "https://lifeline.evilrabbit.com/",
+    "captured_at": "2026-06-28",
+    "generator": "anydesign-1",
+    "stylesheets": [
+      "https://lifeline.evilrabbit.com/_next/static/css/a6a282531d6bdc20.css"
+    ],
+    "note": "Colors map to shadcn-style HSL channels; defaults shown as hex. Dark is the site default."
+  },
+  "color": {
+    "surface": { "$value": "#000000", "$type": "color", "confidence": "high" },
+    "surface-light": { "$value": "#FFFFFF", "$type": "color", "confidence": "high" },
+    "text-primary": { "$value": "#FFFFFF", "$type": "color", "confidence": "high" },
+    "text-primary-light": { "$value": "#000000", "$type": "color", "confidence": "high" },
+    "text-muted": { "$value": "#71717A", "$type": "color", "confidence": "high" },
+    "text-faint": { "$value": "#52525B", "$type": "color", "confidence": "high" },
+    "border": { "$value": "rgba(255,255,255,0.10)", "$type": "color", "confidence": "high" },
+    "border-light": { "$value": "rgba(0,0,0,0.10)", "$type": "color", "confidence": "high" },
+    "rail": { "$value": "#27272A", "$type": "color", "confidence": "high" },
+    "rail-light": { "$value": "#D4D4D8", "$type": "color", "confidence": "high" },
+    "tick": { "$value": "#A1A1AA", "$type": "color", "confidence": "high" },
+    "accent-mentor": { "$value": "#3B82F6", "$type": "color", "confidence": "high" },
+    "accent-met": { "$value": "#EC4899", "$type": "color", "confidence": "high" },
+    "ring": { "$value": "rgba(59,130,246,0.5)", "$type": "color", "confidence": "high" }
+  },
+  "typography": {
+    "year": {
+      "$type": "typography",
+      "$value": { "fontFamily": "Geist, system-ui, sans-serif", "fontSize": "15px", "fontWeight": 500, "lineHeight": "20px" },
+      "confidence": "high"
+    },
+    "age": {
+      "$type": "typography",
+      "$value": { "fontFamily": "Geist, system-ui, sans-serif", "fontSize": "11px", "fontWeight": 500, "lineHeight": "16px" },
+      "confidence": "high"
+    },
+    "label": {
+      "$type": "typography",
+      "$value": { "fontFamily": "Geist, system-ui, sans-serif", "fontSize": "11px", "fontWeight": 500, "lineHeight": "16px", "letterSpacing": "0.08em", "textTransform": "uppercase" },
+      "confidence": "high"
+    },
+    "event": {
+      "$type": "typography",
+      "$value": { "fontFamily": "Geist, system-ui, sans-serif", "fontSize": "14px", "fontWeight": 400, "lineHeight": "1.55", "letterSpacing": "-0.01em" },
+      "confidence": "high"
+    },
+    "body": {
+      "$type": "typography",
+      "$value": { "fontFamily": "Geist, system-ui, sans-serif", "fontSize": "16px", "fontWeight": 400, "lineHeight": "1.5" },
+      "confidence": "high"
+    }
+  },
+  "fontFamily": {
+    "sans": { "$value": "Geist, system-ui, -apple-system, sans-serif", "$type": "fontFamily", "confidence": "high" }
+  },
+  "spacing": {
+    "base": { "$value": "4px", "$type": "dimension", "confidence": "high" },
+    "rail-offset": { "$value": "5rem", "$type": "dimension", "confidence": "high", "_source": "--lifeline-rail" },
+    "cell-size": { "$value": "2rem", "$type": "dimension", "confidence": "high", "_source": "--cell-size" },
+    "people-top": { "$value": "calc(14.5rem + 40px)", "$type": "dimension", "confidence": "high", "_source": "--lifeline-people-top" },
+    "label-col-width": { "$value": "72px", "$type": "dimension", "confidence": "high" },
+    "event-max-width": { "$value": "18rem", "$type": "dimension", "confidence": "high" },
+    "nav-height": { "$value": "64px", "$type": "dimension", "confidence": "high" },
+    "nav-max-width": { "$value": "1024px", "$type": "dimension", "confidence": "high" }
+  },
+  "radius": {
+    "none": { "$value": "0px", "$type": "dimension", "confidence": "high" },
+    "full": { "$value": "9999px", "$type": "dimension", "confidence": "high" }
+  },
+  "border": {
+    "rail": { "$value": "1px dashed #27272A", "$type": "border", "confidence": "high" },
+    "nav-hairline": { "$value": "1px solid rgba(255,255,255,0.10)", "$type": "border", "confidence": "high" },
+    "tick": { "$value": "1px solid #A1A1AA", "$type": "border", "confidence": "high" }
+  },
+  "shadow": {
+    "flat": { "$value": "none", "$type": "shadow", "confidence": "high" },
+    "glow-special": { "$value": "0 0 24px rgba(255,255,255,0.45)", "$type": "shadow", "confidence": "medium" }
+  },
+  "effect": {
+    "nav-backdrop-blur": { "$value": "blur(24px)", "$type": "other", "confidence": "high" },
+    "transition-reveal": { "$value": "color 300ms ease-out, opacity 300ms ease-out", "$type": "other", "confidence": "high" }
+  }
+}
