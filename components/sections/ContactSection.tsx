@@ -24,7 +24,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({ content }) => {
       
       {/* HEADER SECTION */}
       <div className="text-center space-y-6 md:space-y-8 mb-16 md:mb-24 max-w-5xl animate-in fade-in slide-in-from-bottom-8 duration-700">
-        <p className="text-emerald-400 text-xs md:text-sm font-bold tracking-[0.3em] uppercase">
+        <p className="font-mono text-zinc-500 text-[11px] md:text-xs font-medium tracking-[0.3em] uppercase">
           {content.confidential}
         </p>
         
@@ -45,18 +45,18 @@ const ContactSection: React.FC<ContactSectionProps> = ({ content }) => {
         {/* Email */}
         <a
           href="mailto:uxkero@gmail.com"
-          className="group flex items-center justify-between p-4 md:p-6 border border-zinc-800 bg-zinc-950/30 hover:bg-zinc-900/80 hover:border-emerald-500/50 transition-all duration-300"
+          className="group flex items-center justify-between p-4 md:p-6 border border-zinc-800 bg-zinc-950/30 hover:bg-zinc-900/80 hover:border-hud/50 transition-all duration-300"
         >
           <div className="flex items-center gap-4 md:gap-5">
-            <div className="p-2 md:p-3 rounded-sm bg-zinc-900 group-hover:bg-emerald-500/10 text-zinc-500 group-hover:text-emerald-400 transition-colors">
+            <div className="p-2 md:p-3 rounded-none bg-zinc-900 group-hover:bg-zinc-800 text-zinc-500 group-hover:text-white transition-colors">
                <EmailIcon className="w-5 h-5 md:w-6 md:h-6" />
             </div>
             <div className="text-left">
-              <div className="text-[9px] md:text-[10px] text-zinc-500 uppercase tracking-widest mb-1 group-hover:text-emerald-500/70 transition-colors">{content.labels.email_sub}</div>
+              <div className="font-mono text-[9px] md:text-[10px] text-zinc-500 uppercase tracking-widest mb-1 group-hover:text-zinc-400 transition-colors">{content.labels.email_sub}</div>
               <div className="text-white text-sm md:text-lg font-medium tracking-tight break-all">uxkero@gmail.com</div>
             </div>
           </div>
-          <OpenInNewIcon className="w-4 h-4 text-zinc-700 group-hover:text-emerald-400 group-hover:rotate-45 transition-all duration-300 md:w-[18px] md:h-[18px]" />
+          <OpenInNewIcon className="w-4 h-4 text-zinc-700 group-hover:text-white group-hover:rotate-45 transition-all duration-300 md:w-[18px] md:h-[18px]" />
         </a>
 
         {/* LinkedIn */}
@@ -64,18 +64,18 @@ const ContactSection: React.FC<ContactSectionProps> = ({ content }) => {
           href="https://www.linkedin.com/in/ab-alanponce/" 
           target="_blank" 
           rel="noopener noreferrer"
-          className="group flex items-center justify-between p-4 md:p-6 border border-zinc-800 bg-zinc-950/30 hover:bg-zinc-900/80 hover:border-blue-500/50 transition-all duration-300"
+          className="group flex items-center justify-between p-4 md:p-6 border border-zinc-800 bg-zinc-950/30 hover:bg-zinc-900/80 hover:border-hud/50 transition-all duration-300"
         >
           <div className="flex items-center gap-4 md:gap-5">
-             <div className="p-2 md:p-3 rounded-sm bg-zinc-900 group-hover:bg-blue-500/10 text-zinc-500 group-hover:text-blue-400 transition-colors">
+             <div className="p-2 md:p-3 rounded-none bg-zinc-900 group-hover:bg-zinc-800 text-zinc-500 group-hover:text-white transition-colors">
                <LinkedInIcon className="w-5 h-5 md:w-6 md:h-6" />
             </div>
             <div className="text-left">
-              <div className="text-[9px] md:text-[10px] text-zinc-500 uppercase tracking-widest mb-1 group-hover:text-blue-500/70 transition-colors">{content.labels.linkedin_sub}</div>
+              <div className="font-mono text-[9px] md:text-[10px] text-zinc-500 uppercase tracking-widest mb-1 group-hover:text-zinc-400 transition-colors">{content.labels.linkedin_sub}</div>
               <div className="text-white text-sm md:text-lg font-medium tracking-tight">/in/ab-alanponce</div>
             </div>
           </div>
-          <OpenInNewIcon className="w-4 h-4 text-zinc-700 group-hover:text-blue-400 group-hover:rotate-45 transition-all duration-300 md:w-[18px] md:h-[18px]" />
+          <OpenInNewIcon className="w-4 h-4 text-zinc-700 group-hover:text-white group-hover:rotate-45 transition-all duration-300 md:w-[18px] md:h-[18px]" />
         </a>
 
         {/* X / Twitter */}
@@ -83,14 +83,14 @@ const ContactSection: React.FC<ContactSectionProps> = ({ content }) => {
           href="https://twitter.com/uxKero" 
           target="_blank" 
           rel="noopener noreferrer"
-          className="group flex items-center justify-between p-4 md:p-6 border border-zinc-800 bg-zinc-950/30 hover:bg-zinc-900/80 hover:border-white/50 transition-all duration-300"
+          className="group flex items-center justify-between p-4 md:p-6 border border-zinc-800 bg-zinc-950/30 hover:bg-zinc-900/80 hover:border-hud/50 transition-all duration-300"
         >
           <div className="flex items-center gap-4 md:gap-5">
-             <div className="p-2 md:p-3 rounded-sm bg-zinc-900 group-hover:bg-zinc-800 text-zinc-500 group-hover:text-white transition-colors">
+             <div className="p-2 md:p-3 rounded-none bg-zinc-900 group-hover:bg-zinc-800 text-zinc-500 group-hover:text-white transition-colors">
                <XIcon className="w-5 h-5 md:w-6 md:h-6" />
             </div>
             <div className="text-left">
-              <div className="text-[9px] md:text-[10px] text-zinc-500 uppercase tracking-widest mb-1 group-hover:text-zinc-400 transition-colors">{content.labels.x_sub}</div>
+              <div className="font-mono text-[9px] md:text-[10px] text-zinc-500 uppercase tracking-widest mb-1 group-hover:text-zinc-400 transition-colors">{content.labels.x_sub}</div>
               <div className="text-white text-sm md:text-lg font-medium tracking-tight">@uxKero</div>
             </div>
           </div>
@@ -102,18 +102,18 @@ const ContactSection: React.FC<ContactSectionProps> = ({ content }) => {
           href="https://uxkero.vercel.app"
           target="_blank"
           rel="noopener noreferrer"
-          className="group flex items-center justify-between p-4 md:p-6 border border-zinc-800 bg-zinc-950/30 hover:bg-zinc-900/80 hover:border-purple-500/50 transition-all duration-300"
+          className="group flex items-center justify-between p-4 md:p-6 border border-zinc-800 bg-zinc-950/30 hover:bg-zinc-900/80 hover:border-hud/50 transition-all duration-300"
         >
           <div className="flex items-center gap-4 md:gap-5">
-             <div className="p-2 md:p-3 rounded-sm bg-zinc-900 group-hover:bg-purple-500/10 text-zinc-500 group-hover:text-purple-400 transition-colors">
+             <div className="p-2 md:p-3 rounded-none bg-zinc-900 group-hover:bg-zinc-800 text-zinc-500 group-hover:text-white transition-colors">
                <LanguageIcon className="w-5 h-5 md:w-6 md:h-6" />
             </div>
             <div className="text-left">
-              <div className="text-[9px] md:text-[10px] text-zinc-500 uppercase tracking-widest mb-1 group-hover:text-purple-500/70 transition-colors">{content.labels.portfolio_sub}</div>
+              <div className="font-mono text-[9px] md:text-[10px] text-zinc-500 uppercase tracking-widest mb-1 group-hover:text-zinc-400 transition-colors">{content.labels.portfolio_sub}</div>
               <div className="text-white text-sm md:text-lg font-medium tracking-tight">uxkero.vercel.app</div>
             </div>
           </div>
-          <OpenInNewIcon className="w-4 h-4 text-zinc-700 group-hover:text-purple-400 group-hover:rotate-45 transition-all duration-300 md:w-[18px] md:h-[18px]" />
+          <OpenInNewIcon className="w-4 h-4 text-zinc-700 group-hover:text-white group-hover:rotate-45 transition-all duration-300 md:w-[18px] md:h-[18px]" />
         </a>
 
       </div>

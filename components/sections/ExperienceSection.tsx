@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import DownloadIcon from '@mui/icons-material/Download';
 
@@ -48,6 +49,7 @@ const EntryCard: React.FC<{
 
 const ExperienceSection: React.FC<ExperienceSectionProps> = ({ content }) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
   // Reset scroll position on mount (whenever the user navigates to this section)
   useEffect(() => {
@@ -59,15 +61,25 @@ const ExperienceSection: React.FC<ExperienceSectionProps> = ({ content }) => {
   const { roles, products, what_i_do, background, certs } = content;
 
   const whatIDo = [
-    { title: what_i_do.cat1_title, tags: what_i_do.cat1_tags, color: 'text-emerald-400' },
-    { title: what_i_do.cat2_title, tags: what_i_do.cat2_tags, color: 'text-blue-400' },
-    { title: what_i_do.cat3_title, tags: what_i_do.cat3_tags, color: 'text-purple-400' },
-    { title: what_i_do.cat4_title, tags: what_i_do.cat4_tags, color: 'text-amber-400' },
+    { title: what_i_do.cat1_title, tags: what_i_do.cat1_tags, color: 'text-zinc-200' },
+    { title: what_i_do.cat2_title, tags: what_i_do.cat2_tags, color: 'text-zinc-200' },
+    { title: what_i_do.cat3_title, tags: what_i_do.cat3_tags, color: 'text-zinc-200' },
+    { title: what_i_do.cat4_title, tags: what_i_do.cat4_tags, color: 'text-zinc-200' },
   ];
 
   return (
     <div ref={containerRef} className="w-full h-full bg-black overflow-y-auto overflow-x-hidden custom-scrollbar px-6 py-12 md:p-12 xl:p-16">
       <div className="max-w-[1800px] mx-auto space-y-12 xl:space-y-16">
+
+        {/* Deep-link to the full career lifeline */}
+        <button
+          onClick={(e) => { e.stopPropagation(); navigate('/lifeline'); }}
+          className="group flex items-center gap-2 font-mono text-[10px] font-medium uppercase tracking-[0.2em] text-zinc-600 transition-colors hover:text-white"
+        >
+          <span className="text-zinc-800 transition-colors group-hover:text-hud">{'//'}</span>
+          Timeline · 1995 → 2026
+          <span className="transition-transform group-hover:translate-x-0.5">→</span>
+        </button>
 
         {/* ================= LEVEL 1: 2×2 GRID =================
             Flat grid so row 2 (What I Do / Background) aligns regardless
@@ -80,8 +92,8 @@ const ExperienceSection: React.FC<ExperienceSectionProps> = ({ content }) => {
             <div className="space-y-4 xl:space-y-5">
               <EntryCard
                 href={roles.educabot.url}
-                accent="border-emerald-500"
-                hover="group-hover:text-emerald-400"
+                accent="border-hud/60"
+                hover="group-hover:text-hud"
                 title={roles.educabot.name}
               >
                 <p className="text-zinc-500 text-[11px] font-mono uppercase tracking-wider mb-2">{roles.educabot.tag}</p>
@@ -89,8 +101,8 @@ const ExperienceSection: React.FC<ExperienceSectionProps> = ({ content }) => {
               </EntryCard>
               <EntryCard
                 href={roles.cultura.url}
-                accent="border-blue-500"
-                hover="group-hover:text-blue-400"
+                accent="border-hud/60"
+                hover="group-hover:text-hud"
                 title={roles.cultura.name}
               >
                 <p className="text-zinc-500 text-[11px] font-mono uppercase tracking-wider mb-2">{roles.cultura.tag}</p>
@@ -98,8 +110,8 @@ const ExperienceSection: React.FC<ExperienceSectionProps> = ({ content }) => {
               </EntryCard>
               <EntryCard
                 href={roles.independent.url}
-                accent="border-amber-500/70"
-                hover="group-hover:text-amber-400"
+                accent="border-hud/60"
+                hover="group-hover:text-hud"
                 title={roles.independent.name}
               >
                 <p className="text-zinc-500 text-[11px] font-mono uppercase tracking-wider mb-2">{roles.independent.tag}</p>
@@ -116,8 +128,8 @@ const ExperienceSection: React.FC<ExperienceSectionProps> = ({ content }) => {
                 <EntryCard
                   key={p.name}
                   href={p.url || undefined}
-                  accent="border-purple-500"
-                  hover="group-hover:text-purple-400"
+                  accent="border-hud/60"
+                  hover="group-hover:text-hud"
                   title={p.name}
                 >
                   <p className="text-zinc-400 text-sm leading-relaxed mb-3">{p.desc}</p>
@@ -160,11 +172,11 @@ const ExperienceSection: React.FC<ExperienceSectionProps> = ({ content }) => {
             <SectionHeader num={background.num} title={background.title} />
             <div className="space-y-4">
               <p className="text-zinc-400 text-sm leading-relaxed">{background.p1}</p>
-              <p className="text-zinc-300 text-sm leading-relaxed border-l-2 border-emerald-500/70 pl-4">{background.highlight}</p>
+              <p className="text-zinc-300 text-sm leading-relaxed border-l-2 border-hud/60 pl-4">{background.highlight}</p>
               <a
                 href={CV_URL}
                 download
-                className="inline-flex items-center gap-2 mt-1 px-4 py-2.5 rounded-lg border border-zinc-800 bg-zinc-900/40 text-sm font-medium text-white hover:border-zinc-600 hover:bg-zinc-900/70 transition-all group"
+                className="inline-flex items-center gap-2 mt-1 px-4 py-2.5 rounded-none border border-zinc-800 bg-zinc-900/40 text-sm font-medium text-white hover:border-zinc-600 hover:bg-zinc-900/70 transition-all group"
               >
                 <DownloadIcon className="w-4 h-4 text-zinc-500 group-hover:text-white transition-colors" />
                 {background.cv_label}
@@ -177,7 +189,7 @@ const ExperienceSection: React.FC<ExperienceSectionProps> = ({ content }) => {
         {/* ================= LEVEL 2: CERTIFICATIONS & STACK ================= */}
         <section className="w-full">
           <SectionHeader num={certs.num} title={certs.title} />
-          <div className="bg-zinc-900/30 border border-zinc-800 p-6 lg:p-10 xl:p-12 rounded-sm space-y-8 lg:space-y-10">
+          <div className="bg-zinc-900/30 border border-zinc-800 p-6 lg:p-10 xl:p-12 rounded-none space-y-8 lg:space-y-10">
 
             <p className="text-zinc-400 text-sm leading-relaxed max-w-3xl">{certs.intro}</p>
 
@@ -187,37 +199,37 @@ const ExperienceSection: React.FC<ExperienceSectionProps> = ({ content }) => {
 
               {/* Certifications */}
               <div>
-                <h4 className="text-xs font-bold uppercase tracking-widest text-amber-400 mb-5">{certs.certs_title}</h4>
+                <h4 className="text-xs font-bold uppercase tracking-widest text-zinc-200 mb-5">{certs.certs_title}</h4>
                 <div className="space-y-3">
                   {/* Cert 1 — Microsoft */}
                   <a href={certs.cert1_url} target="_blank" rel="noopener noreferrer"
-                    className="flex items-center justify-between px-4 py-3 rounded-lg border border-zinc-800 bg-zinc-900/40 hover:border-zinc-600 hover:bg-zinc-900/70 transition-all group"
+                    className="flex items-center justify-between px-4 py-3 rounded-none border border-zinc-800 bg-zinc-900/40 hover:border-zinc-600 hover:bg-zinc-900/70 transition-all group"
                   >
                     <div>
-                      <div className="text-white text-sm font-medium group-hover:text-amber-300 transition-colors">{certs.cert1_name}</div>
+                      <div className="text-white text-sm font-medium group-hover:text-white transition-colors">{certs.cert1_name}</div>
                       <div className="text-zinc-600 text-xs mt-0.5 font-mono">{certs.cert1_issuer}</div>
                     </div>
-                    <OpenInNewIcon className="w-3 h-3 text-zinc-700 group-hover:text-amber-400 transition-colors shrink-0" />
+                    <OpenInNewIcon className="w-3 h-3 text-zinc-700 group-hover:text-white transition-colors shrink-0" />
                   </a>
                   {/* Cert 2 — Google */}
                   <a href={certs.cert2_url} target="_blank" rel="noopener noreferrer"
-                    className="flex items-center justify-between px-4 py-3 rounded-lg border border-zinc-800 bg-zinc-900/40 hover:border-zinc-600 hover:bg-zinc-900/70 transition-all group"
+                    className="flex items-center justify-between px-4 py-3 rounded-none border border-zinc-800 bg-zinc-900/40 hover:border-zinc-600 hover:bg-zinc-900/70 transition-all group"
                   >
                     <div>
-                      <div className="text-white text-sm font-medium group-hover:text-amber-300 transition-colors">{certs.cert2_name}</div>
+                      <div className="text-white text-sm font-medium group-hover:text-white transition-colors">{certs.cert2_name}</div>
                       <div className="text-zinc-600 text-xs mt-0.5 font-mono">{certs.cert2_issuer}</div>
                     </div>
-                    <OpenInNewIcon className="w-3 h-3 text-zinc-700 group-hover:text-amber-400 transition-colors shrink-0" />
+                    <OpenInNewIcon className="w-3 h-3 text-zinc-700 group-hover:text-white transition-colors shrink-0" />
                   </a>
                   {/* Cert 3 — Anthropic */}
-                  <div className="flex items-center justify-between px-4 py-3 rounded-lg border border-zinc-800 bg-zinc-900/40">
+                  <div className="flex items-center justify-between px-4 py-3 rounded-none border border-zinc-800 bg-zinc-900/40">
                     <div>
                       <div className="text-white text-sm font-medium">{certs.cert3_name}</div>
                       <div className="text-zinc-600 text-xs mt-0.5 font-mono">{certs.cert3_issuer}</div>
                     </div>
                   </div>
                   {/* Cert 4 — Anthropic */}
-                  <div className="flex items-center justify-between px-4 py-3 rounded-lg border border-zinc-800 bg-zinc-900/40">
+                  <div className="flex items-center justify-between px-4 py-3 rounded-none border border-zinc-800 bg-zinc-900/40">
                     <div>
                       <div className="text-white text-sm font-medium">{certs.cert4_name}</div>
                       <div className="text-zinc-600 text-xs mt-0.5 font-mono">{certs.cert4_issuer}</div>
@@ -228,7 +240,7 @@ const ExperienceSection: React.FC<ExperienceSectionProps> = ({ content }) => {
 
               {/* Core Stack */}
               <div>
-                <h4 className="text-xs font-bold uppercase tracking-widest text-blue-400 mb-3">{certs.stack_title}</h4>
+                <h4 className="text-xs font-bold uppercase tracking-widest text-zinc-200 mb-3">{certs.stack_title}</h4>
                 <p className="text-zinc-400 text-sm font-mono leading-loose tracking-wide">{certs.stack_list}</p>
               </div>
             </div>

@@ -34,7 +34,7 @@ const AboutSection: React.FC<AboutSectionProps> = ({ onNavigate, content, langua
     {
       slug: '/guides/openclaw',
       badge: 'Complete',
-      badgeClass: 'bg-emerald-950/70 border-emerald-900/60 text-emerald-400',
+      badgeClass: 'border-white/10 bg-zinc-950 text-zinc-400',
       title: 'OpenClaw',
       subtitle: language === 'es' ? 'Agentes de IA en WhatsApp' : 'AI agents on WhatsApp',
       description: language === 'es'
@@ -49,7 +49,7 @@ const AboutSection: React.FC<AboutSectionProps> = ({ onNavigate, content, langua
     {
       slug: '/guides/openclaw-avanzado',
       badge: language === 'es' ? 'Avanzada' : 'Advanced',
-      badgeClass: 'bg-sky-950/70 border-sky-900/60 text-sky-300',
+      badgeClass: 'border-white/10 bg-zinc-950 text-zinc-400',
       title: 'Openclaw Avanzado',
       subtitle: language === 'es' ? 'Testing, seguridad y operación real' : 'Testing, security, and real operations',
       description: language === 'es'
@@ -145,7 +145,7 @@ const AboutSection: React.FC<AboutSectionProps> = ({ onNavigate, content, langua
                 href="https://www.linkedin.com/in/ab-alanponce/" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="text-zinc-800 hover:text-blue-400 transition-all duration-300 transform hover:scale-110 translate-y-1"
+                className="text-zinc-700 hover:text-white transition-all duration-300 transform hover:scale-110 translate-y-1"
                 aria-label="LinkedIn"
             >
                 <OpenInNewIcon className="w-[18px] h-[18px]" />
@@ -167,6 +167,21 @@ const AboutSection: React.FC<AboutSectionProps> = ({ onNavigate, content, langua
           <p className="text-zinc-500 text-sm md:text-[15px] leading-relaxed max-w-md">
             {content.summary}
           </p>
+
+          {/* Character sheet — mono data readout */}
+          <dl className="mt-6 max-w-md space-y-1.5 border-l border-zinc-800 pl-4 font-mono text-[10px] uppercase tracking-[0.14em]">
+            {[
+              [language === 'es' ? 'Rol' : 'Role', 'AI Experience Designer / Product Lead'],
+              [language === 'es' ? 'Base' : 'Base', 'Mar del Plata, AR · UTC-3'],
+              ['Stack', 'Agentic AI · UX · Product · EdTech'],
+              [language === 'es' ? 'Idiomas' : 'Lang', 'ES · EN'],
+            ].map(([k, v]) => (
+              <div key={k} className="flex gap-3">
+                <dt className="w-14 shrink-0 text-zinc-700">{k}</dt>
+                <dd className="text-zinc-500">{v}</dd>
+              </div>
+            ))}
+          </dl>
         </div>
 
         {/* BOTTOM ROW: LANGUAGE & NAVIGATION */}
@@ -256,13 +271,13 @@ const AboutSection: React.FC<AboutSectionProps> = ({ onNavigate, content, langua
                     <button
                       key={guide.slug}
                       onClick={(e) => { e.stopPropagation(); navigateToGuides(guide.slug); }}
-                      className="w-full text-left group rounded-xl border border-zinc-800/70 bg-zinc-950/60 hover:border-zinc-700/70 hover:bg-zinc-900/50 transition-all duration-300 p-5 relative overflow-hidden"
+                      className="w-full text-left group rounded-none border border-zinc-800/70 bg-zinc-950/60 hover:border-zinc-700/70 hover:bg-zinc-900/50 transition-all duration-300 p-5 relative overflow-hidden"
                     >
                       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-zinc-700/50 to-transparent" />
 
                       <div className="flex items-start justify-between gap-3 mb-4">
                         <div>
-                          <div className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md border text-[9px] font-mono mb-2.5 ${guide.badgeClass}`}>
+                          <div className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-none border text-[9px] font-mono uppercase tracking-[0.14em] mb-2.5 ${guide.badgeClass}`}>
                             <span className="w-1 h-1 rounded-full bg-current" />
                             {guide.badge}
                           </div>
@@ -377,7 +392,7 @@ const AboutSection: React.FC<AboutSectionProps> = ({ onNavigate, content, langua
                    <article
                      key={blog.slug || index}
                      onClick={() => onBlogClick?.(blog.slug || `blog-${index}`)}
-                     className="group relative bg-zinc-900/50 backdrop-blur-sm rounded-xl border border-zinc-800/50 transition-all duration-300 overflow-hidden hover:border-zinc-700/50 cursor-pointer p-4 sm:p-6"
+                     className="group relative bg-zinc-900/50 backdrop-blur-sm rounded-none border border-zinc-800/50 transition-all duration-300 overflow-hidden hover:border-zinc-700/50 cursor-pointer p-4 sm:p-6"
                    >
                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
                        <div className="flex-1 min-w-0">

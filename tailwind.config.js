@@ -14,8 +14,14 @@ export default {
       fontFamily: {
         sans: ['Geist', 'Inter', 'system-ui', 'sans-serif'],
         mono: ['Geist Mono', 'JetBrains Mono', 'monospace'],
+        serif: ['"Instrument Serif"', 'Georgia', 'serif'],
       },
       colors: {
+        // Single HUD accent — reticle, brackets, status dot. Never on body text.
+        hud: {
+          DEFAULT: "#38bdf8",
+          dim: "#0e7490",
+        },
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         card: {
@@ -64,11 +70,21 @@ export default {
       },
       animation: {
         'growRight': 'growRight 1s ease-out',
+        'hud-sweep': 'hudSweep 0.4s ease-out forwards',
+        'hud-pulse': 'hudPulse 2s ease-in-out infinite',
       },
       keyframes: {
         growRight: {
           '0%': { width: '0%' },
           '100%': { width: '100%' },
+        },
+        hudSweep: {
+          '0%': { left: '0%', opacity: '0.7' },
+          '100%': { left: '100%', opacity: '0' },
+        },
+        hudPulse: {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0.35' },
         },
       },
     },
