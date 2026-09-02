@@ -1470,6 +1470,9 @@ a.ed-cert:hover .ed-cert__nombre {
     flex: 1;
     display: flex;
     flex-direction: column;
+    /* En columna el align-items del diseño de escritorio alinea a la derecha:
+       sin esto el eyebrow y el titular quedan corridos del margen. */
+    align-items: stretch;
     gap: 22px;
   }
 
@@ -1481,9 +1484,12 @@ a.ed-cert:hover .ed-cert__nombre {
     grid-template-columns: 1fr;
   }
 
+  /* Sin las divisiones verticales, la sangría de la celda descoloca la cifra
+     respecto del resto de la página. */
   .ed-dato {
     border-right: 0;
     border-bottom: 1px solid var(--border);
+    padding-inline: 0;
   }
 
   .ed-dato:last-child {
