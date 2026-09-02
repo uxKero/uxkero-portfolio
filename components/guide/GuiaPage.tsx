@@ -3,9 +3,9 @@ import { useNavigate as useRouterNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   CheckCircle2, Circle, ChevronRight, ChevronLeft, RotateCcw,
-  Copy, Check, AlertTriangle, Info, Lightbulb, BookOpen,
-  Lock, Home, ArrowRight, ChevronLeft as BackIcon, Menu, X,
+  Copy, Check, Lock, ArrowRight, ChevronLeft as BackIcon, Menu, X,
 } from 'lucide-react';
+import './guia.css';
 
 // ─── TYPES ───────────────────────────────────────────────────────────────────
 
@@ -1118,7 +1118,7 @@ const defaultProgress = (initialModuleId = 'mod-00'): Progress => ({
 
 // ─── COPY BUTTON ──────────────────────────────────────────────────────────────
 
-const CopyButton: React.FC<{ text: string }> = ({ text }) => {
+const CopyButton: React.FC<{ text: string; lang: 'en' | 'es' }> = ({ text, lang }) => {
   const [copied, setCopied] = useState(false);
   const copy = useCallback(() => {
     navigator.clipboard.writeText(text).then(() => {
@@ -1127,12 +1127,9 @@ const CopyButton: React.FC<{ text: string }> = ({ text }) => {
     });
   }, [text]);
   return (
-    <button
-      onClick={copy}
-      className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition-colors px-2 py-1 rounded hover:bg-white/5"
-    >
+    <button onClick={copy} className="gu-code__copiar">
       {copied ? <Check size={12} /> : <Copy size={12} />}
-      {copied ? 'Copied' : 'Copy'}
+      {copied ? (lang === 'en' ? 'Copied' : 'Copiado') : (lang === 'en' ? 'Copy' : 'Copiar')}
     </button>
   );
 };
@@ -1143,46 +1140,45 @@ function renderInline(text: string): React.ReactNode {
   const parts = text.split(/(\*\*[^*]+\*\*|`[^`]+`)/g);
   return parts.map((part, i) => {
     if (part.startsWith('**') && part.endsWith('**'))
-      return <strong key={i} className="text-white font-semibold">{part.slice(2, -2)}</strong>;
+      return <strong key={i} className="gu-fuerte">{part.slice(2, -2)}</strong>;
     if (part.startsWith('`') && part.endsWith('`'))
-      return <code key={i} className="font-mono text-[0.82em] text-emerald-300 bg-emerald-950/50 px-1.5 py-0.5 rounded">{part.slice(1, -1)}</code>;
+      return <code key={i} className="gu-codigo-inline">{part.slice(1, -1)}</code>;
     return part;
   });
 }
 
 // ─── BLOCK RENDERER ───────────────────────────────────────────────────────────
 
-const calloutConfig: Record<CalloutKind, { bg: string; border: string; icon: React.ReactNode }> = {
-  tip:     { bg: 'bg-emerald-950/40', border: 'border-emerald-800/50', icon: <Lightbulb size={13} className="text-emerald-400 shrink-0 mt-0.5" /> },
-  warning: { bg: 'bg-amber-950/40',   border: 'border-amber-800/50',   icon: <AlertTriangle size={13} className="text-amber-400 shrink-0 mt-0.5" /> },
-  info:    { bg: 'bg-blue-950/40',    border: 'border-blue-800/50',    icon: <Info size={13} className="text-blue-400 shrink-0 mt-0.5" /> },
-  note:    { bg: 'bg-zinc-800/40',    border: 'border-zinc-700/50',    icon: <BookOpen size={13} className="text-zinc-400 shrink-0 mt-0.5" /> },
+// Los avisos no llevan color de fondo: una regla al costado y una etiqueta.
+// El naranja queda para el que advierte, que es el único que hay que frenar a leer.
+const AVISO_LABEL: Record<CalloutKind, { en: string; es: string }> = {
+  tip:     { en: 'Tip', es: 'Consejo' },
+  warning: { en: 'Heads up', es: 'Atención' },
+  info:    { en: 'Info', es: 'Dato' },
+  note:    { en: 'Note', es: 'Nota' },
 };
 
-const BlockRenderer: React.FC<{ block: Block }> = ({ block }) => {
+const BlockRenderer: React.FC<{ block: Block; lang: 'en' | 'es' }> = ({ block, lang }) => {
   switch (block.type) {
     case 'text':
-      return <p className="text-zinc-300 leading-relaxed text-sm mb-4 last:mb-0">{renderInline(block.text || '')}</p>;
+      return <p className="gu-p">{renderInline(block.text || '')}</p>;
 
     case 'heading':
       return block.level === 2
-        ? <h2 className="text-white font-semibold text-base mt-6 mb-3 first:mt-0">{block.text}</h2>
-        : <h3 className="text-zinc-200 font-medium text-sm mt-5 mb-2 first:mt-0">{block.text}</h3>;
+        ? <h2 className="gu-h2">{block.text}</h2>
+        : <h3 className="gu-h3">{block.text}</h3>;
 
     case 'code': {
       const cd = block.code!;
       return (
-        <div className="mb-4 last:mb-0 rounded-lg overflow-hidden border border-white/[0.08]">
-          <div className="flex items-center justify-between px-4 py-2 bg-[#1a1a1a] border-b border-white/[0.08]">
-            <div className="flex items-center gap-2">
-              <span className="text-[11px] text-zinc-500 font-mono uppercase tracking-wider">{cd.lang}</span>
-              {cd.filename && <><span className="text-zinc-700 text-xs">·</span><span className="text-[11px] text-zinc-500 font-mono">{cd.filename}</span></>}
-            </div>
-            <CopyButton text={cd.code} />
+        <div className="gu-code">
+          <div className="gu-code__barra">
+            <span className="gu-code__lang">
+              {cd.lang}{cd.filename ? ` · ${cd.filename}` : ''}
+            </span>
+            <CopyButton text={cd.code} lang={lang} />
           </div>
-          <pre className="px-4 py-4 overflow-x-auto bg-[#111111]">
-            <code className="font-mono text-zinc-300 text-[0.8rem] leading-relaxed whitespace-pre">{cd.code}</code>
-          </pre>
+          <pre><code>{cd.code}</code></pre>
         </div>
       );
     }
@@ -1190,21 +1186,17 @@ const BlockRenderer: React.FC<{ block: Block }> = ({ block }) => {
     case 'table': {
       const td = block.table!;
       return (
-        <div className="mb-4 last:mb-0 overflow-x-auto rounded-lg border border-white/[0.08]">
-          <table className="w-full text-sm border-collapse">
+        <div className="gu-tabla">
+          <table>
             <thead>
-              <tr className="bg-[#1a1a1a]">
-                {td.headers.map((h, i) => (
-                  <th key={i} className="text-left text-xs font-medium text-zinc-400 px-4 py-3 border-b border-white/[0.08]">{h}</th>
-                ))}
+              <tr>
+                {td.headers.map((h, i) => <th key={i}>{h}</th>)}
               </tr>
             </thead>
             <tbody>
               {td.rows.map((row, ri) => (
-                <tr key={ri} className="border-b border-white/[0.06] last:border-0 hover:bg-white/[0.02] transition-colors">
-                  {row.map((cell, ci) => (
-                    <td key={ci} className="px-4 py-3 text-zinc-300 text-xs align-top">{renderInline(cell)}</td>
-                  ))}
+                <tr key={ri}>
+                  {row.map((cell, ci) => <td key={ci}>{renderInline(cell)}</td>)}
                 </tr>
               ))}
             </tbody>
@@ -1215,32 +1207,25 @@ const BlockRenderer: React.FC<{ block: Block }> = ({ block }) => {
 
     case 'callout': {
       const cl = block.callout!;
-      const s = calloutConfig[cl.kind];
       return (
-        <div className={`mb-4 last:mb-0 flex gap-3 p-4 rounded-lg border ${s.bg} ${s.border}`}>
-          {s.icon}
-          <div className="text-xs leading-relaxed text-zinc-300 min-w-0">
-            {cl.title && <span className="font-semibold text-white mr-1.5">{cl.title}:</span>}
-            {renderInline(cl.text)}
-          </div>
+        <div className={`gu-aviso gu-aviso--${cl.kind}`}>
+          <span className="gu-aviso__label">{cl.title || AVISO_LABEL[cl.kind][lang]}</span>
+          <div className="gu-aviso__texto">{renderInline(cl.text)}</div>
         </div>
       );
     }
 
     case 'list':
       return (
-        <ul className="mb-4 last:mb-0 space-y-2">
+        <ul className="gu-lista">
           {(block.items || []).map((item, i) => (
-            <li key={i} className="flex gap-2.5 text-sm text-zinc-300 leading-relaxed">
-              <span className="text-zinc-600 shrink-0 mt-0.5 text-xs">→</span>
-              <span>{renderInline(item)}</span>
-            </li>
+            <li key={i}><span>{renderInline(item)}</span></li>
           ))}
         </ul>
       );
 
     case 'divider':
-      return <hr className="border-white/[0.08] my-6" />;
+      return <hr className="gu-hr" />;
 
     default:
       return null;
@@ -1257,52 +1242,41 @@ const ModuleHeader: React.FC<{
 }> = ({ module, stepIndex, isCompleted, lang }) => {
   const t = UI_STRINGS[lang];
   return (
-    <div className="sticky top-0 z-10 bg-[#0a0a0a]/[0.97] backdrop-blur-sm border-b border-white/[0.06] -mx-4 sm:-mx-8 px-4 sm:px-8 pt-5 pb-4 mb-8">
-      {/* Breadcrumb */}
-      <div className="flex items-center gap-2 mb-2.5">
-        <span className="font-mono text-[11px] text-zinc-600 tracking-wider">{module.num}</span>
-        <span className="text-zinc-800 text-[11px]">·</span>
-        <span className="text-[11px] text-zinc-600">{module.group}</span>
+    <div className="gu-cabecera">
+      <div className="gu-cabecera__meta">
+        <span>{module.num}</span>
+        <span className="gu-punto">·</span>
+        <span>{module.group}</span>
+        <span className="gu-punto">·</span>
         {isCompleted ? (
-          <>
-            <span className="text-zinc-800 text-[11px]">·</span>
-            <span className="flex items-center gap-1 text-[11px] text-emerald-500">
-              <CheckCircle2 size={10} /> {t.completed}
-            </span>
-          </>
+          <span className="gu-hecho"><CheckCircle2 size={11} /> {t.completed}</span>
         ) : (
-          <>
-            <span className="text-zinc-800 text-[11px]">·</span>
-            <span className="text-[11px] text-zinc-600 font-mono">{t.step} {stepIndex + 1}/{module.steps.length}</span>
-          </>
+          <span>{t.step} {stepIndex + 1}/{module.steps.length}</span>
         )}
       </div>
-      {/* Title + subtitle */}
-      <h1 className="text-2xl font-bold text-white tracking-tight mb-0.5 leading-tight">{module.title}</h1>
-      <p className="text-xs text-zinc-500 mb-4 leading-relaxed">{module.subtitle}</p>
-      {/* Step progress dots */}
-      <div className="flex items-center">
+
+      <h1>{module.title}</h1>
+      <p className="gu-cabecera__bajada">{module.subtitle}</p>
+
+      <div className="gu-pasos">
         {module.steps.map((step, i) => {
           const done = isCompleted ? true : i < stepIndex;
           const active = !isCompleted && i === stepIndex;
           return (
             <React.Fragment key={i}>
-              <div title={step.title} className={`
-                flex items-center justify-center w-5 h-5 rounded-full text-[9px] font-mono shrink-0 transition-all
-                ${done ? 'bg-emerald-500 text-black' : active ? 'bg-white text-black font-bold scale-110' : 'bg-zinc-800/80 text-zinc-600 border border-zinc-700/50'}
-              `}>
-                {done ? <Check size={8} strokeWidth={3} /> : i + 1}
+              <div title={step.title} className={`gu-paso${done ? ' is-hecho' : ''}${active ? ' is-actual' : ''}`}>
+                {done ? <Check size={9} strokeWidth={3} /> : i + 1}
               </div>
               {i < module.steps.length - 1 && (
-                <div className={`h-px flex-1 min-w-[12px] transition-colors duration-500 ${done ? 'bg-emerald-600/50' : 'bg-zinc-800'}`} />
+                <div className={`gu-pasos__linea${done ? ' is-hecho' : ''}`} />
               )}
             </React.Fragment>
           );
         })}
       </div>
-      {/* Current step name */}
+
       {!isCompleted && (
-        <div className="mt-2 text-[10px] text-zinc-600 font-mono truncate">→ {module.steps[stepIndex]?.title}</div>
+        <p className="gu-cabecera__actual">{module.steps[stepIndex]?.title}</p>
       )}
     </div>
   );
@@ -1310,9 +1284,10 @@ const ModuleHeader: React.FC<{
 
 // ─── QUIZ VIEW ────────────────────────────────────────────────────────────────
 
-const QuizView: React.FC<{ quiz: Quiz; onPass: () => void; onSkip: () => void }> = ({ quiz, onPass, onSkip }) => {
+const QuizView: React.FC<{ quiz: Quiz; onPass: () => void; onSkip: () => void; lang: 'en' | 'es' }> = ({ quiz, onPass, onSkip, lang }) => {
   const [selected, setSelected] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
+  const en = lang === 'en';
   const correct = submitted && selected === quiz.answer;
   const wrong   = submitted && selected !== quiz.answer;
 
@@ -1323,50 +1298,44 @@ const QuizView: React.FC<{ quiz: Quiz; onPass: () => void; onSkip: () => void }>
   };
 
   return (
-    <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="mt-10 border border-white/[0.10] rounded-xl overflow-hidden">
-      <div className="px-6 py-4 bg-[#161616] border-b border-white/[0.08] flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="w-1.5 h-1.5 rounded-full bg-zinc-500" />
-          <span className="text-xs text-zinc-400 font-medium tracking-wide uppercase">Module Check</span>
-        </div>
-        <button onClick={onSkip} className="text-xs text-zinc-600 hover:text-zinc-400 transition-colors">
-          Skip
-        </button>
+    <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="gu-quiz">
+      <div className="gu-quiz__top">
+        <span className="gu-eyebrow">{en ? 'Module check' : 'Control del módulo'}</span>
+        <button onClick={onSkip} className="gu-link">{en ? 'Skip' : 'Saltar'}</button>
       </div>
-      <div className="px-6 py-6">
-        <p className="text-white text-sm font-medium mb-5 leading-relaxed">{quiz.question}</p>
-        <div className="space-y-2.5">
+      <div className="gu-quiz__cuerpo">
+        <p className="gu-quiz__pregunta">{quiz.question}</p>
+        <div className="gu-opciones">
           {quiz.options.map(opt => {
-            let cls = 'border-white/[0.08] text-zinc-300 hover:border-white/20 hover:bg-white/[0.03]';
-            if (selected === opt.id && !submitted) cls = 'border-white/30 bg-white/[0.06] text-white';
-            if (submitted && opt.id === quiz.answer) cls = 'border-emerald-500/60 bg-emerald-950/40 text-emerald-300';
-            if (submitted && selected === opt.id && opt.id !== quiz.answer) cls = 'border-red-500/60 bg-red-950/40 text-red-300';
+            let cls = '';
+            if (selected === opt.id && !submitted) cls = ' is-elegida';
+            if (submitted && opt.id === quiz.answer) cls = ' is-correcta';
+            if (submitted && selected === opt.id && opt.id !== quiz.answer) cls = ' is-errada';
             return (
               <button key={opt.id} onClick={() => !submitted && setSelected(opt.id)} disabled={submitted}
-                className={`w-full text-left px-4 py-3 rounded-lg border text-sm transition-all ${cls}`}>
-                <span className="font-mono text-[11px] text-zinc-600 mr-2.5">{opt.id.toUpperCase()}.</span>
-                {opt.label}
+                className={`gu-opcion${cls}`}>
+                <span className="gu-opcion__id">{opt.id.toUpperCase()}.</span>
+                <span>{opt.label}</span>
               </button>
             );
           })}
         </div>
         {!submitted ? (
-          <div className="mt-5">
-            <button onClick={submit} disabled={!selected}
-              className="px-5 py-2 bg-white text-black text-sm font-medium rounded-lg disabled:opacity-30 hover:bg-zinc-100 transition-colors">
-              Check answer
+          <div style={{ marginTop: 20 }}>
+            <button onClick={submit} disabled={!selected} className="gu-btn">
+              {en ? 'Check answer' : 'Comprobar'}
             </button>
           </div>
         ) : (
-          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mt-5">
-            <div className={`p-4 rounded-lg border text-xs leading-relaxed ${correct ? 'bg-emerald-950/30 border-emerald-800/40 text-emerald-200' : 'bg-red-950/30 border-red-800/40 text-red-200'}`}>
-              <span className="font-semibold block mb-1">{correct ? '✓ Correct' : '✗ Not quite'}</span>
-              {quiz.explanation}
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
+            <div className={`gu-resultado${correct ? ' gu-resultado--bien' : ''}`}>
+              <b>{correct ? (en ? 'Correct' : 'Correcto') : (en ? 'Not quite' : 'No es esa')}</b>
+              {renderInline(quiz.explanation)}
             </div>
             {wrong && (
               <button onClick={() => { setSelected(null); setSubmitted(false); }}
-                className="mt-3 text-xs text-zinc-500 hover:text-zinc-300 transition-colors">
-                Try again
+                className="gu-link" style={{ marginTop: 14 }}>
+                {en ? 'Try again' : 'Probar de nuevo'}
               </button>
             )}
           </motion.div>
@@ -1379,23 +1348,17 @@ const QuizView: React.FC<{ quiz: Quiz; onPass: () => void; onSkip: () => void }>
 // ─── RESET MODAL ──────────────────────────────────────────────────────────────
 
 const ResetModal: React.FC<{ onConfirm: () => void; onCancel: () => void; lang: 'en' | 'es' }> = ({ onConfirm, onCancel, lang }) => (
-  <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onCancel}>
-    <motion.div initial={{ scale: 0.96, opacity: 0, y: 8 }} animate={{ scale: 1, opacity: 1, y: 0 }}
-      transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-      className="bg-[#111111] border border-white/[0.12] rounded-xl p-6 max-w-sm w-full shadow-2xl"
-      onClick={e => e.stopPropagation()}>
-      <div className="flex items-start gap-4 mb-5">
-        <div className="w-9 h-9 rounded-lg bg-red-950/60 border border-red-800/50 flex items-center justify-center shrink-0">
-          <RotateCcw size={16} className="text-red-400" />
-        </div>
-        <div>
-          <h3 className="text-white font-semibold text-sm mb-1">{lang === 'en' ? 'Reset all progress?' : 'Reiniciar todo el progreso?'}</h3>
-          <p className="text-zinc-400 text-xs leading-relaxed">{lang === 'en' ? 'This will clear all completed modules, quiz results, and return you to the first module. This cannot be undone.' : 'Esto va a borrar los modulos completados, los quizzes aprobados y te va a devolver al primer modulo. No se puede deshacer.'}</p>
-        </div>
-      </div>
-      <div className="flex gap-2.5">
-        <button onClick={onCancel} className="flex-1 px-4 py-2.5 rounded-lg border border-white/[0.1] text-zinc-300 text-sm hover:bg-white/[0.04] transition-colors">{lang === 'en' ? 'Cancel' : 'Cancelar'}</button>
-        <button onClick={onConfirm} className="flex-1 px-4 py-2.5 rounded-lg bg-red-600 text-white text-sm font-medium hover:bg-red-700 transition-colors">{lang === 'en' ? 'Reset progress' : 'Reiniciar progreso'}</button>
+  <div className="gu-fondo" onClick={onCancel}>
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+      className="gu-modal" onClick={e => e.stopPropagation()}>
+      <h3>{lang === 'en' ? 'Reset all progress?' : '¿Reiniciar todo el progreso?'}</h3>
+      <p>{lang === 'en'
+        ? 'This clears completed modules and quiz results, and returns you to the first module. It cannot be undone.'
+        : 'Esto borra los módulos completados y los quizzes aprobados, y devuelve al primer módulo. No se puede deshacer.'}</p>
+      <div className="gu-modal__acciones">
+        <button onClick={onCancel} className="gu-btn gu-btn--sec">{lang === 'en' ? 'Cancel' : 'Cancelar'}</button>
+        <button onClick={onConfirm} className="gu-btn">{lang === 'en' ? 'Reset' : 'Reiniciar'}</button>
       </div>
     </motion.div>
   </div>
@@ -1404,30 +1367,22 @@ const ResetModal: React.FC<{ onConfirm: () => void; onCancel: () => void; lang: 
 // ─── FORWARD WARNING MODAL ────────────────────────────────────────────────────
 
 const ForwardWarningModal: React.FC<{ target: Module; onConfirm: () => void; onCancel: () => void; lang: 'en' | 'es' }> = ({ target, onConfirm, onCancel, lang }) => (
-  <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onCancel}>
-    <motion.div initial={{ scale: 0.96, opacity: 0, y: 8 }} animate={{ scale: 1, opacity: 1, y: 0 }}
-      transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-      className="bg-[#111111] border border-white/[0.12] rounded-xl p-6 max-w-sm w-full shadow-2xl"
-      onClick={e => e.stopPropagation()}>
-      <div className="flex items-start gap-4 mb-5">
-        <div className="w-9 h-9 rounded-lg bg-amber-950/60 border border-amber-800/50 flex items-center justify-center shrink-0">
-          <AlertTriangle size={16} className="text-amber-400" />
-        </div>
-        <div>
-          <h3 className="text-white font-semibold text-sm mb-1">{lang === 'en' ? 'Jumping ahead' : 'Saltando etapas'}</h3>
-          <p className="text-zinc-400 text-xs leading-relaxed mb-2">
-            {lang === 'en'
-              ? <>You're navigating to <span className="text-white font-medium">{target.num} — {target.title}</span> without completing the previous modules.</>
-              : <>Vas a abrir <span className="text-white font-medium">{target.num} — {target.title}</span> sin completar los modulos anteriores.</>}
-          </p>
-          <p className="text-zinc-500 text-xs leading-relaxed">
-            {lang === 'en' ? 'Some content may be harder to follow without the foundation. You can always come back.' : 'Parte del contenido puede costar mas sin la base anterior. Siempre podes volver.'}
-          </p>
-        </div>
-      </div>
-      <div className="flex gap-2.5">
-        <button onClick={onCancel} className="flex-1 px-4 py-2.5 rounded-lg border border-white/[0.1] text-zinc-300 text-sm hover:bg-white/[0.04] transition-colors">{lang === 'en' ? 'Go back' : 'Volver'}</button>
-        <button onClick={onConfirm} className="flex-1 px-4 py-2.5 rounded-lg bg-white text-black text-sm font-medium hover:bg-zinc-200 transition-colors">{lang === 'en' ? 'Continue anyway' : 'Continuar igual'}</button>
+  <div className="gu-fondo" onClick={onCancel}>
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+      className="gu-modal" onClick={e => e.stopPropagation()}>
+      <h3>{lang === 'en' ? 'Jumping ahead' : 'Saltando etapas'}</h3>
+      <p>
+        {lang === 'en'
+          ? <>You are opening <strong className="gu-fuerte">{target.num} · {target.title}</strong> without finishing the previous modules.</>
+          : <>Vas a abrir <strong className="gu-fuerte">{target.num} · {target.title}</strong> sin completar los módulos anteriores.</>}
+      </p>
+      <p>{lang === 'en'
+        ? 'Some of it is harder to follow without the earlier ground. You can always come back.'
+        : 'Parte del contenido cuesta más sin la base anterior. Siempre se puede volver.'}</p>
+      <div className="gu-modal__acciones">
+        <button onClick={onCancel} className="gu-btn gu-btn--sec">{lang === 'en' ? 'Go back' : 'Volver'}</button>
+        <button onClick={onConfirm} className="gu-btn">{lang === 'en' ? 'Continue' : 'Continuar'}</button>
       </div>
     </motion.div>
   </div>
@@ -1448,123 +1403,73 @@ const WelcomeScreen: React.FC<{
   const groups = Array.from(new Set(modules.map(m => m.group)));
   const totalTopics = modules.reduce((sum, module) => sum + module.steps.length, 0);
   return (
-    <div className="flex-1 relative flex flex-col overflow-y-auto bg-[#080808]">
-      {/* Subtle dot grid */}
-      <div className="fixed inset-0 bg-[radial-gradient(#ffffff07_1px,transparent_1px)] bg-[size:28px_28px] pointer-events-none" />
-      {/* Top ambient glow */}
-      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[700px] h-[320px] bg-white/[0.013] rounded-full blur-3xl pointer-events-none" />
-
-      <div className="relative z-10 max-w-5xl mx-auto w-full px-8 flex flex-col min-h-full py-8">
-
-        {/* Nav bar */}
-        <motion.div
-          initial={{ opacity: 0, y: -6 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex items-center justify-between mb-12"
-        >
-          <button onClick={onBackToGuides}
-            className="flex items-center gap-1.5 text-zinc-700 hover:text-zinc-400 transition-colors text-xs">
-            <BackIcon size={11} />
-            <span>{en ? 'All guides' : 'Todas las guías'}</span>
+    <div className="gu-portada">
+      <div className="gu-portada__caja">
+        <div className="gu-portada__top">
+          <button onClick={onBackToGuides} className="gu-link">
+            <BackIcon size={12} /> {en ? 'All guides' : 'Todas las guías'}
           </button>
-          <span className="text-[10px] font-mono text-zinc-800 tracking-widest uppercase">{copy.brandLabel}</span>
-        </motion.div>
+          <span className="gu-eyebrow">{copy.brandLabel}</span>
+        </div>
 
-        {/* Main grid */}
-        <div className="flex-1 flex flex-col xl:flex-row gap-10 xl:gap-16 items-start xl:items-center pb-16">
+        <div className="gu-portada__grid">
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}>
+            <p className="gu-eyebrow">{en ? copy.welcomeBadge.en : copy.welcomeBadge.es}</p>
+            <h1>{en ? copy.welcomeTitle.en : copy.welcomeTitle.es}</h1>
+            <p className="gu-portada__sub">{en ? copy.welcomeSubtitle.en : copy.welcomeSubtitle.es}</p>
+            <p className="gu-portada__desc">{en ? copy.welcomeDescription.en : copy.welcomeDescription.es}</p>
 
-          {/* ── Left column ── */}
-          <div className="flex-1 max-w-xl">
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
+            <div className="gu-cifras">
+              {[
+                { v: modules.length.toString(), l: en ? 'modules' : 'módulos' },
+                { v: totalTopics.toString(), l: en ? 'topics' : 'temas' },
+                { v: modules.length.toString(), l: 'quizzes' },
+              ].map(({ v, l }) => (
+                <div className="gu-cifra" key={l}>
+                  <b>{v}</b>
+                  <span>{l}</span>
+                </div>
+              ))}
+            </div>
 
-              {/* Badge */}
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-950/50 border border-emerald-800/40 text-[11px] text-emerald-400 font-mono mb-7">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                {en ? copy.welcomeBadge.en : copy.welcomeBadge.es}
-              </div>
-
-              {/* Title */}
-              <h1 className="text-6xl sm:text-7xl xl:text-8xl font-bold tracking-tighter text-white leading-none mb-3">
-                {en ? copy.welcomeTitle.en : copy.welcomeTitle.es}
-              </h1>
-              <p className="text-lg text-zinc-400 font-light mb-2">
-                {en ? copy.welcomeSubtitle.en : copy.welcomeSubtitle.es}
-              </p>
-              <p className="text-sm text-zinc-600 leading-relaxed mb-10 max-w-md">
-                {en ? copy.welcomeDescription.en : copy.welcomeDescription.es}
-              </p>
-
-              {/* Stats */}
-              <div className="flex items-center gap-8 mb-10">
-                {[
-                  { v: modules.length.toString(), l: en ? 'modules' : 'módulos' },
-                  { v: `${totalTopics}+`, l: 'topics' },
-                  { v: modules.length.toString(), l: 'quizzes' },
-                ].map(({ v, l }) => (
-                  <div key={l}>
-                    <div className="text-3xl font-bold text-white leading-none">{v}</div>
-                    <div className="text-[11px] text-zinc-600 mt-0.5">{l}</div>
-                  </div>
-                ))}
-              </div>
-
-              {/* CTAs */}
-              <div className="flex items-center gap-3">
-                {hasProgress ? (
-                  <>
-                    <button onClick={onResume}
-                      className="flex items-center gap-2 px-6 py-3 bg-white text-black text-sm font-semibold rounded-xl hover:bg-zinc-100 transition-all shadow-lg shadow-black/40">
-                      {en ? 'Continue' : 'Continuar'} <ArrowRight size={14} />
-                    </button>
-                    <button onClick={onStart}
-                      className="px-5 py-3 border border-white/[0.1] text-zinc-400 text-sm rounded-xl hover:bg-white/[0.04] transition-colors">
-                      {en ? 'Start over' : 'Empezar de cero'}
-                    </button>
-                  </>
-                ) : (
-                  <button onClick={onStart}
-                    className="flex items-center gap-2.5 px-7 py-3.5 bg-white text-black text-sm font-semibold rounded-xl hover:bg-zinc-100 transition-all shadow-lg shadow-black/40 group">
-                    {en ? 'Start learning' : 'Comenzar'} <ArrowRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
+            <div className="gu-portada__acciones">
+              {hasProgress ? (
+                <>
+                  <button onClick={onResume} className="gu-btn">
+                    {en ? 'Continue' : 'Continuar'} <ArrowRight size={14} />
                   </button>
-                )}
-              </div>
-
-            </motion.div>
-          </div>
-
-          {/* ── Right column: module map ── */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.15, duration: 0.4 }}
-            className="w-full xl:w-72 shrink-0"
-          >
-            <div className="rounded-xl border border-white/[0.07] bg-white/[0.02] overflow-hidden">
-              <div className="px-4 py-3 border-b border-white/[0.06] flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-zinc-700" />
-                <span className="text-[10px] font-mono text-zinc-600 tracking-widest uppercase">
-                  {en ? 'Module map' : 'Mapa de módulos'}
-                </span>
-              </div>
-              <div className="p-2">
-                {groups.map(group => {
-                  const mods = modules.filter(m => m.group === group);
-                  return (
-                    <div key={group} className="mb-2 last:mb-0">
-                      <div className="px-2 pt-2 pb-1 text-[9px] font-semibold text-zinc-700 uppercase tracking-widest">{group}</div>
-                      {mods.map(m => (
-                        <div key={m.id} className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg hover:bg-white/[0.03] transition-colors group/mod">
-                          <span className="font-mono text-[10px] text-zinc-700 w-5 shrink-0">{m.num}</span>
-                          <span className="text-[11px] text-zinc-500 group-hover/mod:text-zinc-400 transition-colors leading-snug truncate">{m.title}</span>
-                        </div>
-                      ))}
-                    </div>
-                  );
-                })}
-              </div>
+                  <button onClick={onStart} className="gu-btn gu-btn--sec">
+                    {en ? 'Start over' : 'Empezar de cero'}
+                  </button>
+                </>
+              ) : (
+                <button onClick={onStart} className="gu-btn">
+                  {en ? 'Start learning' : 'Comenzar'} <ArrowRight size={14} />
+                </button>
+              )}
             </div>
           </motion.div>
 
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}>
+            <div className="gu-mapa">
+              <div className="gu-mapa__top">
+                <span className="gu-eyebrow">{en ? 'Module map' : 'Mapa de módulos'}</span>
+              </div>
+              <div className="gu-mapa__lista">
+                {groups.map(group => (
+                  <div key={group}>
+                    <div className="gu-mapa__grupo">{group}</div>
+                    {modules.filter(m => m.group === group).map(m => (
+                      <div className="gu-mapa__item" key={m.id}>
+                        <b>{m.num}</b>
+                        <span>{m.title}</span>
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </motion.div>
         </div>
       </div>
     </div>
@@ -1590,81 +1495,63 @@ const Sidebar: React.FC<{
   const groups = Array.from(new Set(modules.map(m => m.group)));
   const currentIdx = modules.findIndex(m => m.id === progress.currentModuleId);
   return (
-    <aside className="w-[220px] shrink-0 h-full flex flex-col border-r border-white/[0.07] bg-[#0d0d0d] overflow-y-auto">
-      <div className="px-4 pt-3 pb-3 border-b border-white/[0.07] shrink-0 space-y-2">
-        <div className="flex items-center justify-between">
-          <button onClick={onBackToGuides} className="flex items-center gap-1.5 text-zinc-700 hover:text-zinc-400 transition-colors">
-            <BackIcon size={11} /><span className="text-[11px]">{t.allGuides}</span>
+    <aside className="gu-lateral">
+      <div className="gu-lateral__top">
+        <div className="gu-lateral__fila">
+          <button onClick={onBackToGuides} className="gu-link">
+            <BackIcon size={12} /> {t.allGuides}
           </button>
           {onCloseMobile && (
-            <button onClick={onCloseMobile} className="text-zinc-600 hover:text-zinc-300 transition-colors">
-              <X size={14} />
-            </button>
+            <button onClick={onCloseMobile} className="gu-link" aria-label="Cerrar"><X size={14} /></button>
           )}
         </div>
-        <button onClick={onHome} className="flex items-center gap-2 text-zinc-500 hover:text-zinc-300 transition-colors">
-          <Home size={13} /><span className="text-xs font-medium">{guideName || t.guideName}</span>
-        </button>
+        <button onClick={onHome} className="gu-lateral__nombre">{guideName || t.guideName}</button>
       </div>
-      <nav className="flex-1 py-4 px-2">
-        {groups.map(group => {
-          const groupMods = modules.filter(m => m.group === group);
-          return (
-            <div key={group} className="mb-5 last:mb-0">
-              <div className="px-2 mb-2 text-[10px] font-semibold text-zinc-700 uppercase tracking-widest">{group}</div>
-              <div className="space-y-0.5">
-                {groupMods.map(mod => {
-                  const modIdx = modules.findIndex(m => m.id === mod.id);
-                  const done    = progress.completedModules.includes(mod.id);
-                  const current = mod.id === progress.currentModuleId;
-                  const ahead   = modIdx > currentIdx && !done;
-                  return (
-                    <button key={mod.id} onClick={() => onNavigate(mod.id)}
-                      className={`w-full flex items-center gap-2.5 px-2 py-2 rounded-md text-left transition-all text-xs border-l-2
-                        ${current
-                          ? 'border-white bg-white/[0.06] text-white'
-                          : done
-                          ? 'border-emerald-500/30 text-zinc-500 hover:text-zinc-300 hover:bg-white/[0.03] hover:border-emerald-500/50'
-                          : 'border-transparent text-zinc-600 hover:text-zinc-300 hover:bg-white/[0.03]'
-                        }`}>
-                      <div className="shrink-0 ml-0.5">
-                        {done    ? <CheckCircle2 size={12} className="text-emerald-500" />
-                        : current ? <div className="w-2 h-2 rounded-full bg-white" />
-                        : ahead   ? <Lock size={10} className="text-zinc-700" />
-                                  : <Circle size={12} className="text-zinc-700" />}
-                      </div>
-                      <span className="font-mono text-[10px] text-zinc-600 shrink-0">{mod.num}</span>
-                      <span className="truncate leading-tight">{mod.title}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          );
-        })}
-      </nav>
-      <div className="px-3 py-4 border-t border-white/[0.07] shrink-0 space-y-3">
-        <div>
-          <div className="flex items-center justify-between text-[10px] text-zinc-600 mb-1.5">
-            <span>{t.progress}</span><span>{progress.completedModules.length}/{modules.length}</span>
+
+      <nav className="gu-lateral__nav">
+        {groups.map(group => (
+          <div className="gu-grupo" key={group}>
+            <div className="gu-grupo__label">{group}</div>
+            {modules.filter(m => m.group === group).map(mod => {
+              const modIdx  = modules.findIndex(m => m.id === mod.id);
+              const done    = progress.completedModules.includes(mod.id);
+              const current = mod.id === progress.currentModuleId;
+              const ahead   = modIdx > currentIdx && !done;
+              return (
+                <button key={mod.id} onClick={() => onNavigate(mod.id)}
+                  className={`gu-modulo${current ? ' is-actual' : ''}${done ? ' is-hecho' : ''}`}>
+                  <span className="gu-modulo__marca">
+                    {done ? <CheckCircle2 size={12} />
+                      : current ? <Circle size={9} fill="currentColor" />
+                      : ahead ? <Lock size={10} />
+                      : <Circle size={11} />}
+                  </span>
+                  <span className="gu-modulo__n">{mod.num}</span>
+                  <span className="gu-modulo__t">{mod.title}</span>
+                </button>
+              );
+            })}
           </div>
-          <div className="h-0.5 bg-zinc-800 rounded-full overflow-hidden">
-            <div className="h-full bg-emerald-500 rounded-full transition-all duration-500"
-              style={{ width: `${(progress.completedModules.length / modules.length) * 100}%` }} />
+        ))}
+      </nav>
+
+      <div className="gu-lateral__pie">
+        <div>
+          <div className="gu-progreso__fila">
+            <span>{t.progress}</span>
+            <span><b>{progress.completedModules.length}</b> / {modules.length}</span>
+          </div>
+          <div className="gu-progreso__barra">
+            <i style={{ width: `${(progress.completedModules.length / modules.length) * 100}%` }} />
           </div>
         </div>
-        <button onClick={onReset} className="flex items-center gap-1.5 text-[11px] text-zinc-700 hover:text-zinc-400 transition-colors">
-          <RotateCcw size={10} />{t.reset}
-        </button>
-        {showLanguageToggle && <div className="pt-2 border-t border-white/[0.05]">
-          <button onClick={onToggleLang}
-            className="flex items-center gap-1.5 w-full px-2.5 py-1.5 rounded-md bg-white/[0.04] border border-white/[0.07] hover:bg-white/[0.07] transition-colors">
-            <span className={`text-[10px] font-mono font-semibold ${lang === 'en' ? 'text-white' : 'text-zinc-600'}`}>EN</span>
-            <span className="text-zinc-700 text-[10px]">/</span>
-            <span className={`text-[10px] font-mono font-semibold ${lang === 'es' ? 'text-white' : 'text-zinc-600'}`}>ES</span>
-            <span className="text-[10px] text-zinc-600 ml-auto">{lang === 'en' ? 'Español' : 'English'}</span>
+        <button onClick={onReset} className="gu-link"><RotateCcw size={11} /> {t.reset}</button>
+        {showLanguageToggle && (
+          <button onClick={onToggleLang} className="gu-idioma">
+            {lang === 'en' ? <><b>EN</b> / ES</> : <>EN / <b>ES</b></>}
+            <span>{lang === 'en' ? 'Español' : 'English'}</span>
           </button>
-        </div>}
+        )}
       </div>
     </aside>
   );
@@ -1687,32 +1574,19 @@ const FloatingNav: React.FC<{
   const showNext = !isCompleted && !(isLast && showQuiz);
   const nextLabel = isLast && !isCompleted && !showQuiz ? t.takeQuiz : t.continue;
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2">
-      <motion.button
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: isFirst ? 0 : 1, y: 0 }}
-        onClick={onPrev}
-        disabled={isFirst}
-        className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-[#1a1a1a] border border-white/[0.1] text-zinc-400 hover:text-white hover:border-white/[0.2] text-xs font-medium transition-all disabled:pointer-events-none shadow-lg shadow-black/40 backdrop-blur-sm"
-      >
-        <ChevronLeft size={13} /> {t.previous}
-      </motion.button>
-      <div className="px-2.5 py-1.5 rounded-lg bg-[#111]/80 border border-white/[0.07] text-[10px] font-mono text-zinc-600 backdrop-blur-sm">
-        {stepIndex + 1}/{totalSteps}
-      </div>
+    <div className="gu-nav">
+      {!isFirst && (
+        <button onClick={onPrev} className="gu-btn gu-btn--sec">
+          <ChevronLeft size={13} /> {t.previous}
+        </button>
+      )}
+      <span className="gu-nav__cuenta">{stepIndex + 1}/{totalSteps}</span>
       {isCompleted ? (
-        <div className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-emerald-900/40 border border-emerald-500/30 text-emerald-400 text-xs font-medium">
-          <CheckCircle2 size={13} /> {t.done}
-        </div>
+        <span className="gu-nav__hecho"><CheckCircle2 size={13} /> {t.done}</span>
       ) : showNext ? (
-        <motion.button
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          onClick={onNext}
-          className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-white text-black text-xs font-semibold hover:bg-zinc-100 transition-all shadow-lg shadow-black/40"
-        >
+        <button onClick={onNext} className="gu-btn">
           {nextLabel} <ChevronRight size={13} />
-        </motion.button>
+        </button>
       ) : null}
     </div>
   );
@@ -1723,48 +1597,23 @@ const FloatingNav: React.FC<{
 const CompletionSection: React.FC<{ lang: 'en' | 'es'; copy: GuidePageCopy }> = ({ lang, copy }) => {
   const en = lang === 'en';
   return (
-    <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.5 }}>
-      {/* Gradient divider */}
-      <div className="h-px bg-gradient-to-r from-transparent via-white/[0.12] to-transparent my-14" />
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15, duration: 0.5, ease: [0.22, 1, 0.36, 1] }} className="gu-cierre">
+      <h2>{en ? copy.completionTitle.en : copy.completionTitle.es}</h2>
+      <p>{en ? copy.completionDescription.en : copy.completionDescription.es}</p>
 
-      {/* Congrats */}
-      <div className="text-center mb-10">
-        <div className="text-5xl mb-5 select-none">🎉</div>
-        <h2 className="text-2xl font-bold text-white tracking-tight mb-3">
-          {en ? copy.completionTitle.en : copy.completionTitle.es}
-        </h2>
-        <p className="text-zinc-400 text-sm leading-relaxed max-w-sm mx-auto">
-          {en ? copy.completionDescription.en : copy.completionDescription.es}
+      <div className="gu-cafecito">
+        <h3 className="gu-cafecito__t">
+          {en ? (copy.supportTitle?.en || 'Support this free guide') : (copy.supportTitle?.es || 'Apoyá esta guía gratuita')}
+        </h3>
+        <p>
+          {en
+            ? (copy.supportDescription?.en || 'If this guide helped you, a coffee goes a long way to keep this content free and updated.')
+            : (copy.supportDescription?.es || 'Si esta guía te fue útil, un cafecito ayuda a mantener este contenido gratuito y actualizado.')}
         </p>
-      </div>
-
-      {/* Cafecito banner */}
-      <div className="max-w-sm mx-auto rounded-xl border border-amber-800/30 bg-gradient-to-b from-amber-950/25 to-amber-950/10 p-5 relative overflow-hidden">
-        {/* Top accent line */}
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-600/30 to-transparent" />
-
-        <div className="flex items-start gap-3.5">
-          <div className="text-2xl shrink-0 mt-0.5">☕</div>
-          <div className="flex-1 min-w-0">
-            <div className="text-sm font-semibold text-white mb-1">
-              {en ? (copy.supportTitle?.en || 'Support this free guide') : (copy.supportTitle?.es || 'Apoyá esta guía gratuita')}
-            </div>
-            <p className="text-[11px] text-zinc-500 leading-relaxed mb-4">
-              {en
-                ? (copy.supportDescription?.en || 'If this guide helped you, a coffee goes a long way to keep this content free and updated.')
-                : (copy.supportDescription?.es || 'Si esta guía te fue útil, un cafecito ayuda a mantener este contenido gratuito y actualizado.')}
-            </p>
-            <a
-              href="https://cafecito.app/keroclow"
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={e => e.stopPropagation()}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-500/15 border border-amber-500/25 text-amber-300 text-xs font-medium hover:bg-amber-500/25 hover:border-amber-500/40 transition-all"
-            >
-              ☕ {en ? 'Buy me a coffee' : 'Invitame un cafecito'}
-            </a>
-          </div>
-        </div>
+        <a href="https://cafecito.app/keroclow" target="_blank" rel="noopener noreferrer"
+          onClick={e => e.stopPropagation()} className="gu-btn">
+          {en ? 'Buy me a coffee' : 'Invitame un cafecito'} <ArrowRight size={14} />
+        </a>
       </div>
     </motion.div>
   );
@@ -1790,7 +1639,7 @@ const ModuleContent: React.FC<{
   const isFirst = stepIndex === 0;
 
   return (
-    <div className="flex-1 overflow-y-auto">
+    <div className="gu-lectura">
       <FloatingNav
         onPrev={onPrev}
         onNext={onNext}
@@ -1802,30 +1651,30 @@ const ModuleContent: React.FC<{
         totalSteps={module.steps.length}
         lang={lang}
       />
-      <div className="max-w-2xl mx-auto px-4 sm:px-8 py-0">
+      <div className="gu-lectura__caja">
         <ModuleHeader module={module} stepIndex={stepIndex} isCompleted={isCompleted} lang={lang} />
         <AnimatePresence mode="wait">
           <motion.div key={`${module.id}-${stepIndex}`}
             initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.18 }}>
-            <h2 className="text-white font-semibold text-base mb-6">
-              <span className="font-mono text-zinc-600 text-sm mr-2">{stepIndex + 1}.</span>{step.title}
+            <h2 className="gu-paso-titulo">
+              <span>{String(stepIndex + 1).padStart(2, '0')}</span>
+              {step.title}
             </h2>
             <div>
-              {step.blocks.map((block, i) => <BlockRenderer key={i} block={block} />)}
+              {step.blocks.map((block, i) => <BlockRenderer key={i} block={block} lang={lang} />)}
             </div>
 
             {isLast && !isCompleted && showQuiz && (
-              <QuizView quiz={module.quiz} onPass={onComplete} onSkip={onSkipQuiz} />
+              <QuizView quiz={module.quiz} onPass={onComplete} onSkip={onSkipQuiz} lang={lang} />
             )}
 
-            {/* All modules done: show completion + donation section */}
             {isCompleted && isLastModule && (
               <CompletionSection lang={lang} copy={copy} />
             )}
 
-            {/* Bottom padding to avoid content hidden behind floating nav */}
-            <div className="h-24" />
+            {/* Aire abajo, para que la navegación flotante no tape el final */}
+            <div style={{ height: 120 }} />
           </motion.div>
         </AnimatePresence>
       </div>
@@ -1870,6 +1719,13 @@ const GuiaPage: React.FC<GuiaPageProps> = ({ config = DEFAULT_GUIDE_CONFIG, init
   const hasStoredProgress = (() => {
     try { return !!localStorage.getItem(storageKey); } catch { return false; }
   })();
+
+  // La guía es clara como la home: el tema oscuro del sitio no aplica acá.
+  useEffect(() => {
+    document.documentElement.classList.remove('dark');
+    document.body.style.background = '#f4ebdd';
+    return () => { document.body.style.background = ''; };
+  }, []);
 
   useEffect(() => {
     try { localStorage.setItem(storageKey, JSON.stringify(progress)); } catch {}
@@ -1944,37 +1800,27 @@ const GuiaPage: React.FC<GuiaPageProps> = ({ config = DEFAULT_GUIDE_CONFIG, init
   }, [config.initialModuleId, storageKey]);
 
   return (
-    <div className="w-full h-screen flex flex-col bg-[#0a0a0a] text-white overflow-hidden"
-      style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
-
+    <div className="gu">
       {showReset    && <ResetModal onConfirm={reset} onCancel={() => setShowReset(false)} lang={language} />}
       {forwardTarget && <ForwardWarningModal target={forwardTarget} onConfirm={confirmForward} onCancel={() => setForwardTarget(null)} lang={language} />}
 
-      {/* Mobile top bar — only in module view, only on small screens */}
+      {/* Barra de arriba, solo en pantallas chicas y dentro de un módulo */}
       {!showWelcome && (
-        <div className="lg:hidden flex items-center justify-between px-4 py-3 border-b border-white/[0.07] bg-[#0d0d0d] shrink-0">
-          <button
-            onClick={() => routerNavigate('/guides')}
-            className="flex items-center gap-1.5 text-zinc-600 hover:text-zinc-300 transition-colors text-xs"
-          >
-            <BackIcon size={11} />
-            <span>{language === 'en' ? 'All guides' : 'Todas las guías'}</span>
+        <div className="gu-topbar">
+          <button onClick={() => routerNavigate('/guides')} className="gu-link">
+            <BackIcon size={12} /> {language === 'en' ? 'Guides' : 'Guías'}
           </button>
-          <span className="text-xs text-zinc-500 truncate max-w-[40%] text-center font-medium">{currentModule.title}</span>
-          <button
-            onClick={() => setShowMobileMenu(true)}
-            className="text-zinc-500 hover:text-zinc-300 transition-colors p-1"
-            aria-label={language === 'en' ? 'Open navigation' : 'Abrir navegación'}
-          >
+          <span className="gu-topbar__titulo">{currentModule.title}</span>
+          <button onClick={() => setShowMobileMenu(true)} className="gu-link"
+            aria-label={language === 'en' ? 'Open navigation' : 'Abrir navegación'}>
             <Menu size={16} />
           </button>
         </div>
       )}
 
-      <div className="flex-1 flex overflow-hidden">
-        {/* Desktop sidebar — hidden on mobile */}
+      <div className="gu-cuerpo">
         {!showWelcome && (
-          <div className="hidden lg:flex h-full">
+          <div className="gu-lateral--fija" style={{ display: 'flex', height: '100%' }}>
             <Sidebar
               modules={modules}
               progress={progress}
@@ -2018,11 +1864,10 @@ const GuiaPage: React.FC<GuiaPageProps> = ({ config = DEFAULT_GUIDE_CONFIG, init
         )}
       </div>
 
-      {/* Mobile sidebar overlay drawer */}
+      {/* Índice en pantallas chicas */}
       {!showWelcome && showMobileMenu && (
-        <div className="lg:hidden fixed inset-0 z-50 flex">
-          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setShowMobileMenu(false)} />
-          <div className="relative z-10">
+        <div className="gu-fondo" style={{ justifyContent: 'flex-start', padding: 0 }} onClick={() => setShowMobileMenu(false)}>
+          <div style={{ height: '100%' }} onClick={e => e.stopPropagation()}>
             <Sidebar
               modules={modules}
               progress={progress}

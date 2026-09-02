@@ -1,6 +1,11 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import Lifeline from './components/Lifeline';
+import MinimalHome from './components/MinimalHome';
+import Editorial from './components/editorial/Editorial';
+import ThreePortfolio from './components/three/ThreePortfolio';
+import Mundo from './components/mundo/Mundo';
+import './components/mundo/mundo.css';
 import BlogPost from './components/blog/BlogPost';
 import WritingIndexPage from './components/blog/WritingIndexPage';
 import AdminPanel from './components/admin/AdminPanel';
@@ -24,7 +29,7 @@ const AppContent: React.FC = () => {
   // Convertir slug de URL a slug interno si es necesario
   const blogPath = location.pathname.slice(1); // Remover el "/"
   // Excluir rutas reservadas de la detección de blog slugs
-  const reservedPaths = ['guia', 'guide', 'guides', 'writing'];
+  const reservedPaths = ['guia', 'guide', 'guides', 'writing', 'lifeline', 'minimal'];
   const blogSlug = blogPath && !reservedPaths.some(p => blogPath === p || blogPath.startsWith(p + '/'))
     ? (getInternalSlug(blogPath) || blogPath)
     : null;
@@ -47,8 +52,8 @@ const AppContent: React.FC = () => {
     );
   }
 
-  // Si no hay blog en la URL, mostrar el portfolio (Lifeline)
-  return <Lifeline />;
+  // Si no hay blog en la URL, mostrar la home editorial
+  return <Editorial />;
 };
 
 const App: React.FC = () => {
@@ -58,6 +63,11 @@ const App: React.FC = () => {
         <Route path="/admin/login" element={<Login />} />
         <Route path="/admin" element={<AdminPanel />} />
         <Route path="/writing" element={<WritingIndexPage />} />
+        <Route path="/lifeline" element={<Lifeline />} />
+        {/* Home anterior, a mano para comparar */}
+        <Route path="/minimal" element={<MinimalHome />} />
+        <Route path="/3d" element={<ThreePortfolio />} />
+        <Route path="/mundo" element={<Mundo />} />
         <Route path="/guides" element={<GuidesIndexPage />} />
         <Route path="/guides/openclaw" element={<div className="w-full h-screen overflow-hidden"><GuiaPage /></div>} />
         <Route path="/guides/openclaw-avanzado" element={<div className="w-full h-screen overflow-hidden"><Guia2Page /></div>} />

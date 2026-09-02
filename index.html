@@ -20,6 +20,14 @@
     
     <title>Alan Ponce | AI Experience Designer & Product Lead | UXKERO</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <!-- La home y el blog son claros: sacamos el tema oscuro antes del primer pintado
+         para que no parpadee en negro. Las rutas oscuras lo conservan. -->
+    <script>
+      (function () {
+        var oscuras = /^\/(mundo|3d|admin|guias?|guides?|guia|writing|lifeline|minimal)/;
+        if (!oscuras.test(location.pathname)) document.documentElement.classList.remove('dark');
+      })();
+    </script>
     <link rel="stylesheet" href="/index.css">
     
   </head>
