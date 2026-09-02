@@ -1820,7 +1820,7 @@ const GuiaPage: React.FC<GuiaPageProps> = ({ config = DEFAULT_GUIDE_CONFIG, init
 
       <div className="gu-cuerpo">
         {!showWelcome && (
-          <div className="gu-lateral--fija" style={{ display: 'flex', height: '100%' }}>
+          <div className="gu-lateral--fija">
             <Sidebar
               modules={modules}
               progress={progress}

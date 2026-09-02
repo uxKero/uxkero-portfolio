@@ -166,6 +166,13 @@
   overflow: hidden;
 }
 
+/* El contenedor del índice fijo: el display vive acá y no en el JSX, porque
+   un estilo en línea le gana a la media query y el índice no se escondía. */
+.gu-lateral--fija {
+  display: flex;
+  height: 100%;
+}
+
 .gu-lateral {
   width: 268px;
   flex-shrink: 0;
@@ -1113,14 +1120,26 @@
 }
 
 @media (max-width: 640px) {
+  /* En el celular la navegación pasa a ser una barra de abajo, como en la home:
+     flotando tapaba el texto en cualquier punto del scroll. */
   .gu-nav {
-    right: 12px;
-    bottom: 12px;
-    gap: 8px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    gap: 10px;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background: var(--bg);
+    border-top: 1px solid var(--border);
   }
 
   .gu-nav .gu-btn {
-    padding: 9px 12px;
+    padding: 9px 14px;
+  }
+
+  .gu-nav__cuenta {
+    border: 0;
+    background: none;
   }
 
   .gu-cabecera {

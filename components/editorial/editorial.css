@@ -224,7 +224,7 @@ body.ed-page ::-webkit-scrollbar-thumb {
 
 .ed-marca {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 10px;
   font-family: var(--display);
   font-weight: 800;
@@ -242,6 +242,9 @@ body.ed-page ::-webkit-scrollbar-thumb {
   font-weight: 600;
   letter-spacing: 0.18em;
   color: var(--ink-muted);
+  /* Barlow Condensed lleva la mayuscula alta dentro de su caja: un pelo de
+     ajuste deja las dos palabras centradas de verdad. */
+  transform: translateY(1px);
 }
 
 .ed-masthead__der {
@@ -433,23 +436,59 @@ body.ed-page ::-webkit-scrollbar-thumb {
   border-color: var(--ink);
 }
 
-/* Acceso al índice en pantallas donde el riel no entra */
-.ed-indice-btn {
+/* En pantallas chicas el riel no entra. En su lugar va una barra fina abajo,
+   que dice en qué sección estás y abre el índice. Un botón flotante terminaba
+   siempre encima de un enlace. */
+.ed-barra {
   display: none;
   position: fixed;
-  right: 16px;
-  bottom: 16px;
+  left: 0;
+  right: 0;
+  bottom: 0;
   z-index: 50;
   align-items: center;
-  gap: 8px;
-  min-height: 44px;
-  padding: 10px 16px;
+  justify-content: space-between;
+  gap: 16px;
+  height: 52px;
+  padding: 0 16px;
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+}
+
+.ed-barra__donde {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.04em;
+  color: var(--ink-muted);
+}
+
+.ed-barra__donde b {
+  color: var(--accent);
+}
+
+.ed-barra__donde em {
+  font-family: var(--body);
+  font-style: normal;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.ed-barra__btn {
+  min-height: 36px;
+  padding: 8px 14px;
   background: var(--ink);
   color: var(--bg);
   border: 0;
   border-radius: var(--r-sm);
   font-family: var(--body);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -1370,8 +1409,23 @@ a.ed-cert:hover .ed-cert__nombre {
     display: none;
   }
 
-  .ed-indice-btn {
-    display: inline-flex;
+  .ed-barra {
+    display: flex;
+  }
+
+  /* La barra no puede tapar el final de la página, ni comerse la portada. */
+  .ed-root {
+    padding-bottom: 52px;
+  }
+
+  .ed-portada {
+    min-height: 0;
+  }
+
+  /* La ficha ancha vuelve a una columna: partida se lee como dos tarjetas. */
+  .ed-producto--ancho {
+    grid-template-columns: 1fr;
+    gap: 12px;
   }
 
   .ed-hero__grid,
@@ -1380,8 +1434,47 @@ a.ed-cert:hover .ed-cert__nombre {
     grid-template-columns: 1fr;
   }
 
+  /* El titular se mide contra su línea más larga y ocupa el ancho justo de la
+     caja: así las tres líneas quedan parejas en vez de escalonadas. El factor
+     sale de medir la línea más larga de cada idioma en Barlow Condensed Black.
+     Inglés: PRODUCT DESIGN. Castellano: DISEÑO DE PRODUCTO, que es más ancha. */
   .ed-hero h1 {
-    font-size: clamp(40px, 13.5vw, 84px);
+    --linea-larga: 6.3;
+    font-size: clamp(34px, calc((100vw - 2 * var(--margen)) / var(--linea-larga)), 92px);
+    margin-top: 18px;
+  }
+
+  .ed-root[lang='es'] .ed-hero h1 {
+    --linea-larga: 7.9;
+  }
+
+  /* El eyebrow entra en un renglón hasta en las pantallas más angostas. */
+  .ed-hero .ed-eyebrow {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+  }
+
+  /* La portada del celular es un solo bloque, arrancando arriba y con ritmo
+     parejo entre las partes. El aire sobrante queda abajo, como margen de la
+     portada, y no partido en huecos entre medio. */
+  .ed-hero {
+    align-items: flex-start;
+    padding: clamp(28px, 6vh, 56px) 0 clamp(36px, 7vh, 64px);
+  }
+
+  .ed-hero > .ed-shell {
+    display: flex;
+  }
+
+  .ed-hero__grid {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+
+  .ed-hero__pie {
+    gap: 22px;
   }
 
   .ed-datos {
@@ -1411,6 +1504,12 @@ a.ed-cert:hover .ed-cert__nombre {
     font-size: 16px;
   }
 
+  /* Cuatro columnas de oficio en dos entran apretadas: van de a una. */
+  .ed-oficio {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+
   /* La firma se queda con el nombre: la ciudad ya está en la ficha del hero. */
   .ed-masthead__der {
     display: none;
@@ -1436,6 +1535,25 @@ a.ed-cert:hover .ed-cert__nombre {
   .ed-hero__acciones .ed-btn {
     flex: 1 1 100%;
     justify-content: center;
+  }
+}
+
+/* En pantallas táctiles los enlaces finos son de 20px de alto. El área de
+   toque se agranda con un pseudo elemento, que no mueve nada del diseño. */
+@media (hover: none) {
+  .ed-accion,
+  .ed-puesto__org a,
+  .ed-contacto__enlaces a,
+  .ed-cert__casa {
+    position: relative;
+  }
+
+  .ed-accion::after,
+  .ed-puesto__org a::after,
+  .ed-contacto__enlaces a::after {
+    content: '';
+    position: absolute;
+    inset: -12px -8px;
   }
 }
 

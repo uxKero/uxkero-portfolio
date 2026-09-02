@@ -372,41 +372,50 @@ export const PRODUCTOS: Producto[] = [
 
 // ── Oficio ───────────────────────────────────────────────────────────────────
 
-export const OFICIO: { titulo: Bi; items: string[] }[] = [
+export const OFICIO: { titulo: Bi; items: Bi[] }[] = [
   {
     titulo: { es: 'Producto y diseño', en: 'Product and design' },
     items: [
-      'Estrategia de producto',
-      'UX / UI',
-      'AI experience design',
-      'Discovery',
-      'Service design',
-      'Arquitectura de información',
+      { es: 'Estrategia de producto', en: 'Product strategy' },
+      { es: 'UX / UI', en: 'UX / UI' },
+      { es: 'AI experience design', en: 'AI experience design' },
+      { es: 'Discovery', en: 'Discovery' },
+      { es: 'Service design', en: 'Service design' },
+      { es: 'Arquitectura de información', en: 'Information architecture' },
     ],
   },
   {
     titulo: { es: 'IA y sistemas agénticos', en: 'AI and agentic systems' },
     items: [
-      'Prompt engineering',
-      'Comportamiento de agentes',
-      'Arquitecturas multi agente',
-      'MCP',
-      'UX conversacional',
-      'Stacks de IA locales',
+      { es: 'Prompt engineering', en: 'Prompt engineering' },
+      { es: 'Comportamiento de agentes', en: 'Agent behaviour design' },
+      { es: 'Arquitecturas multi agente', en: 'Multi agent architectures' },
+      { es: 'MCP', en: 'MCP' },
+      { es: 'UX conversacional', en: 'Conversational UX' },
+      { es: 'Stacks de IA locales', en: 'Local AI stacks' },
     ],
   },
   {
     titulo: { es: 'Construcción', en: 'Delivery' },
-    items: ['Next.js', 'React', 'TypeScript', 'Tailwind', 'Python / FastAPI', 'Supabase', 'Vercel', 'Playwright'],
+    items: [
+      { es: 'Next.js', en: 'Next.js' },
+      { es: 'React', en: 'React' },
+      { es: 'TypeScript', en: 'TypeScript' },
+      { es: 'Tailwind', en: 'Tailwind' },
+      { es: 'Python / FastAPI', en: 'Python / FastAPI' },
+      { es: 'Supabase', en: 'Supabase' },
+      { es: 'Vercel', en: 'Vercel' },
+      { es: 'Playwright', en: 'Playwright' },
+    ],
   },
   {
     titulo: { es: 'Operaciones y enablement', en: 'Ops and enablement' },
     items: [
-      'Mapeo de flujos con IA',
-      'Herramientas internas',
-      'Automatización de procesos',
-      'Habilitación de equipos',
-      'WhatsApp Business',
+      { es: 'Mapeo de flujos con IA', en: 'AI workflow mapping' },
+      { es: 'Herramientas internas', en: 'Internal tooling' },
+      { es: 'Automatización de procesos', en: 'Process automation' },
+      { es: 'Habilitación de equipos', en: 'Team enablement' },
+      { es: 'WhatsApp Business', en: 'WhatsApp Business' },
     ],
   },
 ];

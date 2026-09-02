@@ -62,6 +62,23 @@ const useReveal = () => {
   return ref;
 };
 
+/** Sigue una media query y avisa cuando cambia. */
+const useMedia = (consulta: string) => {
+  const [vale, setVale] = useState(() =>
+    typeof window !== 'undefined' ? window.matchMedia(consulta).matches : false,
+  );
+
+  useEffect(() => {
+    const mq = window.matchMedia(consulta);
+    const alCambiar = () => setVale(mq.matches);
+    alCambiar();
+    mq.addEventListener('change', alCambiar);
+    return () => mq.removeEventListener('change', alCambiar);
+  }, [consulta]);
+
+  return vale;
+};
+
 /** Qué sección está en pantalla y cuánto se avanzó en la lectura. */
 const useLectura = () => {
   const [activa, setActiva] = useState(SECCIONES[0].id);
@@ -242,10 +259,16 @@ const Editorial: React.FC = () => {
         </figure>
       )}
 
-      {/* ── Índice en pantallas chicas ── */}
-      <button className="ed-indice-btn" onClick={() => setMenu(true)}>
-        {L === 'es' ? 'Índice' : 'Index'}
-      </button>
+      {/* ── Barra de abajo en pantallas chicas ── */}
+      <div className="ed-barra">
+        <span className="ed-barra__donde">
+          <b>{SECCIONES[indiceActivo].n}</b> / {SECCIONES[SECCIONES.length - 1].n}
+          <em>{SECCIONES[indiceActivo].label[L]}</em>
+        </span>
+        <button className="ed-barra__btn" onClick={() => setMenu(true)}>
+          {L === 'es' ? 'Índice' : 'Index'}
+        </button>
+      </div>
 
       {menu && (
         <div className="ed-menu">
@@ -504,7 +527,7 @@ const Editorial: React.FC = () => {
                 <h3>{grupo.titulo[L]}</h3>
                 <ul>
                   {grupo.items.map((item) => (
-                    <li key={item}>{item}</li>
+                    <li key={item.es}>{item[L]}</li>
                   ))}
                 </ul>
               </div>
