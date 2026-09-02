@@ -117,7 +117,8 @@ const CabeceraSeccion: React.FC<{ n: string; label: string }> = ({ n, label }) =
 
 const Editorial: React.FC = () => {
   const navigate = useNavigate();
-  const [idioma, setIdioma] = useState<Idioma>('es');
+  // El portfolio apunta a roles remotos: arranca en inglés y el riel ofrece ES.
+  const [idioma, setIdioma] = useState<Idioma>('en');
   const [menu, setMenu] = useState(false);
   const L = idioma;
   const ref = useReveal();
@@ -126,7 +127,7 @@ const Editorial: React.FC = () => {
   useSEO({
     title: 'Alan Ponce | AI Experience Designer & Product Lead | UXKERO',
     description:
-      'AI Experience Designer y Product Lead. Diseño de producto para sistemas que deciden, y construcción asistida por agentes hasta producción. Mar del Plata, Argentina.',
+      'AI Experience Designer and Product Lead. Product design for systems that decide, and agent assisted development all the way to production. Mar del Plata, Argentina.',
     url: typeof window !== 'undefined' ? window.location.origin : '',
     type: 'website',
   });
