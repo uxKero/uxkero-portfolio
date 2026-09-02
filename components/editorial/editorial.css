@@ -87,8 +87,9 @@ body.ed-page ::-webkit-scrollbar-thumb {
   padding-inline: var(--margen);
 }
 
-/* El riel vive en el margen derecho: la caja de texto se corre para dejarselo. */
-@media (min-width: 901px) {
+/* El riel vive en el margen derecho: la caja de texto se corre para dejarselo.
+   Solo donde el riel existe, que es donde hay puntero y ancho de sobra. */
+@media (min-width: 901px) and (hover: hover) {
   .ed-shell {
     padding-right: calc(var(--margen) + 96px);
   }
@@ -1404,7 +1405,9 @@ a.ed-cert:hover .ed-cert__nombre {
   }
 }
 
-@media (max-width: 900px) {
+/* Version de mano: pantalla angosta O dispositivo sin puntero. Un celular
+   acostado pasa de 900px y con el ancho solo se llevaba el diseño de PC. */
+@media (max-width: 900px), (hover: none) {
   .ed-riel {
     display: none;
   }
