@@ -15,6 +15,8 @@ import {
   TRABAJO,
   type Idioma,
 } from './editorial-content';
+import { useDiseno } from './disenos';
+import SelectorDiseno from './SelectorDiseno';
 import './editorial.css';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -140,6 +142,10 @@ const Editorial: React.FC = () => {
   const L = idioma;
   const ref = useReveal();
   const { activa, avance } = useLectura();
+  const diseno = useDiseno();
+  const Portada = diseno.modulo?.Portada;
+  const Capa = diseno.modulo?.Capa;
+  const LaminaExtra = diseno.modulo?.Lamina;
 
   useSEO({
     title: 'Alan Ponce | AI Experience Designer & Product Lead | UXKERO',
@@ -157,6 +163,14 @@ const Editorial: React.FC = () => {
       document.body.classList.remove('ed-page');
     };
   }, []);
+
+  useEffect(() => {
+    const clase = `ed-diseno-${diseno.activo.id}`;
+    document.body.classList.add(clase);
+    return () => {
+      document.body.classList.remove(clase);
+    };
+  }, [diseno.activo.id]);
 
   useEffect(() => {
     document.body.style.overflow = menu ? 'hidden' : '';
@@ -216,7 +230,18 @@ const Editorial: React.FC = () => {
     : null;
 
   return (
-    <div className="ed-root" ref={ref} lang={L}>
+    <div className="ed-root" ref={ref} lang={L} data-diseno={diseno.activo.id}>
+      {diseno.cambios > 0 && <div className="ed-barrido" key={diseno.cambios} aria-hidden="true" />}
+      {diseno.entrada && (
+        <diseno.entrada.Comp
+          key={diseno.entrada.clave}
+          origen={diseno.entrada.origen}
+          onCubierta={diseno.entrada.cubierta}
+          onFin={diseno.terminarEntrada}
+        />
+      )}
+      {Capa && <Capa idioma={L} />}
+
       {/* ── Riel de navegación ── */}
       <nav className="ed-riel" aria-label={L === 'es' ? 'Secciones' : 'Sections'}>
         <ul className="ed-riel__lista">
@@ -250,12 +275,20 @@ const Editorial: React.FC = () => {
             {L === 'es' ? 'EN' : 'ES'}
           </button>
         </div>
+        <SelectorDiseno
+          variante="riel"
+          idioma={L}
+          activo={diseno.activo}
+          cargando={diseno.cargando}
+          onCambiar={diseno.cambiar}
+        />
       </nav>
 
       {/* ── Lámina del proyecto ── */}
       {lamina && posicionLamina && (
         <figure className="ed-lamina" style={posicionLamina} aria-hidden="true">
           <img src={`/editorial/proyectos/${lamina.slug}.jpg`} alt="" width={720} height={378} />
+          {LaminaExtra && <LaminaExtra x={lamina.x} y={lamina.y} slug={lamina.slug} />}
         </figure>
       )}
 
@@ -265,6 +298,13 @@ const Editorial: React.FC = () => {
           <b>{SECCIONES[indiceActivo].n}</b> / {SECCIONES[SECCIONES.length - 1].n}
           <em>{SECCIONES[indiceActivo].label[L]}</em>
         </span>
+        <SelectorDiseno
+          variante="barra"
+          idioma={L}
+          activo={diseno.activo}
+          cargando={diseno.cargando}
+          onCambiar={diseno.cambiar}
+        />
         <button className="ed-barra__btn" onClick={() => setMenu(true)}>
           {L === 'es' ? 'Índice' : 'Index'}
         </button>
@@ -310,6 +350,7 @@ const Editorial: React.FC = () => {
 
       {/* ── Portada: firma y hero, ajustados al alto de la pantalla ── */}
       <div className="ed-portada" id="top">
+        {Portada && <Portada idioma={L} />}
         <div className="ed-shell">
           <div className="ed-masthead">
             <span className="ed-marca">
