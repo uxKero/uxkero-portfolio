@@ -15,8 +15,17 @@ export interface ModuloDiseno {
   Capa?: React.ComponentType<{ idioma: string }>;
   /** Agregado dentro de la lámina que sigue al puntero en los productos. */
   Lamina?: React.ComponentType<{ x: number; y: number; slug: string }>;
+  /** Página entera propia, en lugar de la estructura editorial. */
+  Pagina?: React.ComponentType<PropsPagina>;
   /** Transición propia al entrar: avisa cuando tapa la pantalla y cuando termina. */
   Entrada?: React.ComponentType<PropsEntrada>;
+}
+
+export interface PropsPagina {
+  idioma: 'es' | 'en';
+  alCambiarIdioma: () => void;
+  /** El selector de diseños ya armado, para ubicarlo donde la página quiera. */
+  selector: React.ReactNode;
 }
 
 export interface PropsEntrada {
@@ -61,6 +70,36 @@ export const DISENOS: Diseno[] = [
     fuentes:
       'https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap',
     cargar: () => import('./disenos/amber/Amber'),
+  },
+  {
+    id: 'brawl',
+    nombre: 'Brawl Plate',
+    descripcion: { es: 'Interfaz de juego, placas y recompensas', en: 'Game UI, plates and rewards' },
+    muestra: ['#0249BB', '#EEC309', '#343C50'],
+    familia: "'Lilita One', system-ui, sans-serif",
+    fuentes:
+      'https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@400;600;700;800;900&display=swap',
+    cargar: () => import('./disenos/brawl/Brawl'),
+  },
+  {
+    id: 'y2k',
+    nombre: 'Y2K Chrome',
+    descripcion: { es: 'Escritorio de fin de milenio, cromo y trama', en: 'Millennium desktop, chrome and halftone' },
+    muestra: ['#1100FF', '#C0C0C0', '#FDB90E'],
+    familia: "'Audiowide', system-ui, sans-serif",
+    fuentes:
+      'https://fonts.googleapis.com/css2?family=Audiowide&family=Syncopate:wght@400;700&family=VT323&family=Great+Vibes&display=swap',
+    cargar: () => import('./disenos/y2k/Y2K'),
+  },
+  {
+    id: 'hextech',
+    nombre: 'Hextech Holo',
+    descripcion: { es: 'Cliente de juego, oro y holograma', en: 'Game client, gold and hologram' },
+    muestra: ['#010A13', '#C8AA6E', '#0AC8B9'],
+    familia: "'Spectral SC', serif",
+    fuentes:
+      'https://fonts.googleapis.com/css2?family=Spectral+SC:wght@600;700&family=Anton&family=Barlow:wght@400;600;700&family=Chakra+Petch:wght@500&family=Great+Vibes&display=swap',
+    cargar: () => import('./disenos/hextech/Hextech'),
   },
 ];
 

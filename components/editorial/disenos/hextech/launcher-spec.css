@@ -1,0 +1,431 @@
+/* ───────────────────────────────────────────────────────────────────────────
+   Launcher reconstruido desde design/hextech/launcher-element.md, el análisis
+   de anydesign sobre las cinco capturas del cliente real. Cada valor sale de
+   ese spec. Se carga después de launcher.css y lo corrige.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+.ed-root[data-diseno='hextech'] {
+  --barra: 80px;
+  --riel: 226px;
+}
+
+/* ── Barra ───────────────────────────────────────────────────────────────── */
+
+.lc-barra {
+  background: linear-gradient(180deg, #050b17 0%, #0d131e 100%);
+  border-bottom: 1px solid #3e4445;
+  box-shadow: none;
+}
+
+.lc-barra::before {
+  height: 2px;
+  background: #785a28;
+  opacity: 1;
+  z-index: 2;
+}
+
+/* Escudo montado sobre el botón por la izquierda. */
+.lc-llamado {
+  flex: none;
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-left: 26px;
+}
+
+.lc-escudo {
+  position: relative;
+  z-index: 2;
+  width: 58px;
+  height: 58px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  box-shadow: none !important;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6));
+  transition: filter 180ms var(--suave);
+}
+
+.lc-escudo:hover {
+  filter: drop-shadow(0 0 10px rgba(10, 200, 185, 0.5));
+}
+
+.lc-escudo__svg {
+  display: block;
+}
+
+.lc-juega {
+  --punta: 14px;
+  height: 40px;
+  margin-left: -22px;
+  padding: 0 calc(var(--punta) + 30px) 0 44px;
+  background: #463714;
+  color: #f0e6d2;
+  font-family: var(--f-serif);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.lc-juega::before {
+  inset: 1px;
+  background: #07b1b2;
+  box-shadow: none;
+}
+
+.lc-juega::after {
+  inset: 3px;
+  border: 0;
+  background: #1e2328;
+  clip-path: polygon(0 0, calc(100% - var(--punta) + 1px) 0, calc(100% - 2px) 50%, calc(100% - var(--punta) + 1px) 100%, 0 100%);
+}
+
+.lc-juega:hover::after {
+  background: #262d33;
+}
+
+.lc-juega:hover::before {
+  background: #0ac8b9;
+}
+
+.lc-juega span {
+  position: relative;
+  z-index: 1;
+  text-shadow: none;
+}
+
+/* ── Pestañas de texto ───────────────────────────────────────────────────── */
+
+.lc-nav {
+  margin-left: 30px;
+}
+
+.lc-pestana {
+  padding: 0 19px;
+  color: #cdbe91;
+  font-size: 15px;
+  letter-spacing: 0.04em;
+  background: none;
+}
+
+.lc-pestana:hover {
+  color: #f0e6d2;
+}
+
+.lc-pestana.is-activa {
+  color: #f0e6d2;
+  background: none;
+}
+
+.lc-pestana.is-activa::after {
+  display: none;
+}
+
+/* ── Íconos planos ───────────────────────────────────────────────────────── */
+
+.lc-iconos {
+  margin-right: 12px;
+}
+
+.lc-icono {
+  width: 74px;
+  color: #cdbe91;
+  opacity: 1;
+  background: none;
+}
+
+.lc-glifo {
+  display: block;
+  transition: color 180ms var(--suave);
+}
+
+.lc-icono:hover {
+  color: #f0e6d2;
+}
+
+.lc-icono + .lc-icono::before {
+  top: 18px;
+  bottom: 18px;
+  width: 1px;
+  background: linear-gradient(180deg, transparent, #cdbe91 30%, #cdbe91 70%, transparent);
+  opacity: 0.55;
+}
+
+/* Activo: glifo crema, degradado claro desde abajo y doble chevron colgando. */
+.lc-icono.is-activa {
+  color: #f0e6d2;
+  background: linear-gradient(0deg, rgba(160, 155, 140, 0.22) 0%, rgba(160, 155, 140, 0) 70%);
+}
+
+.lc-icono.is-activa::after {
+  top: 0;
+  width: 26px;
+  height: 14px;
+  background: none;
+  clip-path: none;
+  border: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='14' viewBox='0 0 26 14'%3E%3Cpath d='M1 0 L13 12 L25 0' fill='none' stroke='%23C8AA6E' stroke-width='2'/%3E%3Cpath d='M7 0 L13 6 L19 0' fill='none' stroke='%23C8AA6E' stroke-width='2'/%3E%3C/svg%3E");
+}
+
+/* ── Monedas ─────────────────────────────────────────────────────────────── */
+
+.lc-moneda--pastilla {
+  background: transparent;
+  box-shadow: inset 0 0 0 1px #3c3c41;
+}
+
+.lc-moneda b {
+  color: #f0e6d2;
+}
+
+.lc-moneda__mas {
+  background: #1e2328;
+  box-shadow: inset 0 0 0 1px #785a28;
+  color: #c8aa6e;
+}
+
+/* ── Perfil ──────────────────────────────────────────────────────────────── */
+
+.lc-perfil {
+  background: #010a13;
+  border-left: 0;
+}
+
+.lc-avatar__anillo {
+  background: #010a13;
+  box-shadow: inset 0 0 0 2px #0397ab, inset 0 0 0 4px #010a13, inset 0 0 0 5px #c89b3c;
+  padding: 5px;
+}
+
+.lc-avatar__nivel {
+  bottom: -2px;
+  min-width: 34px;
+  border-radius: 0;
+  clip-path: polygon(6px 0, calc(100% - 6px) 0, 100% 50%, calc(100% - 6px) 100%, 6px 100%, 0 50%);
+  background: #785a28;
+  box-shadow: none;
+  color: #a09b8c;
+  isolation: isolate;
+}
+
+.lc-avatar__nivel::before {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  z-index: -1;
+  background: #010a13;
+  clip-path: polygon(5px 0, calc(100% - 5px) 0, 100% 50%, calc(100% - 5px) 100%, 5px 100%, 0 50%);
+}
+
+.lc-perfil__textos b {
+  color: #f0e6d2;
+}
+
+.lc-perfil__textos small,
+.lc-perfil__textos small i {
+  color: #0acf83;
+}
+
+.lc-mini {
+  color: #a09b8c;
+}
+
+/* ── Social ──────────────────────────────────────────────────────────────── */
+
+.lc-social {
+  background: #010a13;
+  border-left: 1px solid #1e2328;
+}
+
+.lc-grupo-abierto {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(160deg, #0e1e35 0%, #143b5a 55%, #0e2540 100%);
+  border-top: 1px solid #1e2328;
+  border-bottom: 1px solid #1e2328;
+}
+
+/* El brillo diagonal del bloque de grupo. */
+.lc-grupo-abierto::after {
+  content: '';
+  position: absolute;
+  inset: -40% -20%;
+  background: linear-gradient(115deg, transparent 42%, rgba(255, 255, 255, 0.07) 50%, transparent 58%);
+  pointer-events: none;
+}
+
+.lc-grupo-abierto .lc-titulo {
+  color: #a09b8c;
+}
+
+.lc-plazas i {
+  background: #3c4a5a;
+}
+
+.lc-plazas i.is-ocupada {
+  background: #f0e6d2;
+  box-shadow: none;
+}
+
+.lc-social__cabeza .lc-titulo {
+  color: #c3a363;
+}
+
+.lc-social__acciones :is(a, button) {
+  color: #c3a363;
+}
+
+.lc-grupo__cabeza {
+  height: 28px;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  color: #f0e6d2;
+}
+
+.lc-fila {
+  height: 48px;
+  padding: 0 12px;
+}
+
+.lc-fila__avatar {
+  width: 32px;
+  height: 32px;
+  padding: 2px;
+  background: #c3a363;
+}
+
+.lc-fila__punto {
+  width: 9px;
+  height: 9px;
+  box-shadow: 0 0 0 2px #010a13;
+}
+
+.lc-fila__textos b {
+  font-size: 14px;
+  color: #a09b8c;
+}
+
+.lc-fila__textos small {
+  color: #0acf83;
+}
+
+.lc-fila.is-desconectado,
+.lc-fila.is-desconectado:hover {
+  opacity: 1;
+}
+
+.lc-fila.is-desconectado .lc-fila__avatar {
+  background: #645a3f;
+}
+
+.lc-fila.is-desconectado .lc-fila__textos b {
+  color: #535350;
+}
+
+.lc-fila.is-desconectado .lc-fila__textos small {
+  color: #5b5a56;
+}
+
+.lc-fila.is-desconectado .lc-fila__punto {
+  background: #010a13;
+  box-shadow: 0 0 0 2px #010a13, inset 0 0 0 2px #5b5a56;
+}
+
+/* ── Pie ─────────────────────────────────────────────────────────────────── */
+
+.lc-social__pie {
+  height: 35px;
+  gap: 4px;
+  align-items: center;
+  padding: 0 1px;
+  background: #010a13;
+  border-top: 0;
+}
+
+.lc-pie-btn {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 33px;
+  padding: 0;
+  border: 1px solid #463714;
+  background: #1e2328;
+  color: #cdbe91;
+}
+
+.lc-pie-btn:hover {
+  border-color: #785a28;
+  color: #f0e6d2;
+}
+
+.lc-pie-btn .lc-glifo,
+.lc-pie-btn svg {
+  width: 17px;
+  height: 17px;
+}
+
+.lc-social__pie > :is(a, button) {
+  border-right: 1px solid #463714;
+}
+
+.lc-insignia {
+  top: -13px;
+  min-width: 24px;
+  padding: 0 5px;
+  border-radius: 3px;
+  background: #c89b3c;
+  color: #010a13;
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.lc-version {
+  flex: 1;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: #3c3c41;
+}
+
+@media (max-width: 640px) {
+  .lc-llamado {
+    margin-left: 8px;
+  }
+
+  .lc-escudo,
+  .lc-escudo__svg {
+    width: 44px;
+    height: 44px;
+  }
+
+  .lc-juega {
+    height: 34px;
+    margin-left: -18px;
+    padding-left: 30px;
+    padding-right: calc(var(--punta) + 14px);
+    font-size: 12.5px;
+  }
+}
+
+/* En el cliente las monedas están siempre; se van recién cuando la barra colapsa. */
+@media (max-width: 1440px) {
+  .lc-monedas {
+    display: flex;
+    padding: 0 14px;
+  }
+}
+
+@media (max-width: 1100px), (hover: none) {
+  .lc-monedas {
+    display: none;
+  }
+}
+
+.lc-fila__textos b {
+  font-size: 13.5px;
+}

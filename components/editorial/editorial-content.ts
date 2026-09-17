@@ -210,7 +210,7 @@ export const PRODUCTOS: Producto[] = [
     slug: 'kerocraft',
     nombre: 'KeroCraft',
     rol: { es: 'Fundador · Producto, UX y desarrollo', en: 'Founder · Product, UX and development' },
-    estado: { es: 'Por lanzarse', en: 'Launching soon' },
+    estado: { es: 'En vivo', en: 'Live' },
     activo: true,
     destacado: 'naranja',
     texto: {

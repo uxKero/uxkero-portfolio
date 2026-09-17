@@ -3,6 +3,8 @@
 Entrada:  design/editorial/fuente/*.png|jpg
           (og:image de cada sitio, o captura de la home cuando no tiene)
 Salida:   public/editorial/proyectos/<slug>.jpg
+          public/editorial/proyectos-color/<slug>.jpg (mismo encuadre, sin duotono,
+          para los diseños que viven del color)
 
 Las og:image de los proyectos vienen cada una con su propia direccion de arte:
 juntas rompen el reparto de color de la publicacion. Pasadas a duotono papel
@@ -21,6 +23,7 @@ from PIL import Image, ImageOps
 RAIZ = Path(__file__).resolve().parents[2]
 FUENTE = Path(__file__).resolve().parent / "fuente"
 SALIDA = RAIZ / "public" / "editorial" / "proyectos"
+SALIDA_COLOR = RAIZ / "public" / "editorial" / "proyectos-color"
 
 PAPEL = (244, 235, 221)
 TINTA = (26, 25, 23)
@@ -44,9 +47,13 @@ LAMINAS = {
 }
 
 
-def lamina(origen: Path) -> Image.Image:
+def encuadre(origen: Path) -> Image.Image:
     im = Image.open(origen).convert("RGB")
-    im = ImageOps.fit(im, (ANCHO, ALTO), Image.LANCZOS, centering=(0.5, 0.5))
+    return ImageOps.fit(im, (ANCHO, ALTO), Image.LANCZOS, centering=(0.5, 0.5))
+
+
+def lamina(origen: Path) -> Image.Image:
+    im = encuadre(origen)
     gris = ImageOps.autocontrast(ImageOps.grayscale(im), cutoff=(1, 1))
     # Un punto de gamma para que los medios tonos no se cierren.
     gris = gris.point([min(255, int(255 * (v / 255) ** 0.9)) for v in range(256)])
@@ -55,6 +62,7 @@ def lamina(origen: Path) -> Image.Image:
 
 def main() -> None:
     SALIDA.mkdir(parents=True, exist_ok=True)
+    SALIDA_COLOR.mkdir(parents=True, exist_ok=True)
     total = 0
     for slug, archivo in LAMINAS.items():
         origen = FUENTE / archivo
@@ -63,6 +71,7 @@ def main() -> None:
             continue
         destino = SALIDA / f"{slug}.jpg"
         lamina(origen).save(destino, quality=84, optimize=True, progressive=True)
+        encuadre(origen).save(SALIDA_COLOR / f"{slug}.jpg", quality=84, optimize=True, progressive=True)
         kb = destino.stat().st_size / 1024
         total += kb
         print(f"{slug:12} {kb:6.0f} KB")

@@ -1,0 +1,634 @@
+/* ───────────────────────────────────────────────────────────────────────────
+   Pantallas: el launcher no se scrollea. Cada pestaña ocupa exacto el área
+   entre la barra y el pie, como el cliente real; lo que no entra se reparte
+   en subpestañas o en páginas.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* Solo opacidad: un transform animado atraparía al modal de la ficha, que es fixed. */
+.hx-pantalla {
+  animation: hx-pantalla 240ms ease;
+}
+
+@keyframes hx-pantalla {
+  from {
+    opacity: 0;
+  }
+}
+
+/* Paginador cuadrado, como los números del destacado de la tienda. */
+.cl-paginador {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cl-paginador button {
+  display: grid;
+  place-items: center;
+  min-width: 26px;
+  height: 26px;
+  padding: 0 6px;
+  border: 1px solid #3c3c41;
+  background: #010a13;
+  color: #a09b8c;
+  font-family: var(--f-sans);
+  font-size: 12.5px;
+  font-weight: 700;
+  font-variant-numeric: lining-nums tabular-nums;
+  transition: border-color 160ms ease, color 160ms ease;
+}
+
+.cl-paginador button:hover:not(:disabled) {
+  border-color: #785a28;
+  color: #f0e6d2;
+}
+
+.cl-paginador button.is-activa {
+  border-color: #c8aa6e;
+  color: #f0e6d2;
+  box-shadow: inset 0 0 0 1px #010a13, inset 0 0 0 2px #463714;
+}
+
+.cl-paginador button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.cl-grilla {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.cl-grilla .cl-paginador {
+  align-self: center;
+}
+
+.cl-coleccion__cabeza {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.cl-coleccion__cabeza .cl-coleccion__titulo {
+  margin: 0;
+}
+
+@media (min-width: 901px) and (hover: hover) {
+  .ed-root[data-diseno='hextech'] .hx-pagina {
+    height: 100vh;
+    height: 100svh;
+    overflow: hidden;
+  }
+
+  .ed-root[data-diseno='hextech'] .hx-cuerpo {
+    height: 100%;
+  }
+
+  .ed-root[data-diseno='hextech'] .hx-centro {
+    position: relative;
+    height: calc(100vh - var(--barra));
+    height: calc(100svh - var(--barra));
+    overflow: hidden;
+  }
+
+  /* Si una ventana muy baja no alcanza, la pantalla se scrollea adentro en
+     vez de cortarse; en tamaños normales no llega a aparecer. */
+  .hx-pantalla {
+    position: absolute;
+    inset: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #463714 transparent;
+  }
+
+  .hx-pantalla > section {
+    height: 100%;
+    min-height: 0;
+    border-bottom: 0;
+  }
+
+  .hx-pantalla > .cl-inicio {
+    height: 100%;
+    min-height: 0;
+  }
+
+  .hx-pantalla > .cl-perfil,
+  .hx-pantalla > .cl-lobby {
+    min-height: 0;
+  }
+
+  /* Secciones de contenido: cabecera arriba y el resto llena. */
+  .hx-pantalla > .cl-sec {
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 28px;
+  }
+
+  .hx-pantalla > .cl-sec > :last-child:not(.cl-pie) {
+    flex: 1;
+    min-height: 0;
+  }
+
+  /* Colección: el destacado y las fichas se estiran hasta el pie. */
+  .cl-tienda {
+    flex: 1;
+    min-height: 0;
+    margin-top: 20px;
+  }
+
+  .hx-pantalla .cl-destacado {
+    aspect-ratio: auto;
+    height: 100%;
+    min-height: 0;
+  }
+
+  .hx-pantalla .cl-fichas {
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+  }
+
+  .hx-pantalla .cl-ficha {
+    min-height: 0;
+  }
+
+  .hx-pantalla .cl-franja {
+    flex: none !important;
+    margin-top: 12px;
+  }
+
+  .hx-pantalla .cl-grilla {
+    flex: 1;
+    min-height: 0;
+    margin-top: 20px;
+  }
+
+  .hx-pantalla .cl-fila-fichas {
+    flex: 1;
+    min-height: 0;
+    margin-top: 0;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    grid-auto-rows: 210px;
+    align-content: start;
+  }
+
+  .hx-pantalla .cl-fila-fichas .cl-ficha {
+    min-height: 0;
+  }
+
+  /* Oficio: las cartas ocupan el alto y el sobrante pasa de página. */
+  .hx-pantalla .cl-coleccion {
+    min-height: 0;
+    margin-top: 20px;
+  }
+
+  .cl-coleccion__cuerpo {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .hx-pantalla .cl-cartas {
+    flex: 1;
+    min-height: 0;
+    grid-auto-rows: 150px;
+    align-content: start;
+  }
+
+  .hx-pantalla .cl-carta {
+    min-height: 0;
+  }
+
+  /* Desafíos y guías: poco contenido, centrado en el alto disponible. */
+  .hx-pantalla .cl-desafios {
+    align-content: center;
+    gap: 16px;
+  }
+
+  .hx-pantalla .cl-guias {
+    align-content: center;
+  }
+
+  /* Contacto: la invitación al centro y el aviso legal abajo. */
+  .hx-pantalla > .cl-sec--final {
+    justify-content: center;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  .hx-pantalla > .cl-sec--final .cl-invitacion {
+    flex: none;
+    margin: auto !important;
+  }
+
+  .hx-pantalla > .cl-sec--final .cl-pie {
+    flex: none;
+  }
+}
+
+/* ── Barra translúcida (lol1) ────────────────────────────────────────────── */
+/* La barra deja ver el fondo de la pantalla, oscurecido: más cerrada detrás
+   del botón principal y del perfil, abierta sobre las pestañas. */
+
+.ed-root[data-diseno='hextech'] .lc-barra {
+  background: linear-gradient(
+    90deg,
+    rgba(1, 10, 19, 0.94) 0%,
+    rgba(1, 10, 19, 0.9) 15%,
+    rgba(1, 10, 19, 0.62) 30%,
+    rgba(1, 10, 19, 0.58) 62%,
+    rgba(1, 10, 19, 0.82) calc(100% - var(--riel)),
+    rgba(1, 10, 19, 0.94) 100%
+  );
+  -webkit-backdrop-filter: blur(2px) saturate(0.85);
+  backdrop-filter: blur(2px) saturate(0.85);
+}
+
+/* Pestaña activa: placa apenas más clara con filetes laterales y la muesca. */
+.ed-root[data-diseno='hextech'] .lc-pestana.is-activa {
+  background: linear-gradient(180deg, rgba(160, 155, 140, 0.05) 0%, rgba(160, 155, 140, 0.13) 100%);
+  box-shadow: inset 1px 0 0 rgba(160, 155, 140, 0.16), inset -1px 0 0 rgba(160, 155, 140, 0.16);
+}
+
+.ed-root[data-diseno='hextech'] .lc-pestana.is-activa::after {
+  content: '';
+  display: block;
+  position: absolute;
+  top: 0;
+  bottom: auto;
+  left: 50%;
+  right: auto;
+  width: 26px;
+  height: 14px;
+  translate: -50% 0;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='14' viewBox='0 0 26 14'%3E%3Cpath d='M1 0 L13 12 L25 0' fill='none' stroke='%23C8AA6E' stroke-width='2'/%3E%3Cpath d='M7 0 L13 6 L19 0' fill='none' stroke='%23C8AA6E' stroke-width='2'/%3E%3C/svg%3E")
+    no-repeat center;
+  clip-path: none;
+  border: 0;
+}
+
+/* ── Sala del lobby (lol3) ───────────────────────────────────────────────── */
+
+.cl-lobby__fondo {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  overflow: hidden;
+}
+
+.cl-lobby__fondo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 30% 50%;
+}
+
+.cl-lobby__fondo::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(0deg, rgba(1, 10, 19, 0.7) 0%, rgba(1, 10, 19, 0) 30%),
+    radial-gradient(ellipse 60% 70% at 50% 40%, rgba(1, 10, 19, 0) 0%, rgba(1, 10, 19, 0.25) 100%);
+}
+
+.cl-lobby > :not(.cl-lobby__fondo) {
+  position: relative;
+  z-index: 1;
+}
+
+@media (min-width: 901px) and (hover: hover) {
+  /* El contenido arranca debajo de la barra, pero cada fondo sube detrás. */
+  .ed-root[data-diseno='hextech'] .hx-cuerpo {
+    padding-top: 0;
+    align-items: start;
+  }
+
+  .ed-root[data-diseno='hextech'] .hx-centro {
+    height: 100vh;
+    height: 100svh;
+  }
+
+  .ed-root[data-diseno='hextech'] .lc-social {
+    margin-top: var(--barra);
+  }
+
+  .hx-pantalla > .cl-inicio,
+  .hx-pantalla > .cl-perfil,
+  .hx-pantalla > .cl-sec {
+    padding-top: var(--barra);
+  }
+
+  .hx-pantalla > .cl-lobby {
+    padding-top: calc(var(--barra) + 16px);
+  }
+
+  .hx-pantalla > .cl-sec--final {
+    padding-top: var(--barra);
+  }
+
+  /* Las pantallas de contenido tienen la grieta muy apagada detrás, así la
+     barra también muestra algo en ellas. */
+  .hx-pantalla:has(> .cl-sec) {
+    background: linear-gradient(180deg, rgba(1, 10, 19, 0.8) 0%, rgba(1, 10, 19, 0.94) 22%, #010a13 60%),
+      url('https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/content/src/leagueclient/gamemodeassets/classic_sru/img/gameflow-background.jpg')
+        center top / cover no-repeat,
+      #010a13;
+  }
+
+  /* Lobby: la fila de estandartes al medio del alto libre. */
+  .hx-pantalla .cl-lobby__fila {
+    margin-block: auto;
+  }
+
+  /* Desafíos y guías llenan el alto en vez de quedar como una tira. */
+  .hx-pantalla .cl-desafios {
+    grid-auto-rows: minmax(0, 1fr);
+    align-content: stretch;
+    gap: 16px;
+    max-height: 560px;
+    margin-block: auto !important;
+  }
+
+  .hx-pantalla .cl-desafio {
+    grid-template-columns: minmax(120px, 30%) minmax(0, 1fr) auto;
+    padding: 18px 26px 18px 12px;
+    background: linear-gradient(180deg, rgba(10, 26, 42, 0.9), rgba(1, 10, 19, 0.95));
+    box-shadow: inset 0 0 0 3px #010a13, inset 0 0 0 4px rgba(70, 55, 20, 0.6);
+  }
+
+  .hx-pantalla .cl-desafio__emblema {
+    height: 100%;
+    min-height: 110px;
+  }
+
+  .hx-pantalla .cl-desafio__emblema img {
+    width: 340px;
+    height: 191px;
+  }
+
+  .hx-pantalla .cl-desafio h3 {
+    margin: 6px 0 14px;
+    font-size: 19px;
+  }
+
+  .hx-pantalla .cl-guias {
+    grid-auto-rows: minmax(0, 1fr);
+    align-content: stretch;
+    gap: 16px;
+    max-height: 620px;
+    margin-block: auto !important;
+  }
+
+  .hx-pantalla .cl-guia {
+    grid-template-columns: minmax(0, 42%) minmax(0, 1fr);
+    box-shadow: inset 0 0 0 3px #010a13, inset 0 0 0 4px rgba(70, 55, 20, 0.6);
+  }
+
+  .hx-pantalla .cl-guia__texto {
+    justify-content: center;
+    gap: 12px;
+    padding: 28px 30px;
+  }
+
+  .hx-pantalla .cl-guia__texto .cl-display {
+    font-size: clamp(22px, 2vw, 30px);
+  }
+
+  .hx-pantalla .cl-guia__texto p:not(.cl-sobre) {
+    font-size: 15px;
+  }
+}
+
+/* ── Opción activa del inicio (lol1) ─────────────────────────────────────── */
+/* No es una placa con puntos: es vidrio esmerilado, el mismo desenfoque de la
+   barra, que entra claro por la izquierda y se disuelve hacia el texto. */
+
+.ed-root[data-diseno='hextech'] .cl-modo {
+  isolation: isolate;
+}
+
+.ed-root[data-diseno='hextech'] .cl-modo.is-activo {
+  background: none;
+  box-shadow: none;
+}
+
+.ed-root[data-diseno='hextech'] .cl-modo.is-activo::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(175, 200, 215, 0.3) 0%, rgba(140, 170, 190, 0.16) 40%, rgba(90, 120, 140, 0) 75%);
+  -webkit-backdrop-filter: blur(10px) brightness(1.4) saturate(0.6);
+  backdrop-filter: blur(10px) brightness(1.4) saturate(0.6);
+  -webkit-mask-image: linear-gradient(90deg, #000 0%, #000 28%, transparent 78%);
+  mask-image: linear-gradient(90deg, #000 0%, #000 28%, transparent 78%);
+}
+
+/* La curva fina de luz que cierra la placa abajo a la derecha. */
+.ed-root[data-diseno='hextech'] .cl-modo.is-activo::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse 110% 46% at 55% 108%, transparent 60%, rgba(140, 200, 220, 0.35) 62%, transparent 65%);
+  -webkit-mask-image: linear-gradient(90deg, transparent 10%, #000 40%, transparent 95%);
+  mask-image: linear-gradient(90deg, transparent 10%, #000 40%, transparent 95%);
+}
+
+.ed-root[data-diseno='hextech'] .cl-modo.is-activo .cl-modo__glifo {
+  filter: none;
+}
+
+@media (min-width: 901px) and (hover: hover) {
+  .ed-root[data-diseno='hextech'] .cl-inicio__secundario {
+    top: calc(var(--barra) + 24px);
+  }
+}
+
+/* ── Ícono de invocador: K/DA Kai'Sa a color ─────────────────────────────── */
+
+.ed-root[data-diseno='hextech'] .lc-avatar__anillo img,
+.ed-root[data-diseno='hextech'] .lc-grupo-abierto__retrato img {
+  filter: none;
+  object-position: 50% 30%;
+}
+
+/* ── Lobby: el grupo junto y la sala entera ──────────────────────────────── */
+
+/* El arte de la sala trae una franja oscura a la derecha, donde el cliente
+   pone el panel social; se estira para que esa franja quede afuera. */
+.ed-root[data-diseno='hextech'] .cl-lobby__fondo img {
+  width: 118.5%;
+  max-width: none;
+  height: 100%;
+  object-fit: cover;
+  object-position: 0 50%;
+}
+
+.ed-root[data-diseno='hextech'] .cl-lobby__fondo::after {
+  background: linear-gradient(0deg, rgba(1, 10, 19, 0.55) 0%, rgba(1, 10, 19, 0) 26%);
+}
+
+@media (min-width: 1101px) {
+  .ed-root[data-diseno='hextech'] .cl-lobby__fila {
+    grid-template-columns: repeat(4, minmax(0, 236px)) 64px;
+    justify-content: center;
+    column-gap: clamp(20px, 2vw, 34px);
+    align-items: stretch;
+    align-content: center;
+  }
+
+  /* Los cuatro estandartes del mismo largo aunque el texto ocupe distinto. */
+  .ed-root[data-diseno='hextech'] .cl-miembro:not(.cl-miembro--vacio) {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .ed-root[data-diseno='hextech'] .cl-miembro .cl-banderin {
+    flex: 1;
+    width: 100%;
+  }
+
+  .ed-root[data-diseno='hextech'] .cl-lobby__fila > .cl-miembro:not(.cl-miembro--vacio) {
+    width: 100%;
+    justify-self: stretch;
+  }
+
+  /* El más queda a la altura del centro de los emblemas, como en lol3. */
+  .ed-root[data-diseno='hextech'] .cl-miembro--vacio {
+    align-self: start;
+    justify-self: end;
+    margin-top: 55px;
+  }
+}
+
+/* ── Estandartes que cuelgan desde arriba (lol3) ─────────────────────────── */
+/* En el cliente el estandarte nace pegado a la barra y baja; nunca aparece
+   cortado flotando. La cabecera del lobby baja a la esquina libre de abajo a
+   la izquierda, donde el cliente tiene el chat, para no pisar la tela. */
+
+@media (min-width: 1101px) and (hover: hover) {
+  .hx-pantalla > .cl-lobby {
+    padding-top: var(--barra);
+    padding-inline: 24px;
+  }
+
+  .ed-root[data-diseno='hextech'] .cl-lobby__cabeza {
+    position: absolute;
+    z-index: 3;
+    bottom: 34px;
+    left: 36px;
+    margin: 0;
+    text-shadow: 0 1px 3px #000;
+  }
+
+  .ed-root[data-diseno='hextech'] .hx-pantalla .cl-lobby__fila {
+    margin-block: 0 auto;
+    align-content: start;
+    align-items: stretch;
+  }
+
+  .ed-root[data-diseno='hextech'] .cl-miembro:not(.cl-miembro--vacio) {
+    min-height: min(600px, calc(100svh - var(--barra) - 190px));
+    height: auto;
+    margin-top: 0;
+  }
+
+  /* El propio baja un poco más que el resto. */
+  .ed-root[data-diseno='hextech'] .cl-miembro--propio {
+    margin-bottom: -24px;
+  }
+
+  .ed-root[data-diseno='hextech'] .cl-miembro .cl-banderin__contenido {
+    padding-top: 110px;
+  }
+
+  .ed-root[data-diseno='hextech'] .cl-miembro--vacio {
+    margin-top: 157px;
+  }
+}
+
+/* Centrado óptico de la barra: Spectral SC deja las pestañas de texto casi un
+   píxel arriba de los íconos; medido por masa de tinta a 4x. */
+.ed-root[data-diseno='hextech'] .lc-pestana {
+  padding-top: 2px;
+}
+
+/* ── Perfil: Piltover de fondo y los rangos agrupados (lol2) ─────────────── */
+
+.ed-root[data-diseno='hextech'] .cl-perfil__fondo img {
+  object-position: 50% 30%;
+  filter: saturate(0.9) brightness(0.85);
+}
+
+/* La carta es de día: se cierra abajo, donde van los rangos, y a la izquierda,
+   detrás del estandarte, para que el texto siga leyéndose. */
+.ed-root[data-diseno='hextech'] .cl-perfil__fondo::after {
+  background: linear-gradient(0deg, rgba(1, 10, 19, 0.95) 0%, rgba(1, 10, 19, 0.6) 32%, rgba(1, 10, 19, 0.1) 60%, rgba(1, 10, 19, 0.45) 100%),
+    linear-gradient(90deg, rgba(1, 10, 19, 0.55) 0%, rgba(1, 10, 19, 0) 35%);
+}
+
+@media (min-width: 1101px) {
+  /* En lol2 los cinco rangos van juntos, a unos 144px entre centros, no
+     repartidos por todo el ancho. */
+  .ed-root[data-diseno='hextech'] .cl-insignias {
+    grid-template-columns: repeat(5, clamp(132px, 10.6vw, 176px));
+    justify-content: center;
+    column-gap: 0;
+  }
+}
+
+@media (min-width: 1101px) and (hover: hover) {
+  /* El estandarte del perfil también cuelga desde la barra, con las
+     subpestañas encima de la tela, como en lol2. */
+  .ed-root[data-diseno='hextech'] .cl-perfil__barra {
+    z-index: 3;
+  }
+
+  .ed-root[data-diseno='hextech'] .cl-perfil__lado {
+    position: absolute;
+    z-index: 2;
+    top: var(--barra);
+    left: 36px;
+    width: 204px;
+    height: min(600px, calc(100svh - var(--barra) - 96px));
+    margin: 0;
+  }
+
+  .ed-root[data-diseno='hextech'] .cl-perfil__lado .cl-banderin {
+    height: 100%;
+  }
+
+  /* Con el estandarte fuera de la grilla, el centro conserva su columna. */
+  .ed-root[data-diseno='hextech'] .cl-perfil__centro {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .ed-root[data-diseno='hextech'] .cl-perfil__lado .cl-banderin__contenido {
+    padding-top: 64px;
+  }
+
+  /* Rangos más grandes y un poco más arriba, con el número pegado. */
+  .ed-root[data-diseno='hextech'] .cl-perfil__centro {
+    padding-bottom: 48px;
+  }
+
+  .ed-root[data-diseno='hextech'] .cl-insignia__arte {
+    width: 132px;
+    height: 104px;
+  }
+
+  .ed-root[data-diseno='hextech'] .cl-insignia__arte img {
+    width: 410px;
+    height: 231px;
+  }
+
+  .ed-root[data-diseno='hextech'] .cl-insignia__numero {
+    margin-top: 2px;
+  }
+}

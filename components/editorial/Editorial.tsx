@@ -32,7 +32,7 @@ const Flecha: React.FC = () => (
 );
 
 /** Aparición secuencial: fundido y desplazamiento corto, una sola vez. */
-const useReveal = () => {
+const useReveal = (clave: string) => {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -59,7 +59,8 @@ const useReveal = () => {
 
     objetivos.forEach((el) => obs.observe(el));
     return () => obs.disconnect();
-  }, []);
+    // Un diseño con página propia desmonta las secciones: al volver hay que observar las nuevas.
+  }, [clave]);
 
   return ref;
 };
@@ -140,10 +141,11 @@ const Editorial: React.FC = () => {
   const [idioma, setIdioma] = useState<Idioma>('en');
   const [menu, setMenu] = useState(false);
   const L = idioma;
-  const ref = useReveal();
-  const { activa, avance } = useLectura();
   const diseno = useDiseno();
+  const ref = useReveal(diseno.activo.id);
+  const { activa, avance } = useLectura();
   const Portada = diseno.modulo?.Portada;
+  const PaginaPropia = diseno.modulo?.Pagina;
   const Capa = diseno.modulo?.Capa;
   const LaminaExtra = diseno.modulo?.Lamina;
 
@@ -229,17 +231,41 @@ const Editorial: React.FC = () => {
       }
     : null;
 
+  const entrada = diseno.entrada && (
+    <diseno.entrada.Comp
+      key={diseno.entrada.clave}
+      origen={diseno.entrada.origen}
+      onCubierta={diseno.entrada.cubierta}
+      onFin={diseno.terminarEntrada}
+    />
+  );
+
+  // Un diseño puede traer su propia página entera: mismo contenido, otra estructura.
+  if (PaginaPropia) {
+    return (
+      <div className="ed-root" ref={ref} lang={L} data-diseno={diseno.activo.id}>
+        {entrada}
+        <PaginaPropia
+          idioma={L}
+          alCambiarIdioma={() => setIdioma(L === 'es' ? 'en' : 'es')}
+          selector={
+            <SelectorDiseno
+              variante="barra"
+              idioma={L}
+              activo={diseno.activo}
+              cargando={diseno.cargando}
+              onCambiar={diseno.cambiar}
+            />
+          }
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="ed-root" ref={ref} lang={L} data-diseno={diseno.activo.id}>
       {diseno.cambios > 0 && <div className="ed-barrido" key={diseno.cambios} aria-hidden="true" />}
-      {diseno.entrada && (
-        <diseno.entrada.Comp
-          key={diseno.entrada.clave}
-          origen={diseno.entrada.origen}
-          onCubierta={diseno.entrada.cubierta}
-          onFin={diseno.terminarEntrada}
-        />
-      )}
+      {entrada}
       {Capa && <Capa idioma={L} />}
 
       {/* ── Riel de navegación ── */}
