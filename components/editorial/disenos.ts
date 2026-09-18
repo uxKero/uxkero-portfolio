@@ -101,6 +101,16 @@ export const DISENOS: Diseno[] = [
       'https://fonts.googleapis.com/css2?family=Spectral+SC:wght@600;700&family=Anton&family=Barlow:wght@400;600;700&family=Chakra+Petch:wght@500&family=Great+Vibes&display=swap',
     cargar: () => import('./disenos/hextech/Hextech'),
   },
+  {
+    id: 'typesafe',
+    nombre: 'TypeSafe',
+    descripcion: { es: 'Plancha de imprenta, no pantalla', en: 'A press plate, not a screen' },
+    muestra: ['#F386A1', '#3C2D31', '#ABBAB9'],
+    familia: "'Inter Tight', system-ui, sans-serif",
+    fuentes:
+      'https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&family=DotGothic16&display=swap',
+    cargar: () => import('./disenos/typesafe/TypeSafe'),
+  },
 ];
 
 const CLAVE = 'uxkero:diseno';

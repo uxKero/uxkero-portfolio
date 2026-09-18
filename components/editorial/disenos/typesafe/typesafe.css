@@ -1,0 +1,2300 @@
+/* ───────────────────────────────────────────────────────────────────────────
+   TypeSafe. Diseño alternativo con estructura propia.
+
+   Una sola idea gobierna todo: la página es una plancha de imprenta, no una
+   pantalla. De ahí salen las marcas de recorte en escuadra de 1px que enmarcan
+   cada bloque, la trama de puntos en grilla de 5px, los rótulos mono en
+   notación de archivo montados sobre el borde y el dibujo técnico en lugar de
+   la fotografía. Encima hay una segunda capa: ventanas de sistema de los 80,
+   con barra de título negra maciza y cuerpo gris, sin ningún bisel.
+
+   Reglas duras, medidas sobre las capturas del sistema original:
+   - Un solo grosor de línea: 1px. No existe el 2px.
+   - Radio 0 en absolutamente todo.
+   - Cero sombras. La profundidad es apilado.
+   - Sobre superficie de color, la tinta siempre es oscura. Nunca blanco.
+   - La tinta sobre rosa es #3C2D31, no negro puro: calienta la superficie y
+     cuesta 1,5 puntos de contraste a propósito (5,42:1 contra 6,93:1).
+   - Tracking negativo fuerte en la display. Sin eso el sistema se cae.
+   - El marcador macizo es para etiquetas mono, nunca para un titular display.
+   - Los titulares de sección van centrados y dentro de su propia escuadra.
+
+   Todo va bajo [data-diseno='typesafe'], salvo la entrada, que corre cuando el
+   diseño todavía es el anterior.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+.ed-root[data-diseno='typesafe'] {
+  /* Superficies */
+  --rosa: #f386a1;
+  --rosa-sombra: #e77f99;
+  --rosa-punto: #e5738f;
+  --sage: #abbab9;
+  --sage-sombra: #a2b0b0;
+  --cielo: #d9efff;
+  --papel: #fefefe;
+
+  /* Tintas */
+  --tinta-calida: #3c2d31; /* sobre rosa: 5,42:1 */
+  --tinta: #1e1e1e; /* tinta pura y superficie oscura */
+  --tinta-sage: #28292b; /* sobre sage: 7,25:1 */
+
+  /* Acentos */
+  --teal: #09aea0;
+  --magenta: #ff52fc;
+  --magenta-claro: #ff6bfd;
+  /* El rosa intenso de los estados. Tinta encima da 4,75:1, y como tinta sobre
+     papel da 3,41:1, que alcanza para texto grande y no para el chico. */
+  --rosa-fuerte: #e350b9;
+  /* Para texto chico va la versión bajada de luz: 5,6:1 sobre gris de ventana. */
+  --rosa-tinta: #8e2b73;
+
+  /* Cromo de ventana */
+  --cromo: #dedede;
+  --cromo-panel: #c4c4c4;
+  --cromo-campo: #e2e2e2;
+
+  /* Geometría medida píxel a píxel */
+  --filete: 1px;
+  --brazo-h: 11px;
+  --brazo-v: 10px;
+  --sangria: 24px;
+  --trama-paso: 5px;
+  --ritmo: 104px;
+
+  --f-display: 'Inter Tight', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --f-texto: Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --f-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  /* La tipografía de interfaz del escritorio: una gótica de puntos, de la
+     familia de las HG Dot Gothic. Tiene el grano de mapa de bits de un sistema
+     viejo sin caer en el pixel de videojuego, y trae un solo peso, que es lo
+     que corresponde para interfaz. Detrás queda MS Sans Serif, la cara real de
+     Windows 95 y 98, por si la descarga no llega. */
+  --f-ui: DotGothic16, 'MS Sans Serif', 'Microsoft Sans Serif', Tahoma, sans-serif;
+
+  /* Por superficie: qué tinta y de qué color son las marcas de recorte. */
+  --tinta-local: var(--tinta-calida);
+  --marca: var(--tinta-calida);
+  --linea: var(--tinta);
+
+  --seco: 120ms linear;
+  --suave: 240ms cubic-bezier(0.2, 0, 0, 1);
+
+  background: var(--rosa);
+  color: var(--tinta-calida);
+  font-family: var(--f-texto);
+  cursor: auto;
+}
+
+body.ed-diseno-typesafe {
+  background: var(--rosa, #f386a1);
+}
+
+/* El grano de papel del editorial no va: acá la textura es la trama. */
+.ed-root[data-diseno='typesafe']::after {
+  display: none;
+}
+
+.ts-pagina {
+  position: relative;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── Primitivas ─────────────────────────────────────────────────────────────
+   La escuadra de recorte, el rótulo de figura y la trama. Son tres cosas y son
+   el sistema entero.
+   ──────────────────────────────────────────────────────────────────────── */
+
+.ts-marcas {
+  position: relative;
+}
+
+/* Las cuatro escuadras. Dos salen del bloque y dos del hijo .ts-cruz. */
+.ts-marcas::before,
+.ts-marcas::after,
+.ts-cruz::before,
+.ts-cruz::after {
+  content: '';
+  position: absolute;
+  width: var(--brazo-h);
+  height: var(--brazo-v);
+  border: 0 solid var(--marca);
+  pointer-events: none;
+  z-index: 3;
+}
+
+.ts-marcas::before {
+  top: var(--sangria);
+  left: var(--sangria);
+  border-top-width: var(--filete);
+  border-left-width: var(--filete);
+}
+
+.ts-marcas::after {
+  top: var(--sangria);
+  right: var(--sangria);
+  border-top-width: var(--filete);
+  border-right-width: var(--filete);
+}
+
+.ts-cruz {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.ts-cruz::before {
+  bottom: var(--sangria);
+  left: var(--sangria);
+  border-bottom-width: var(--filete);
+  border-left-width: var(--filete);
+}
+
+.ts-cruz::after {
+  bottom: var(--sangria);
+  right: var(--sangria);
+  border-bottom-width: var(--filete);
+  border-right-width: var(--filete);
+}
+
+.ts-plancha {
+  position: relative;
+  padding: var(--ritmo) clamp(24px, 5vw, 72px);
+}
+
+/* El marco de registro es el container real: el contenido respeta el
+   rectángulo que dibujan las escuadras, no el borde de la ventana. */
+.ts-marco {
+  position: relative;
+  z-index: 1;
+  max-width: 1320px;
+  margin: 0 auto;
+  border-top: var(--filete) solid var(--linea);
+  padding-top: 26px;
+}
+
+/* Rótulo de figura: notación de archivo, montado encima del borde del bloque. */
+.ts-rotulo {
+  position: absolute;
+  top: -8px;
+  left: 0;
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  height: 16px;
+  padding: 0 6px;
+  background: var(--tinta);
+  color: var(--papel);
+  font-family: var(--f-mono);
+  font-size: 13px;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.ts-rotulo--suelto {
+  position: static;
+  height: auto;
+  padding: 1px 6px;
+}
+
+/* La trama: grilla de 5px con punto de 1,5px. Es el pegamento visual del
+   sistema y nunca va debajo de un párrafo. */
+.ts-trama {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(var(--rosa-punto) 0.75px, transparent 0.8px);
+  background-size: var(--trama-paso) var(--trama-paso);
+  animation: ts-deriva 8000ms linear infinite;
+}
+
+.ts-trama--sage {
+  background-image: radial-gradient(var(--sage-sombra) 0.75px, transparent 0.8px);
+}
+
+.ts-trama--oscura {
+  background-image: radial-gradient(#34322f 0.75px, transparent 0.8px);
+}
+
+/* Densidad variable: la trama se apaga y forma nubes. */
+.ts-trama--nube {
+  -webkit-mask-image: radial-gradient(110% 80% at 82% 14%, #000 0%, #000 30%, transparent 70%);
+  mask-image: radial-gradient(110% 80% at 82% 14%, #000 0%, #000 30%, transparent 70%);
+}
+
+@keyframes ts-deriva {
+  to {
+    background-position: var(--trama-paso) var(--trama-paso);
+  }
+}
+
+/* ── Superficies ────────────────────────────────────────────────────────── */
+
+.ts-s-rosa {
+  background: var(--rosa);
+  --tinta-local: var(--tinta-calida);
+  --marca: var(--tinta-calida);
+  color: var(--tinta-calida);
+}
+
+.ts-s-sage {
+  background: var(--sage);
+  --tinta-local: var(--tinta-sage);
+  --marca: var(--tinta-sage);
+  color: var(--tinta-sage);
+}
+
+.ts-s-cielo {
+  background: var(--cielo);
+  --tinta-local: var(--tinta);
+  --marca: var(--tinta);
+  color: var(--tinta);
+}
+
+.ts-s-oscura {
+  background: var(--tinta);
+  --tinta-local: var(--papel);
+  --marca: var(--papel);
+  --linea: var(--papel);
+  color: var(--papel);
+}
+
+/* ── Tipografía ─────────────────────────────────────────────────────────────
+   Dos voces con una distancia de tamaño enorme: 128px y 15px, sin escalones.
+   La mono rotula, la grotesca habla, y la división no se rompe nunca.
+   ──────────────────────────────────────────────────────────────────────── */
+
+.ts-display {
+  font-family: var(--f-display);
+  font-size: clamp(44px, 8.6vw, 122px);
+  font-weight: 500;
+  letter-spacing: -0.035em;
+  line-height: 0.92;
+  color: var(--tinta-local);
+  margin: 0;
+}
+
+.ts-display--med {
+  font-size: clamp(34px, 5.6vw, 76px);
+  letter-spacing: -0.03em;
+  line-height: 0.95;
+}
+
+.ts-h2 {
+  font-family: var(--f-display);
+  font-size: clamp(24px, 2.4vw, 34px);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  color: var(--tinta-local);
+  margin: 0;
+}
+
+.ts-cuerpo {
+  font-family: var(--f-texto);
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--tinta-local);
+  margin: 0;
+  max-width: 58ch;
+}
+
+/* El cuerpo destacado va en peso 500, no 400. */
+.ts-cuerpo--fuerte {
+  font-size: 19px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.35;
+  max-width: 42ch;
+}
+
+.ts-mono {
+  font-family: var(--f-mono);
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  color: var(--tinta-local);
+}
+
+.ts-micro {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  color: var(--tinta-local);
+}
+
+/* Marcador: así resalta el sistema los nombres propios dentro de una tabla o
+   de una ventana. Es para etiquetas mono, nunca para un titular. */
+.ts-marcador {
+  background: var(--tinta);
+  color: var(--papel);
+  padding: 0 4px;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+.ts-s-oscura .ts-marcador {
+  background: var(--papel);
+  color: var(--tinta);
+}
+
+.ts-b64 {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  line-height: 1.5;
+  color: var(--tinta-local);
+  opacity: 0.9;
+  word-break: break-all;
+  margin: 0;
+}
+
+/* Puntos de relleno: la convención de índice impreso, y se tienen que ver. */
+.ts-puntos {
+  flex: 1;
+  min-width: 24px;
+  height: 1em;
+  background-image: radial-gradient(currentColor 1px, transparent 1.1px);
+  background-size: 5px 5px;
+  background-position: 0 100%;
+  background-repeat: repeat-x;
+  opacity: 0.75;
+}
+
+/* ── Enlaces y foco ─────────────────────────────────────────────────────── */
+
+.ed-root[data-diseno='typesafe'] a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.ed-root[data-diseno='typesafe'] :where(a, button, [tabindex]):focus-visible {
+  outline: var(--filete) solid var(--tinta-local);
+  outline-offset: 2px;
+}
+
+/* ── Chip de navegación ─────────────────────────────────────────────────── */
+
+/* Plano blanco macizo, sin filete y sin radio. Van pegados al borde de la
+   ventana, no flotando con separación: son recortes de papel sobre la nube. */
+.ts-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 14px;
+  background: var(--papel);
+  color: var(--tinta);
+  border: 0;
+  font-family: var(--f-texto);
+  font-size: 15px;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: background var(--seco), color var(--seco);
+}
+
+.ts-chip:hover {
+  background: var(--rosa-fuerte);
+  color: var(--tinta);
+}
+
+.ts-chip--mono {
+  font-family: var(--f-mono);
+  font-size: 13px;
+  letter-spacing: 0.02em;
+}
+
+/* ── Portada ────────────────────────────────────────────────────────────────
+   Cielo con una nube de medio tono magenta, una ventana de novedades flotando
+   adentro, el ticker con puntos de relleno y el titular centrado abajo, en
+   tinta sobre blanco. La nube invierte luminancia dentro de sí misma, así que
+   no lleva una sola letra encima: el texto empieza recién donde termina.
+   ──────────────────────────────────────────────────────────────────────── */
+
+.ts-portada {
+  position: relative;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, var(--cielo) 0%, #e8f5ff 38%, var(--papel) 82%);
+  --marca: var(--tinta-calida);
+  --linea: var(--tinta);
+  color: var(--tinta-calida);
+}
+
+/* El enmarque encierra el titular y sus enlaces, nada más: se ciñe al texto y
+   no deja espacio abierto de sobra. El cartel de novedades queda afuera, arriba.
+   La nube pasa por detrás de todo, incluido el titular: es una sola sección. */
+.ts-portada__marco {
+  --sangria: 0px;
+  position: relative;
+  z-index: 2;
+  width: fit-content;
+  max-width: calc(100% - 32px);
+  margin: auto auto clamp(36px, 6vh, 76px);
+  /* El carril de la izquierda es para el base64, que va pegado al titular. */
+  padding: 22px 26px 26px 36px;
+}
+
+/* Las nubes se dibujan punto por punto en el canvas: el contorno, el claro del
+   centro y la respiración del loop viven todos ahí. La nube nunca lleva una
+   letra encima, así que acá no hay nada más que ubicarla. */
+.ts-nube {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.ts-portada__chips {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 5;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: start;
+}
+
+.ts-portada__chips > *:nth-child(1) {
+  justify-self: start;
+}
+
+.ts-portada__chips > *:nth-child(2) {
+  justify-self: center;
+}
+
+.ts-portada__chips > *:nth-child(3) {
+  justify-self: end;
+}
+
+/* La ventana de novedades que flota en el hueco de la nube. */
+.ts-noticia {
+  position: absolute;
+  top: clamp(90px, 19vh, 200px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 4;
+  width: min(420px, calc(100% - 40px));
+  background: var(--cromo);
+  border: var(--filete) solid var(--tinta);
+  color: var(--tinta);
+}
+
+.ts-noticia__cab {
+  background: var(--tinta);
+  color: var(--papel);
+  padding: 4px 8px;
+  font-family: var(--f-ui);
+  font-size: 13px;
+  letter-spacing: 0;
+}
+
+/* El cuerpo va metido para adentro y con filete propio: la barra de título
+   toca los bordes y el texto no, y esa doble línea es el marquito del cartel. */
+.ts-noticia__cuerpo {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 3px;
+  border: var(--filete) solid var(--tinta);
+  padding: 7px 8px;
+  font-family: var(--f-ui);
+  font-size: 13px;
+  line-height: 1.4;
+  letter-spacing: 0;
+}
+
+.ts-noticia__cuerpo p {
+  margin: 0;
+  flex: 1;
+}
+
+.ts-noticia__cuerpo a {
+  white-space: nowrap;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.ts-noticia {
+  transition: box-shadow var(--seco);
+}
+
+.ts-noticia:hover {
+  box-shadow: 0 3px 8px rgba(30, 30, 30, 0.28);
+}
+
+.ts-noticia__cab,
+.ts-noticia__cuerpo {
+  transition: background var(--seco), color var(--seco);
+}
+
+.ts-noticia:hover .ts-noticia__cab {
+  background: var(--rosa-fuerte);
+  color: var(--papel);
+}
+
+/* El texto del cuerpo toma el mismo magenta, bajado de luz: el magenta pleno
+   sobre el gris del cuerpo da 2,3:1 y este par da 5,4:1. */
+.ts-noticia:hover .ts-noticia__cuerpo {
+  color: var(--rosa-tinta);
+}
+
+.ts-portada__abajo {
+  position: relative;
+  z-index: 2;
+  pointer-events: none;
+  display: grid;
+  gap: clamp(18px, 2.6vh, 32px);
+  justify-items: center;
+  text-align: center;
+}
+
+.ts-portada__pie,
+.ts-portada__abajo a,
+.ts-portada__abajo button {
+  pointer-events: auto;
+}
+
+.ts-portada__pie {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(16px, 3vw, 40px);
+}
+
+/* Línea de anuncio: dos fragmentos unidos por puntos de relleno. */
+.ts-ticker {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  width: min(620px, 100%);
+  font-family: var(--f-texto);
+  font-size: 15px;
+  color: var(--tinta-local);
+}
+
+.ts-ticker b {
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.ts-titular span {
+  display: block;
+}
+
+/* El titular del inicio va un punto más pesado que el resto de la display: es
+   la única pieza de la página que se lee desde lejos. */
+.ts-portada .ts-titular {
+  font-weight: 600;
+}
+
+/* El base64 vertical del margen: información que nadie lee, o sea textura. */
+.ts-b64-vertical {
+  position: absolute;
+  left: 8px;
+  bottom: 26px;
+  z-index: 3;
+  max-height: 58%;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-family: var(--f-mono);
+  font-size: 9px;
+  letter-spacing: 0.04em;
+  color: var(--tinta-calida);
+  opacity: 0.55;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Llamado a la acción: texto grande, tres triángulos macizos, link subrayado. */
+.ts-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: clamp(12px, 2vw, 24px);
+  font-family: var(--f-display);
+  font-size: clamp(24px, 3.4vw, 46px);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  color: var(--tinta-local);
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+.ts-cta span {
+  text-decoration: none;
+}
+
+.ts-cta u {
+  text-decoration: underline;
+  text-underline-offset: 6px;
+  text-decoration-thickness: 2px;
+  transition: text-decoration-thickness var(--seco), text-underline-offset var(--seco);
+}
+
+.ts-cta {
+  transition: color var(--seco);
+}
+
+.ts-cta:hover {
+  color: var(--rosa-fuerte);
+}
+
+.ts-cta:hover u {
+  text-decoration-thickness: 8px;
+  text-underline-offset: 8px;
+}
+
+/* Sobre superficie oscura entra el magenta pleno de la nube: da 7,4:1. */
+.ts-s-oscura .ts-cta:hover {
+  color: var(--magenta);
+}
+
+.ts-cta__tri {
+  display: inline-flex;
+  gap: 3px;
+}
+
+/* ── La etiqueta del titular ────────────────────────────────────────────────
+   Aparece al pasar por encima del titular y sigue al puntero: un plano de rosa
+   intenso con tinta oscura y un botón de reproducción al lado, los dos con el
+   filete de 1px del sistema y radio 0.
+   ──────────────────────────────────────────────────────────────────────── */
+
+.ts-marbete {
+  position: fixed;
+  top: 0;
+  left: 0;
+  padding: 15px 0 0 7px;
+  z-index: 40;
+  display: flex;
+  align-items: stretch;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--seco);
+  will-change: transform;
+}
+
+.ts-marbete.is-visible {
+  opacity: 1;
+}
+
+/* La única sombra del diseño. El sistema no tiene ni una, pero esta etiqueta
+   flota sobre el titular y sin despegarse se lee como parte del texto. Va corta
+   y seca, y el filete queda solo abajo, en gris oscuro. */
+.ts-marbete span,
+.ts-marbete i {
+  background: var(--rosa-fuerte);
+  border: 0;
+  border-bottom: var(--filete) solid #4a4448;
+  color: var(--tinta);
+  box-shadow: 0 2px 5px rgba(30, 30, 30, 0.26);
+}
+
+.ts-marbete span {
+  padding: 8px 14px;
+  font-family: var(--f-texto);
+  font-size: 17px;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.ts-marbete i {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  margin-left: 2px;
+}
+
+/* Sobre el titular el cursor del sistema se esconde y lo reemplaza el puntero
+   dibujado: con los dos a la vista la interacción se lee rota. Solo pasa acá. */
+.ts-portada .ts-titular {
+  cursor: none;
+}
+
+/* El puntero va con la etiqueta, apoyado en su esquina: sin él la etiqueta
+   flota sola y no se lee como algo que el cursor está arrastrando. */
+.ts-marbete__puntero {
+  position: absolute;
+  top: -1px;
+  left: -5px;
+  color: var(--tinta);
+  filter: drop-shadow(0 1px 2px rgba(30, 30, 30, 0.35));
+}
+
+/* En una pantalla sin puntero no hay hover que valga. */
+@media (hover: none) {
+  .ts-marbete {
+    display: none;
+  }
+}
+
+/* ── Cabecera de sección ────────────────────────────────────────────────────
+   El titular va centrado y dentro de su propia escuadra, como una plancha
+   aparte de lo que viene abajo.
+   ──────────────────────────────────────────────────────────────────────── */
+
+.ts-cabecera {
+  --sangria: 0px;
+  position: relative;
+  padding: clamp(28px, 5vh, 56px) clamp(24px, 4vw, 64px);
+  margin-bottom: clamp(32px, 5vh, 64px);
+  text-align: center;
+}
+
+.ts-cabecera .ts-display {
+  margin-inline: auto;
+}
+
+.ts-cabecera__nota {
+  margin: 18px auto 0;
+  font-family: var(--f-mono);
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  color: var(--tinta-local);
+}
+
+.ts-cabecera__nota a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ── Campo tramado ──────────────────────────────────────────────────────────
+   El contenedor donde viven los paneles y las ventanas: filete de 1px, trama
+   adentro y el rótulo montado sobre su borde superior izquierdo.
+   ──────────────────────────────────────────────────────────────────────── */
+
+.ts-campo {
+  position: relative;
+  border: var(--filete) solid var(--linea);
+  padding: clamp(24px, 4vw, 56px);
+  background-image: radial-gradient(var(--rosa-punto) 0.75px, transparent 0.8px);
+  background-size: var(--trama-paso) var(--trama-paso);
+}
+
+.ts-s-sage .ts-campo {
+  background-image: radial-gradient(var(--sage-sombra) 0.75px, transparent 0.8px);
+}
+
+.ts-s-oscura .ts-campo {
+  background-image: radial-gradient(#34322f 0.75px, transparent 0.8px);
+}
+
+.ts-s-cielo .ts-campo {
+  background-image: radial-gradient(#bcd9ef 0.75px, transparent 0.8px);
+}
+
+.ts-campo > .ts-rotulo {
+  top: -8px;
+  left: -1px;
+}
+
+/* ── Índice impreso ─────────────────────────────────────────────────────── */
+
+.ts-indice {
+  --sangria: 0px;
+  padding: 26px clamp(16px, 3vw, 48px);
+}
+
+.ts-indice__lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 clamp(32px, 6vw, 96px);
+}
+
+.ts-indice__lista li {
+  border-bottom: var(--filete) solid var(--linea);
+}
+
+.ts-indice__item {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 0;
+  background: none;
+  border: 0;
+  font-family: var(--f-mono);
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  color: var(--tinta-local);
+  text-align: left;
+  cursor: pointer;
+  transition: opacity var(--seco);
+}
+
+.ts-indice__item:hover {
+  opacity: 0.6;
+}
+
+.ts-indice__item b {
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+.ts-indice__item.is-activo .ts-indice__nombre {
+  background: var(--tinta);
+  color: var(--papel);
+  padding: 0 4px;
+}
+
+/* ── Cifras ─────────────────────────────────────────────────────────────── */
+
+.ts-datos {
+  --sangria: 0px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  padding: 26px clamp(16px, 3vw, 40px);
+}
+
+.ts-dato {
+  padding: 4px clamp(16px, 2.4vw, 32px);
+  border-left: var(--filete) solid var(--linea);
+}
+
+.ts-dato:first-child {
+  border-left: 0;
+  padding-left: 0;
+}
+
+.ts-dato__cifra {
+  font-family: var(--f-display);
+  font-size: clamp(40px, 5vw, 64px);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--tinta-local);
+  display: block;
+  margin-bottom: 12px;
+}
+
+.ts-dato__titulo {
+  font-family: var(--f-texto);
+  font-size: 15px;
+  font-weight: 500;
+  margin: 0 0 4px;
+}
+
+/* ── Manifiesto ─────────────────────────────────────────────────────────── */
+
+.ts-columnas {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(24px, 3vw, 48px);
+}
+
+.ts-columna {
+  border-top: var(--filete) solid var(--linea);
+  padding-top: 12px;
+  display: grid;
+  gap: clamp(28px, 5vh, 56px);
+  align-content: start;
+}
+
+.ts-kicker {
+  font-family: var(--f-mono);
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  color: var(--tinta-local);
+}
+
+/* El retrato ya viene tramado a puntos: acá solo se lleva a la tinta. */
+.ts-retrato {
+  position: relative;
+  margin: 0;
+  border: var(--filete) solid var(--linea);
+  background: var(--papel);
+}
+
+.ts-retrato img {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: url(#ts-duo-tinta) contrast(1.06);
+}
+
+.ts-retrato figcaption {
+  border-top: var(--filete) solid var(--tinta);
+  padding: 6px 8px;
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: var(--tinta);
+  background: var(--papel);
+}
+
+.ts-perfil__reja {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 320px);
+  gap: clamp(32px, 5vw, 72px);
+  align-items: start;
+}
+
+/* ── Panel de datos ─────────────────────────────────────────────────────── */
+
+.ts-panel {
+  background: var(--papel);
+  border: var(--filete) solid var(--tinta);
+  color: var(--tinta);
+}
+
+.ts-panel__cab {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: var(--tinta);
+  color: var(--papel);
+  padding: 3px 8px;
+  font-family: var(--f-mono);
+  font-size: 13px;
+  letter-spacing: 0.02em;
+}
+
+.ts-panel__cab span:last-child {
+  opacity: 0.7;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+}
+
+.ts-panel__scroll {
+  overflow-x: auto;
+}
+
+/* Las tablas mono no reflowean: hacen scroll dentro de su propio contenedor. */
+.ts-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--f-mono);
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  color: var(--tinta);
+  min-width: 620px;
+}
+
+.ts-tabla th {
+  text-align: left;
+  font-weight: 400;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 6px 10px;
+  border-bottom: var(--filete) solid var(--tinta);
+  white-space: nowrap;
+  opacity: 0.65;
+}
+
+.ts-tabla td {
+  padding: 7px 10px;
+  border-bottom: var(--filete) solid rgba(30, 30, 30, 0.22);
+  vertical-align: baseline;
+}
+
+.ts-tabla tr:last-child td {
+  border-bottom: 0;
+}
+
+.ts-tabla tbody tr {
+  transition: background var(--seco);
+}
+
+.ts-tabla tbody tr:hover {
+  background: var(--cromo-campo);
+}
+
+.ts-tabla__n {
+  font-variant-numeric: tabular-nums;
+  opacity: 0.55;
+  width: 1%;
+  white-space: nowrap;
+}
+
+.ts-tabla__num {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.ts-tabla a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* Fila de barra: etiqueta, relleno macizo sobre track segmentado y valor. */
+.ts-barra {
+  display: grid;
+  grid-template-columns: minmax(90px, 160px) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 5px 0;
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: var(--tinta);
+}
+
+.ts-barra > span:first-child {
+  justify-self: start;
+}
+
+.ts-barra__pista {
+  position: relative;
+  height: 14px;
+  background: var(--cromo-campo);
+  /* El track está segmentado en bloques, no es continuo. */
+  background-image: linear-gradient(
+    90deg,
+    transparent 0 calc(100% / 28 - 1px),
+    var(--papel) calc(100% / 28 - 1px) calc(100% / 28)
+  );
+  background-size: calc(100% / 28) 100%;
+}
+
+.ts-barra__relleno {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--tinta);
+}
+
+.ts-barra__valor {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Productos ──────────────────────────────────────────────────────────── */
+
+.ts-destacados {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(20px, 2.4vw, 32px);
+  margin-bottom: clamp(20px, 2.4vw, 32px);
+}
+
+.ts-ficha {
+  position: relative;
+  background: var(--papel);
+  border: var(--filete) solid var(--tinta);
+  color: var(--tinta);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  transition: background var(--seco);
+}
+
+.ts-ficha:hover {
+  background: var(--cromo-campo);
+}
+
+/* Los rótulos van sobre el borde de la ficha, fuera de todo recorte. */
+.ts-ficha > .ts-rotulo {
+  top: -8px;
+  left: -1px;
+}
+
+.ts-ficha__lamina {
+  position: relative;
+  border-bottom: var(--filete) solid var(--tinta);
+  background: var(--papel);
+  aspect-ratio: 16 / 9;
+}
+
+/* La lámina se dibuja tramada a 1 bit en su propio lienzo: no lleva filtro ni
+   trama encima, porque el patrón ya es la imagen. */
+.ts-ficha__dither {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* El rótulo de estado se ancla abajo a la izquierda, montado sobre el borde. */
+.ts-ficha__cat {
+  position: absolute;
+  left: -1px;
+  bottom: -8px;
+  z-index: 2;
+}
+
+.ts-ficha__cuerpo {
+  padding: 22px 16px 16px;
+  display: grid;
+  gap: 10px;
+  align-content: start;
+  flex: 1;
+}
+
+.ts-ficha__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: var(--tinta);
+  opacity: 0.75;
+}
+
+.ts-ficha__pie {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 16px;
+  border-top: var(--filete) solid var(--tinta);
+  font-family: var(--f-texto);
+  font-size: 15px;
+}
+
+.ts-ficha__pie a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.ts-ficha__pie a:hover {
+  background: var(--tinta);
+  color: var(--papel);
+  text-decoration: none;
+}
+
+.ts-estado {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+}
+
+.ts-estado i {
+  width: 6px;
+  height: 6px;
+  background: var(--tinta);
+}
+
+.ts-estado.is-vivo i {
+  background: var(--teal);
+}
+
+.ts-estado.is-cerrado i {
+  background: transparent;
+  border: var(--filete) solid var(--tinta);
+}
+
+.ts-grilla {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(20px, 2.4vw, 32px);
+}
+
+.ts-grilla > div {
+  display: flex;
+}
+
+.ts-grilla > .is-ancho {
+  grid-column: 1 / -1;
+}
+
+.ts-grilla > .is-ancho .ts-ficha {
+  flex-direction: row;
+}
+
+.ts-grilla > .is-ancho .ts-ficha__lamina {
+  flex: 0 0 38%;
+  border-bottom: 0;
+  border-right: var(--filete) solid var(--tinta);
+  aspect-ratio: auto;
+}
+
+.ts-grilla > .is-ancho .ts-ficha__cat {
+  bottom: 8px;
+  left: -8px;
+}
+
+.ts-grilla > .is-ancho .ts-ficha__envoltorio {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.ts-tabla-productos {
+  margin-top: clamp(28px, 4vw, 48px);
+}
+
+/* ── Acordeón del índice de productos ───────────────────────────────────────
+   Pregunta en mono chica, respuesta en grotesca grande: ese contraste es el
+   gesto entero del componente. El filete de la izquierda va sólido cuando está
+   abierto y punteado cuando está cerrado, y el chevron apunta hacia abajo con
+   el item abierto, al revés de la convención, como en el sistema original.
+   ──────────────────────────────────────────────────────────────────────── */
+
+/* Va sobre superficie oscura, como en el sistema original: el acordeón es el
+   bloque que corta el rosa de la sección. Los filetes y el chevron toman
+   currentColor, así el componente no depende de la superficie donde cae. */
+.ts-faq-bloque {
+  background: var(--tinta);
+  color: var(--papel);
+  border: var(--filete) solid var(--tinta);
+}
+
+.ts-faq-bloque__cab {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 0;
+  padding: 8px 14px;
+  border-bottom: var(--filete) solid rgba(254, 254, 254, 0.28);
+  font-family: var(--f-mono);
+  font-size: 13px;
+  letter-spacing: 0.02em;
+}
+
+.ts-faq-bloque__cab span:last-child {
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  opacity: 0.7;
+}
+
+.ts-faq {
+  display: grid;
+  padding: 16px 14px 18px;
+}
+
+.ts-faq__item {
+  border-left: var(--filete) solid currentColor;
+  padding-left: 16px;
+  margin-bottom: 4px;
+}
+
+.ts-faq__item:not(.is-abierto) {
+  border-left-style: dotted;
+}
+
+.ts-faq__q {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  padding: 7px 0;
+  background: none;
+  border: 0;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.ts-faq__fila {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+  font-family: var(--f-mono);
+  font-size: 13px;
+  letter-spacing: 0.02em;
+}
+
+.ts-faq__fila b {
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+.ts-faq__n {
+  font-variant-numeric: tabular-nums;
+  opacity: 0.55;
+}
+
+.ts-faq__item.is-abierto .ts-faq__nombre {
+  background: var(--papel);
+  color: var(--tinta);
+  padding: 0 4px;
+}
+
+.ts-chevron {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border: var(--filete) solid currentColor;
+  transition: transform var(--suave);
+}
+
+.ts-faq__item:not(.is-abierto) .ts-chevron {
+  transform: rotate(180deg);
+}
+
+.ts-faq__r {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--suave);
+}
+
+.ts-faq__item.is-abierto .ts-faq__r {
+  grid-template-rows: 1fr;
+}
+
+.ts-faq__r > div {
+  overflow: hidden;
+}
+
+.ts-faq__r .ts-cuerpo {
+  color: inherit;
+  padding: 10px 0 2px;
+}
+
+.ts-faq__pie {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  margin: 12px 0 18px;
+  font-family: var(--f-texto);
+  font-size: 15px;
+  color: inherit;
+}
+
+.ts-faq__pie .ts-micro {
+  color: inherit;
+  opacity: 0.72;
+}
+
+.ts-faq__pie a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color var(--seco);
+}
+
+/* Sobre el oscuro sí entra el magenta pleno de la nube: da 7,4:1. */
+.ts-faq__pie a:hover {
+  color: var(--magenta);
+}
+
+/* El punto de estado apagado se dibuja con filete, y acá el filete es claro. */
+.ts-faq .ts-estado.is-cerrado i {
+  border-color: var(--papel);
+}
+
+.ts-faq .ts-estado i {
+  background: var(--papel);
+}
+
+.ts-faq .ts-estado.is-vivo i {
+  background: var(--teal);
+}
+
+.ts-faq .ts-estado.is-cerrado i {
+  background: transparent;
+}
+
+/* ── Escritorio del oficio ──────────────────────────────────────────────────
+   Cuatro bloques en las esquinas y uno principal al medio, apilados sobre el
+   campo tramado, sin una sola sombra. Los de las esquinas no llevan cuerpo
+   blanco: se ve el campo por detrás y solo la barra de título es maciza.
+   ──────────────────────────────────────────────────────────────────────── */
+
+.ts-escritorio {
+  position: relative;
+  max-width: 1000px;
+  margin: 0 auto;
+  border: var(--filete) solid var(--tinta);
+}
+
+.ts-escritorio > .ts-rotulo {
+  top: -8px;
+  left: -1px;
+}
+
+.ts-campo-puntos {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.ts-craft-seccion {
+  position: relative;
+}
+
+/* El recorte va en el lienzo, no en el escritorio: en el escritorio se come el
+   rótulo, que está montado sobre el borde de arriba. */
+.ts-escritorio__lienzo {
+  position: relative;
+  /* Un poco menos alto que ancho: cuadrado perfecto se comía la pantalla. */
+  aspect-ratio: 4 / 3;
+  background: var(--rosa);
+  overflow: hidden;
+  touch-action: none;
+}
+
+.ts-escritorio__aviso {
+  position: absolute;
+  right: 10px;
+  bottom: 8px;
+  margin: 0;
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: var(--tinta-calida);
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.ts-win {
+  position: absolute;
+  border: var(--filete) solid var(--tinta);
+  color: var(--tinta);
+  max-width: calc(100% - 20px);
+}
+
+/* Al soltar vuelve a su sitio con transición, no de golpe. */
+.ts-win.is-volviendo {
+  transition: left 420ms cubic-bezier(0.2, 0, 0, 1), top 420ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* Las cuatro esquinas no llevan fondo ni barra maciza: se apoyan directamente
+   sobre el campo tramado. Queda el filete de 1px y el título en tinta, que
+   sobre rosa da 5,42:1. */
+.ts-win--marca {
+  background: transparent;
+}
+
+.ts-win--marca .ts-win__cab {
+  background: transparent;
+  color: var(--tinta);
+  border-bottom: var(--filete) solid var(--tinta);
+}
+
+.ts-win--marca .ts-win__botones i {
+  border-color: var(--tinta);
+}
+
+.ts-win--cromo {
+  background: var(--cromo);
+}
+
+.ts-win--campo {
+  background: var(--cromo-campo);
+}
+
+.ts-win--papel {
+  background: var(--papel);
+}
+
+.ts-win__cab {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: var(--tinta);
+  color: var(--papel);
+  padding: 5px 6px 4px;
+  font-family: var(--f-ui);
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+}
+
+.ts-win__cab:active {
+  cursor: grabbing;
+}
+
+.ts-win__botones {
+  display: flex;
+  gap: 4px;
+  flex: none;
+}
+
+.ts-win__botones i {
+  width: 9px;
+  height: 9px;
+  border: var(--filete) solid var(--papel);
+}
+
+.ts-win__cuerpo {
+  padding: 8px;
+}
+
+/* ── Los cuatro bloques de las esquinas ─────────────────────────────────── */
+
+.ts-widget {
+  display: grid;
+  gap: 5px;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  color: var(--tinta);
+}
+
+.ts-widget__linea {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-family: var(--f-ui);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.ts-widget__parrafo {
+  margin: 0;
+  font-family: var(--f-texto);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+/* La fecha lleva números, y en tipografía de píxel el 8, el 0 y el 6 comparten
+   contorno. Las palabras van en bits, los números que hay que leer sin dudar
+   no: esta línea se lee en mono. */
+.ts-widget__fecha {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  text-transform: capitalize;
+}
+
+.ts-widget__reloj {
+  margin: 0;
+  font-size: 22px;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.ts-widget__destacado {
+  margin: 0;
+  font-family: var(--f-display);
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  overflow-wrap: anywhere;
+}
+
+/* El punto que late: la disponibilidad es un dato vivo, no una etiqueta. */
+.ts-latido {
+  width: 7px;
+  height: 7px;
+  flex: none;
+  background: var(--teal);
+  animation: ts-latir 1800ms steps(1, end) infinite;
+}
+
+@keyframes ts-latir {
+  0%,
+  55% {
+    opacity: 1;
+  }
+  56%,
+  100% {
+    opacity: 0.15;
+  }
+}
+
+.ts-widget__marcas {
+  display: flex;
+  gap: 3px;
+  margin-top: 2px;
+}
+
+.ts-widget__marcas i {
+  width: 8px;
+  height: 4px;
+  background: var(--tinta);
+  opacity: 0.25;
+  transition: opacity var(--seco);
+}
+
+.ts-widget__marcas i.is-activa {
+  opacity: 1;
+}
+
+.ts-vida__grilla {
+  display: grid;
+  grid-template-columns: repeat(11, 1fr);
+  border: var(--filete) solid var(--tinta);
+  background: var(--papel);
+}
+
+.ts-vida__grilla button {
+  aspect-ratio: 1;
+  border: 0;
+  border-right: var(--filete) solid rgba(30, 30, 30, 0.18);
+  border-bottom: var(--filete) solid rgba(30, 30, 30, 0.18);
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+}
+
+.ts-vida__grilla button.is-viva {
+  background: var(--tinta);
+}
+
+/* ── El bloque principal ────────────────────────────────────────────────── */
+
+.ts-craft {
+  background: var(--papel);
+  margin: -8px;
+  padding: 10px 12px 12px;
+}
+
+.ts-craft__nota,
+.ts-craft__titulo {
+  font-family: var(--f-ui);
+  font-size: 14px;
+  letter-spacing: 0;
+}
+
+.ts-craft__nota {
+  margin: 0 0 8px;
+}
+
+.ts-barra.is-foco .ts-barra__relleno {
+  animation: ts-cargar 620ms cubic-bezier(0.2, 0, 0, 1) both;
+}
+
+@keyframes ts-cargar {
+  from {
+    transform: scaleX(0.05);
+  }
+  to {
+    transform: none;
+  }
+}
+
+.ts-barra__relleno {
+  transform-origin: left center;
+}
+
+.ts-barra.is-foco .ts-marcador {
+  background: var(--teal);
+  color: var(--tinta);
+}
+
+.ts-craft__lectura {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: var(--filete) solid var(--tinta);
+  min-height: 92px;
+}
+
+.ts-craft__titulo {
+  margin: 0 0 8px;
+}
+
+.ts-craft__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.ts-craft__chips span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 5px;
+  background: var(--cromo-campo);
+  border: var(--filete) solid var(--tinta);
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  animation: ts-entrar 180ms linear both;
+}
+
+@keyframes ts-entrar {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.ts-craft__chips i {
+  font-style: normal;
+  opacity: 0.6;
+}
+
+.ts-craft__pie {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: var(--filete) solid var(--tinta);
+  font-family: var(--f-ui);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+}
+
+/* La sigla de cada grupo sí va en bits; el número de al lado no, porque en una
+   rejilla de píxeles el 8, el 0 y el 6 comparten contorno. */
+.ts-craft .ts-barra > span:first-child {
+  font-family: var(--f-ui);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  padding: 2px 6px;
+}
+
+/* ── Guías ──────────────────────────────────────────────────────────────── */
+
+.ts-guias__grilla {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(20px, 3vw, 40px);
+}
+
+.ts-guia {
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+  gap: 14px;
+  align-content: start;
+}
+
+/* La plancha técnica reemplaza a la fotografía en este sistema. */
+.ts-tecnica {
+  position: relative;
+  border: var(--filete) solid var(--tinta);
+  background: var(--papel);
+  aspect-ratio: 480 / 380;
+}
+
+.ts-tecnica svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* El rótulo de categoría, montado sobre el borde inferior de la figura. */
+.ts-guia__tag {
+  position: absolute;
+  left: -1px;
+  bottom: -8px;
+  z-index: 2;
+}
+
+.ts-guia__tag .ts-rotulo {
+  position: static;
+  background: var(--rosa-fuerte);
+  color: var(--tinta);
+}
+
+.ts-leer {
+  justify-self: start;
+  font-family: var(--f-texto);
+  font-size: 15px;
+  color: var(--tinta-local);
+}
+
+.ts-leer {
+  transition: color var(--seco);
+}
+
+.ts-leer:hover {
+  color: var(--rosa-tinta);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ── Contacto y pie ─────────────────────────────────────────────────────── */
+
+.ts-contacto__reja {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 360px);
+  gap: clamp(32px, 5vw, 80px);
+  align-items: end;
+}
+
+.ts-enlaces {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.ts-enlaces a {
+  padding: 6px 12px;
+  border: var(--filete) solid var(--papel);
+  font-family: var(--f-texto);
+  font-size: 15px;
+  transition: background var(--seco), color var(--seco);
+}
+
+.ts-enlaces a:hover {
+  background: var(--papel);
+  color: var(--tinta);
+}
+
+/* El volumen en alambre, detrás del cierre. */
+.ts-alambre {
+  position: absolute;
+  right: 3%;
+  bottom: 4%;
+  opacity: 0.5;
+  color: var(--papel);
+  pointer-events: none;
+}
+
+.ts-pie {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: center;
+  gap: 16px;
+  background: var(--tinta);
+  color: var(--papel);
+  padding: 14px clamp(24px, 5vw, 72px);
+  font-family: var(--f-texto);
+  font-size: 15px;
+}
+
+.ts-pie__medio {
+  text-align: center;
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  opacity: 0.75;
+}
+
+.ts-pie__der {
+  display: flex;
+  justify-content: flex-end;
+  gap: 14px;
+}
+
+.ts-pie a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ── El selector de diseños, vestido de chip ────────────────────────────── */
+
+.ed-root[data-diseno='typesafe'] .ed-disenos--barra {
+  position: static;
+  transform: none;
+  width: auto;
+  background: none;
+  border: 0;
+  padding: 0;
+}
+
+.ed-root[data-diseno='typesafe'] .ed-disenos__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 14px;
+  background: var(--papel);
+  color: var(--tinta);
+  border: 0;
+  border-radius: 0;
+  font-family: var(--f-mono);
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  transition: background var(--seco), color var(--seco);
+}
+
+.ed-root[data-diseno='typesafe'] .ed-disenos__btn:hover {
+  background: var(--rosa-fuerte);
+  color: var(--tinta);
+}
+
+.ed-root[data-diseno='typesafe'] .ed-disenos__muestra i {
+  border-radius: 0;
+}
+
+.ed-root[data-diseno='typesafe'] .ed-disenos__panel {
+  top: 100%;
+  right: 0;
+  bottom: auto;
+  left: auto;
+  z-index: 70;
+  background: var(--papel);
+  border: var(--filete) solid var(--tinta);
+  border-radius: 0;
+  box-shadow: none;
+  color: var(--tinta);
+}
+
+.ed-root[data-diseno='typesafe'] .ed-disenos__titulo {
+  background: var(--tinta);
+  color: var(--papel);
+  font-family: var(--f-mono);
+  border-radius: 0;
+}
+
+.ed-root[data-diseno='typesafe'] .ed-disenos__item {
+  border-radius: 0;
+  color: var(--tinta);
+}
+
+.ed-root[data-diseno='typesafe'] .ed-disenos__item:hover,
+.ed-root[data-diseno='typesafe'] .ed-disenos__item.is-activo {
+  background: var(--cromo-campo);
+}
+
+.ed-root[data-diseno='typesafe'] .ed-disenos__n,
+.ed-root[data-diseno='typesafe'] .ed-disenos__desc {
+  color: var(--tinta);
+  opacity: 0.7;
+}
+
+/* ── Movimiento ─────────────────────────────────────────────────────────────
+   Las secciones no aparecen al pasar por delante: la página está toda puesta
+   desde el arranque. Una plancha ya está impresa cuando la levantás.
+   ──────────────────────────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .ed-root[data-diseno='typesafe'] * {
+    animation: none !important;
+    transition-duration: 1ms !important;
+  }
+}
+
+/* ── Versión de mano ────────────────────────────────────────────────────────
+   El trazo nunca escala: 1px a cualquier tamaño. Lo que cambia es la sangría.
+   ──────────────────────────────────────────────────────────────────────── */
+
+@media (max-width: 1180px) {
+  .ts-escritorio__lienzo {
+    height: 700px;
+  }
+}
+
+@media (max-width: 1080px) {
+  .ts-grilla,
+  .ts-columnas {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .ts-contacto__reja,
+  .ts-perfil__reja {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ts-alambre {
+    display: none;
+  }
+}
+
+@media (max-width: 860px) {
+  .ed-root[data-diseno='typesafe'] {
+    --sangria: 12px;
+    --ritmo: 72px;
+  }
+
+  .ts-plancha {
+    padding: var(--ritmo) 20px;
+  }
+
+  .ts-portada {
+    min-height: auto;
+  }
+
+  .ts-portada__cielo {
+    min-height: 46svh;
+  }
+
+  .ts-portada__abajo {
+    padding-top: 12px;
+  }
+
+  /* El segundo fragmento del ticker va en nowrap y no puede achicarse: eso
+     ensancha su bloque y arrastra al titular, que queda corrido del margen.
+     En mano se deja partir y los puntos de relleno pasan a renglón propio. */
+  .ts-ticker {
+    flex-wrap: wrap;
+    justify-content: center;
+    row-gap: 2px;
+  }
+
+  .ts-ticker b:last-child {
+    white-space: normal;
+  }
+
+  .ts-ticker .ts-puntos {
+    flex: 1 0 100%;
+    min-width: 0;
+    height: 8px;
+  }
+
+  .ts-portada__marco {
+    width: auto;
+    max-width: none;
+    margin-inline: 14px;
+    padding: 20px 16px 22px 28px;
+  }
+
+  .ts-b64-vertical {
+    display: none;
+  }
+
+  .ts-grilla,
+  .ts-columnas,
+  .ts-destacados,
+  .ts-guias__grilla {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ts-grilla > .is-ancho .ts-ficha {
+    flex-direction: column;
+  }
+
+  .ts-grilla > .is-ancho .ts-ficha__lamina {
+    flex: none;
+    border-right: 0;
+    border-bottom: var(--filete) solid var(--tinta);
+    aspect-ratio: 16 / 9;
+  }
+
+  .ts-grilla > .is-ancho .ts-ficha__cat {
+    left: -1px;
+    bottom: -8px;
+  }
+
+  .ts-datos {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ts-dato {
+    border-left: 0;
+    border-top: var(--filete) solid var(--linea);
+    padding: 20px 0 0;
+    margin-top: 20px;
+  }
+
+  .ts-dato:first-child {
+    border-top: 0;
+    margin-top: 0;
+    padding-top: 0;
+  }
+
+  .ts-indice__lista {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ts-pie {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ts-pie__medio,
+  .ts-pie__der {
+    text-align: left;
+    justify-content: flex-start;
+  }
+
+  /* En mano las ventanas no se arrastran: se apilan y se leen. */
+  .ts-escritorio__lienzo {
+    height: auto;
+    display: grid;
+    gap: 16px;
+    padding: 20px 14px 28px;
+    overflow: visible;
+  }
+
+  .ts-win {
+    position: static;
+    width: auto !important;
+    max-width: none;
+  }
+
+  .ts-win__cab {
+    cursor: default;
+  }
+
+  .ts-escritorio__aviso {
+    display: none;
+  }
+}
+
+/* ── Entrada: la hoja y la ventana que carga ────────────────────────────────
+   Va sin scope de diseño: cuando corre, el data-diseno todavía es el anterior.
+   El fondo se queda quieto y lo único que se mueve es la barra de la ventana.
+   ──────────────────────────────────────────────────────────────────────── */
+
+.tse {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  pointer-events: none;
+  overflow: hidden;
+  font-family: DotGothic16, 'MS Sans Serif', 'Microsoft Sans Serif', Tahoma, sans-serif;
+}
+
+.tse__hoja {
+  position: absolute;
+  inset: 0;
+  background: #f386a1;
+  transform-origin: var(--ox) var(--oy);
+  transform: scale(0);
+  transition: transform 300ms linear;
+}
+
+.tse--cargar .tse__hoja {
+  transform: scale(1);
+}
+
+.tse--descubrir .tse__hoja {
+  transform: translateY(-100%);
+  transition: transform 280ms linear;
+}
+
+.tse__trama {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(#e5738f 0.75px, transparent 0.8px);
+  background-size: 5px 5px;
+}
+
+/* Las cuatro escuadras, quietas: registran la hoja y nada más. */
+.tse__marca {
+  position: absolute;
+  width: 11px;
+  height: 10px;
+  border: 0 solid #3c2d31;
+  opacity: 0;
+  transition: opacity 140ms linear 60ms;
+}
+
+.tse--cargar .tse__marca,
+.tse--descubrir .tse__marca {
+  opacity: 1;
+}
+
+.tse__marca--ai {
+  top: 24px;
+  left: 24px;
+  border-top-width: 1px;
+  border-left-width: 1px;
+}
+
+.tse__marca--ad {
+  top: 24px;
+  right: 24px;
+  border-top-width: 1px;
+  border-right-width: 1px;
+}
+
+.tse__marca--bi {
+  bottom: 24px;
+  left: 24px;
+  border-bottom-width: 1px;
+  border-left-width: 1px;
+}
+
+.tse__marca--bd {
+  bottom: 24px;
+  right: 24px;
+  border-bottom-width: 1px;
+  border-right-width: 1px;
+}
+
+.tse__centro {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+
+/* La ventana: barra maciza, cuerpo gris, filete de 1px y ningún bisel. */
+.tse__win {
+  width: min(360px, calc(100% - 48px));
+  background: #dedede;
+  border: 1px solid #1e1e1e;
+  color: #1e1e1e;
+  opacity: 0;
+  transition: opacity 120ms linear;
+}
+
+.tse--cargar .tse__win,
+.tse--descubrir .tse__win {
+  opacity: 1;
+}
+
+.tse__win__cab {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: #1e1e1e;
+  color: #fefefe;
+  padding: 4px 6px;
+  font-size: 14px;
+}
+
+.tse__win__botones {
+  display: flex;
+  gap: 4px;
+}
+
+.tse__win__botones i {
+  width: 9px;
+  height: 9px;
+  border: 1px solid #fefefe;
+}
+
+.tse__win__cuerpo {
+  margin: 3px;
+  border: 1px solid #1e1e1e;
+  padding: 10px;
+}
+
+.tse__win__linea {
+  margin: 0 0 9px;
+  font-size: 14px;
+}
+
+/* El track va segmentado en bloques, como el de los paneles de datos. */
+.tse__barra {
+  display: flex;
+  gap: 1px;
+  height: 14px;
+  background: #e2e2e2;
+  border: 1px solid #1e1e1e;
+  padding: 1px;
+}
+
+.tse__barra i {
+  flex: 1;
+  background: transparent;
+}
+
+.tse__barra i.is-lleno {
+  background: #1e1e1e;
+}
+
+.tse__win__pie {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 8px 0 0;
+  font-size: 12px;
+}
+
+/* El porcentaje se lee sin dudar: en una gótica de puntos el 8, el 0 y el 6
+   comparten contorno, así que va en mono. */
+.tse__pct {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tse {
+    display: none;
+  }
+}
