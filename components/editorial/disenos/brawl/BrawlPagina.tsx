@@ -237,12 +237,12 @@ const Cabecera: React.FC<{ id: string; L: 'es' | 'en'; cifra?: string }> = ({ id
   </header>
 );
 
-const CartaProducto: React.FC<{ p: Producto; L: 'es' | 'en'; i: number }> = ({ p, L, i }) => {
+const CartaProducto: React.FC<{ p: Producto; L: 'es' | 'en'; i: number; ancha?: boolean }> = ({ p, L, i, ancha = p.ancho }) => {
   const categoria = CATEGORIA[p.estado.en] ?? 'violeta';
   const estrella = p.meta && p.slug === 'anydesign';
   return (
     <article
-      className={`bw-oferta bw-plate bw-oferta--${categoria} bw-llega${p.ancho ? ' bw-oferta--ancha' : ''}${
+      className={`bw-oferta bw-plate bw-oferta--${categoria} bw-llega${ancha ? ' bw-oferta--ancha' : ''}${
         p.destacado ? ' bw-oferta--destacada' : ''
       }`}
       style={{ '--d': `${(i % 3) * 70}ms` } as React.CSSProperties}
@@ -251,10 +251,10 @@ const CartaProducto: React.FC<{ p: Producto; L: 'es' | 'en'; i: number }> = ({ p
         <span>{p.destacado ? TXT.propio[L] : p.estado[L]}</span>
         <span className="bw-oferta__n">#{p.n}</span>
       </div>
-      {p.slug === 'kerocraft' && <span className="bw-bandera">{p.estado[L]}</span>}
+      {p.destacado === 'naranja' && <span className="bw-bandera">{p.estado[L]}</span>}
       {estrella && (
         <span className="bw-estallido" aria-label={p.meta![L]}>
-          <b>167</b>
+          <b>200</b>
           <small>{L === 'es' ? 'estrellas' : 'stars'}</small>
         </span>
       )}
@@ -396,8 +396,8 @@ const BrawlPagina: React.FC<PropsPagina> = ({ idioma: L, alCambiarIdioma, select
           <span className="bw-bandera">{TXT.nuevo[L]}</span>
           <Icono nombre="caja" tam={44} />
           <span>
-            <strong className="bw-contorno">KeroCraft</strong>
-            <small>{PRODUCTOS[0].estado[L]}</small>
+            <strong className="bw-contorno">{destacados[0].nombre}</strong>
+            <small>{destacados[0].estado[L]}</small>
           </span>
         </a>
 
@@ -501,7 +501,7 @@ const BrawlPagina: React.FC<PropsPagina> = ({ idioma: L, alCambiarIdioma, select
         <Cabecera id="productos" L={L} cifra={String(PRODUCTOS.length)} />
         <div className="bw-tienda bw-tienda--destacados">
           {destacados.map((p, i) => (
-            <CartaProducto key={p.slug} p={p} L={L} i={i} />
+            <CartaProducto key={p.slug} p={p} L={L} i={i} ancha={i === 0} />
           ))}
         </div>
         <div className="bw-tienda">

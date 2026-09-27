@@ -63,8 +63,8 @@ const TXT = {
   derechos: { es: 'Todos los derechos reservados', en: 'All rights reserved' },
   novedad: { es: 'Novedades', en: 'News' },
   novedadTexto: {
-    es: 'KeroCraft ya está publicado y en uso',
-    en: 'KeroCraft is published and in use',
+    es: 'BigAgent ya está publicado y en uso',
+    en: 'BigAgent is published and in use',
   },
   leerMas: { es: 'Ver más', en: 'Read More' },
   publicados: {
@@ -204,7 +204,7 @@ const Panel: React.FC<{ titulo: string; nota?: string; children: React.ReactNode
   </div>
 );
 
-const Ficha: React.FC<{ p: Producto; idioma: L }> = ({ p, idioma: L }) => {
+const Ficha: React.FC<{ p: Producto; idioma: L; ancha?: boolean }> = ({ p, idioma: L, ancha = p.ancho }) => {
   const vivo = p.estado.en === 'Live';
   // Al pasar el puntero la lámina se resuelve con su segunda receta de trama:
   // el hover es una transformación de la imagen, no un cambio de opacidad.
@@ -249,7 +249,7 @@ const Ficha: React.FC<{ p: Producto; idioma: L }> = ({ p, idioma: L }) => {
       <span className="ts-ficha__cat">
         <Rotulo>{p.estado[L]}</Rotulo>
       </span>
-      {p.ancho ? <div className="ts-ficha__envoltorio">{cuerpo}</div> : cuerpo}
+      {ancha ? <div className="ts-ficha__envoltorio">{cuerpo}</div> : cuerpo}
     </article>
   );
 };
@@ -523,8 +523,10 @@ const TypeSafePagina: React.FC<PropsPagina> = ({ idioma, alCambiarIdioma, select
         <Cabecera lineas={[etiqueta(3)]} nota={TXT.publicados[L]} />
 
         <div className="ts-destacados">
-          {destacados.map((p) => (
-            <Ficha key={p.slug} p={p} idioma={L} />
+          {destacados.map((p, i) => (
+            <div key={p.slug} className={i === 0 ? 'is-ancho' : undefined}>
+              <Ficha p={p} idioma={L} ancha={i === 0} />
+            </div>
           ))}
         </div>
 
@@ -536,7 +538,7 @@ const TypeSafePagina: React.FC<PropsPagina> = ({ idioma, alCambiarIdioma, select
           ))}
         </div>
 
-        {/* El índice de los doce, en acordeón. Arranca cerrado, así lo que ya
+        {/* El índice de los productos, en acordeón. Arranca cerrado, así lo que ya
             dicen las fichas de arriba no queda dos veces en pantalla, y la
             pregunta en mono contra la respuesta en grotesca grande es el gesto
             propio de este componente. */}

@@ -324,7 +324,8 @@ const Cabecera: React.FC<{ id: string; idioma: L; ruta: string; cuenta?: number;
 // ── Producto ─────────────────────────────────────────────────────────────────
 
 const VentanaProducto: React.FC<{ p: Producto; idioma: L; i: number }> = ({ p, idioma, i }) => {
-  const destacado = p.slug === 'kerocraft';
+  const destacado = !!p.destacado;
+  const principal = p.destacado === 'naranja';
   const terminado = !p.activo;
   return (
     <Ventana
@@ -342,7 +343,7 @@ const VentanaProducto: React.FC<{ p: Producto; idioma: L; i: number }> = ({ p, i
         </>
       }
     >
-      {destacado && (
+      {principal && (
         <>
           <span className="y2-sello">{TXT.salio[idioma]}</span>
           <Destello tam={30} className="y2-titila" style={{ position: 'absolute', top: 44, right: 26 }} />
@@ -404,7 +405,7 @@ const Y2KPagina: React.FC<PropsPagina> = ({ idioma, alCambiarIdioma, selector })
     Math.floor(timecode.getMilliseconds() / 40),
   )}`;
   const hora = `${dos(reloj.getHours())}:${dos(reloj.getMinutes())}`;
-  const kerocraft = PRODUCTOS[0];
+  const principal = PRODUCTOS[0];
   const resto = PRODUCTOS.slice(1);
   const habilidades = OFICIO.flatMap((g) => g.items.map((it) => it[idioma]));
 
@@ -541,7 +542,7 @@ const Y2KPagina: React.FC<PropsPagina> = ({ idioma, alCambiarIdioma, selector })
         <div className="y2-sec__interior">
           <Cabecera id="productos" idioma={idioma} ruta="C:\UXKERO\PRODUCTS" cuenta={PRODUCTOS.length} />
           <div className="y2-escritorio">
-            <VentanaProducto p={kerocraft} idioma={idioma} i={0} />
+            <VentanaProducto p={principal} idioma={idioma} i={0} />
             {resto.map((p, i) => (
               <VentanaProducto key={p.slug} p={p} idioma={idioma} i={i + 1} />
             ))}

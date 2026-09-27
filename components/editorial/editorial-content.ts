@@ -96,7 +96,7 @@ export const DATOS: { cifra: string; titulo: Bi; contexto: Bi }[] = [
     },
   },
   {
-    cifra: '12',
+    cifra: '16',
     titulo: { es: 'Productos propios', en: 'Products of my own' },
     contexto: {
       es: 'Publicados y en uso, no prototipos de portfolio.',
@@ -207,12 +207,27 @@ export interface Producto {
 export const PRODUCTOS: Producto[] = [
   {
     n: '01',
+    slug: 'bigagent',
+    nombre: 'BigAgent',
+    rol: { es: 'Fundador · Producto, UX y desarrollo', en: 'Founder · Product, UX and development' },
+    estado: { es: 'En vivo', en: 'Live' },
+    activo: true,
+    destacado: 'naranja',
+    texto: {
+      es: 'Un reality donde los participantes son agentes de IA. Se arma una casa de 2 a 8 agentes, cada uno con carácter, secretos y aspecto propios, y se los ve convivir, pelearse, enamorarse y votar semana a semana hasta la final. Solo, en multijugador o en el canal en vivo.',
+      en: 'A reality show where the contestants are AI agents. You build a house of 2 to 8 agents, each with their own character, secrets and look, and watch them live together, fight, fall in love and vote week after week until the final. Solo, multiplayer or on the live channel.',
+    },
+    stack: 'Next.js · three.js · Multi agente',
+    url: 'https://bigagent.live',
+  },
+  {
+    n: '02',
     slug: 'kerocraft',
     nombre: 'KeroCraft',
     rol: { es: 'Fundador · Producto, UX y desarrollo', en: 'Founder · Product, UX and development' },
     estado: { es: 'En vivo', en: 'Live' },
     activo: true,
-    destacado: 'naranja',
+    destacado: 'tinta',
     texto: {
       es: 'Un mod para Minecraft 1.21.1 que convierte una descripción escrita en una construcción de bloques. Motor de vóxeles propio: el costo se ve antes de gastar y la obra se coloca cuando convence.',
       en: 'A mod for Minecraft 1.21.1 that turns a written description into a block build. My own voxel engine: you see the cost before spending and place the build once it convinces you.',
@@ -221,7 +236,7 @@ export const PRODUCTOS: Producto[] = [
     url: 'https://kerocraft.builders',
   },
   {
-    n: '02',
+    n: '03',
     slug: 'voybien',
     nombre: 'VoyBien',
     rol: { es: 'Fundador · Producto, UX y desarrollo', en: 'Founder · Product, UX and development' },
@@ -236,7 +251,47 @@ export const PRODUCTOS: Producto[] = [
     url: 'https://voybien.com.ar',
   },
   {
-    n: '03',
+    n: '04',
+    slug: 'nameslop',
+    nombre: 'nameslop',
+    rol: { es: 'Producto, UX y desarrollo', en: 'Product, UX and development' },
+    estado: { es: 'En vivo', en: 'Live' },
+    activo: true,
+    texto: {
+      es: 'Juzga nombres de producto: evalúa uno, compara varios o sugiere hasta cien en 19 idiomas. Cada puntaje explica por qué y los dominios se consultan en vivo.',
+      en: 'Judges product names: score one, compare several or get up to a hundred suggestions in 19 languages. Every score explains why, and domains are checked live.',
+    },
+    stack: 'Next.js',
+    url: 'https://nameslop.app',
+  },
+  {
+    n: '05',
+    slug: 'opuscut',
+    nombre: 'OpusCut',
+    rol: { es: 'Skill de video', en: 'Video skill' },
+    estado: { es: 'Abierto', en: 'Open source' },
+    activo: true,
+    texto: {
+      es: 'Un director de cine para agentes de código. Convierte un repositorio o una idea en un video de producto con concepto, ritmo y estilo propios, y reconoce el estilo buscado a partir de un video de referencia.',
+      en: 'A film director for coding agents. Turns a repository or a brief into a product video with its own concept, pacing and style, and reads the look you are after from a reference video.',
+    },
+    gh: 'https://github.com/uxKero/opuscut',
+  },
+  {
+    n: '06',
+    slug: 'badesign',
+    nombre: 'BADESIGN',
+    rol: { es: 'Skill de criterio de diseño', en: 'Design judgment skill' },
+    estado: { es: 'Abierto', en: 'Open source' },
+    activo: true,
+    texto: {
+      es: 'Criterio de diseño para los modelos de IA que diseñan mal. Una sola skill para Codex, Claude Code, Cursor y cualquier API, que corta los patrones típicos de la interfaz generada.',
+      en: 'Design judgment for AI models that design badly. One skill for Codex, Claude Code, Cursor and any API that cuts the usual patterns of generated interfaces.',
+    },
+    gh: 'https://github.com/uxKero/badesign-skill',
+  },
+  {
+    n: '07',
     slug: 'clow',
     nombre: 'Clow',
     rol: { es: 'Librería de componentes y sistema de diseño', en: 'Component library and design system' },
@@ -250,13 +305,13 @@ export const PRODUCTOS: Producto[] = [
     gh: 'https://github.com/uxKero/clow',
   },
   {
-    n: '04',
+    n: '08',
     slug: 'anydesign',
     nombre: 'anydesign',
     rol: { es: 'Skill de sistema de diseño', en: 'Design system skill' },
     estado: { es: 'Abierto', en: 'Open source' },
     activo: true,
-    meta: { es: '167 estrellas en GitHub', en: '167 stars on GitHub' },
+    meta: { es: '200 estrellas en GitHub', en: '200 stars on GitHub' },
     texto: {
       es: 'Analiza una imagen, un sitio o un archivo de Figma y devuelve un design.md con el sistema de tokens, el inventario de componentes y las notas para reconstruirlo.',
       en: 'Analyses an image, a website or a Figma file and returns a design.md with the token system, the component inventory and the notes needed to rebuild it.',
@@ -264,7 +319,7 @@ export const PRODUCTOS: Producto[] = [
     gh: 'https://github.com/uxKero/anydesign',
   },
   {
-    n: '05',
+    n: '09',
     slug: 'lastmemory',
     nombre: 'lastmemory',
     rol: { es: 'Memoria para agentes de código', en: 'Memory for coding agents' },
@@ -277,7 +332,7 @@ export const PRODUCTOS: Producto[] = [
     gh: 'https://github.com/uxKero/lastmemory',
   },
   {
-    n: '06',
+    n: '10',
     slug: 'elcubil',
     nombre: 'El Cubil',
     rol: { es: 'Producto, UX y desarrollo', en: 'Product, UX and development' },
@@ -290,7 +345,7 @@ export const PRODUCTOS: Producto[] = [
     url: 'https://elcubil.fun',
   },
   {
-    n: '07',
+    n: '11',
     slug: 'saga',
     nombre: 'SAGA',
     rol: { es: 'Skill de descubribilidad', en: 'Discoverability skill' },
@@ -303,7 +358,7 @@ export const PRODUCTOS: Producto[] = [
     gh: 'https://github.com/uxKero/optimize-search-answers-agents',
   },
   {
-    n: '08',
+    n: '12',
     slug: 'clawdows',
     nombre: 'clawdows',
     rol: { es: 'Aplicación de escritorio', en: 'Desktop app' },
@@ -316,7 +371,7 @@ export const PRODUCTOS: Producto[] = [
     gh: 'https://github.com/uxKero/clawdows',
   },
   {
-    n: '09',
+    n: '13',
     slug: 'pokialert',
     nombre: 'PokiAlert',
     rol: { es: 'Producto y UX', en: 'Product and UX' },
@@ -328,7 +383,7 @@ export const PRODUCTOS: Producto[] = [
     },
   },
   {
-    n: '10',
+    n: '14',
     slug: 'afondo',
     nombre: 'A Fondo',
     rol: { es: 'Simulador de carrera deportiva', en: 'Career simulator' },
@@ -341,7 +396,7 @@ export const PRODUCTOS: Producto[] = [
     url: 'https://afondo.run',
   },
   {
-    n: '11',
+    n: '15',
     slug: 'kanau',
     nombre: 'Kanau',
     rol: { es: 'Citas y vida nocturna', en: 'Dating and nightlife' },
@@ -353,7 +408,7 @@ export const PRODUCTOS: Producto[] = [
     },
   },
   {
-    n: '12',
+    n: '16',
     slug: 'prodegame',
     nombre: 'PRODEGAME',
     rol: { es: 'Fundador · Producto, UX y desarrollo', en: 'Founder · Product, UX and development' },

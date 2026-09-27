@@ -32,8 +32,12 @@ ANCHO, ALTO = 720, 378  # 1200x630 a escala, que es lo que mide una og:image
 
 # Nombre del archivo de origen por proyecto.
 LAMINAS = {
+    "bigagent": "bigagent.jpg",
     "kerocraft": "kerocraft.jpg",
     "voybien": "voybien.jpg",
+    "nameslop": "nameslop.png",
+    "opuscut": "opuscut.jpg",
+    "badesign": "gh-badesign-skill.png",
     "clow": "clow.png",
     "anydesign": "gh-anydesign.png",
     "lastmemory": "gh-lastmemory.png",

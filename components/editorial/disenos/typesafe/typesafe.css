@@ -1199,31 +1199,31 @@ body.ed-diseno-typesafe {
   gap: clamp(20px, 2.4vw, 32px);
 }
 
-.ts-grilla > div {
+:is(.ts-grilla, .ts-destacados) > div {
   display: flex;
 }
 
-.ts-grilla > .is-ancho {
+:is(.ts-grilla, .ts-destacados) > .is-ancho {
   grid-column: 1 / -1;
 }
 
-.ts-grilla > .is-ancho .ts-ficha {
+:is(.ts-grilla, .ts-destacados) > .is-ancho .ts-ficha {
   flex-direction: row;
 }
 
-.ts-grilla > .is-ancho .ts-ficha__lamina {
+:is(.ts-grilla, .ts-destacados) > .is-ancho .ts-ficha__lamina {
   flex: 0 0 38%;
   border-bottom: 0;
   border-right: var(--filete) solid var(--tinta);
   aspect-ratio: auto;
 }
 
-.ts-grilla > .is-ancho .ts-ficha__cat {
+:is(.ts-grilla, .ts-destacados) > .is-ancho .ts-ficha__cat {
   bottom: 8px;
   left: -8px;
 }
 
-.ts-grilla > .is-ancho .ts-ficha__envoltorio {
+:is(.ts-grilla, .ts-destacados) > .is-ancho .ts-ficha__envoltorio {
   display: flex;
   flex-direction: column;
   flex: 1;
@@ -2050,18 +2050,18 @@ body.ed-diseno-typesafe {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .ts-grilla > .is-ancho .ts-ficha {
+  :is(.ts-grilla, .ts-destacados) > .is-ancho .ts-ficha {
     flex-direction: column;
   }
 
-  .ts-grilla > .is-ancho .ts-ficha__lamina {
+  :is(.ts-grilla, .ts-destacados) > .is-ancho .ts-ficha__lamina {
     flex: none;
     border-right: 0;
     border-bottom: var(--filete) solid var(--tinta);
     aspect-ratio: 16 / 9;
   }
 
-  .ts-grilla > .is-ancho .ts-ficha__cat {
+  :is(.ts-grilla, .ts-destacados) > .is-ancho .ts-ficha__cat {
     left: -1px;
     bottom: -8px;
   }

@@ -928,6 +928,7 @@ a.y2-campo--linea {
 .y2-escritorio {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-auto-flow: row dense;
   gap: 34px 28px;
   align-items: start;
 }

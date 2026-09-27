@@ -7,7 +7,7 @@ import React, { useEffect, useRef, useState } from 'react';
 // degradado, y es lo que separa a estas fichas de las de cualquier otro diseño:
 // no son fotos en duotono, son fotos reducidas a dos tintas y a un patrón.
 //
-// Cada producto tiene su propia receta, y son doce distintas: el par de tintas
+// Cada producto tiene su propia receta, todas distintas: el par de tintas
 // sale de la paleta del sistema y el patrón cambia de familia (Bayer de 4 y de
 // 8, líneas, diagonales, cruzado, ondas, medio tono agrupado, ruido, bloques).
 // Al pasar el puntero la lámina se resuelve con la segunda receta, así que el
@@ -90,8 +90,12 @@ export interface Receta {
   sesgo?: number;
 }
 
-// Doce recetas, una por producto. El orden sigue al de PRODUCTOS.
+// Una receta por producto. El orden sigue al de PRODUCTOS.
 export const RECETAS: Record<string, [Receta, Receta]> = {
+  bigagent: [
+    { patron: 'agrupado', tinta: '#1e1e1e', papel: '#f386a1', bloque: 3 },
+    { patron: 'bayer4', tinta: '#f386a1', papel: '#28292b', bloque: 2 },
+  ],
   kerocraft: [
     { patron: 'bayer8', tinta: '#1e1e1e', papel: '#f386a1', bloque: 2 },
     { patron: 'agrupado', tinta: '#e350b9', papel: '#1e1e1e', bloque: 3, sesgo: -0.05 },
@@ -99,6 +103,18 @@ export const RECETAS: Record<string, [Receta, Receta]> = {
   voybien: [
     { patron: 'lineas', tinta: '#28292b', papel: '#abbab9', bloque: 2 },
     { patron: 'ondas', tinta: '#09aea0', papel: '#1e1e1e', bloque: 2, sesgo: -0.06 },
+  ],
+  nameslop: [
+    { patron: 'bayer8', tinta: '#28292b', papel: '#fefefe', bloque: 2 },
+    { patron: 'bloques', tinta: '#fefefe', papel: '#e350b9', bloque: 2 },
+  ],
+  opuscut: [
+    { patron: 'verticales', tinta: '#1e1e1e', papel: '#dedede', bloque: 2 },
+    { patron: 'diagonal', tinta: '#e350b9', papel: '#1e1e1e', bloque: 2 },
+  ],
+  badesign: [
+    { patron: 'lineas', tinta: '#3c2d31', papel: '#d9efff', bloque: 2 },
+    { patron: 'ondas', tinta: '#1e1e1e', papel: '#09aea0', bloque: 2 },
   ],
   clow: [
     { patron: 'agrupado', tinta: '#1e1e1e', papel: '#d9efff', bloque: 3 },
@@ -202,7 +218,7 @@ const LaminaDither: React.FC<Props> = ({ slug, alterna }) => {
           histo[Math.min(255, Math.round(l * 255))]++;
         }
 
-        // Niveles automáticos contra los percentiles 2 y 98. Las doce láminas
+        // Niveles automáticos contra los percentiles 2 y 98. Las láminas
         // vienen con rangos muy distintos: sin esto, las claras salen lavadas y
         // las oscuras se tapan, y el patrón deja de verse.
         const recorte = Math.max(1, Math.round(datos.length * 0.02));

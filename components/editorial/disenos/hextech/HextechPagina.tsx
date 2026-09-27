@@ -260,13 +260,17 @@ const Cresta: React.FC<{ foto: string; tam?: number }> = ({ foto, tam = 150 }) =
 // ── Inicio: pantalla de modos ───────────────────────────────────────────────
 
 const Inicio: React.FC<{ idioma: L; wallpaper: string; irA: (id: string) => void }> = ({ idioma, wallpaper, irA }) => {
-  const kerocraft = PRODUCTOS[0];
+  const destacados = PRODUCTOS.filter((p) => p.destacado);
   const opciones: { id: string; texto: string; nuevo?: boolean; destino: () => void }[] = [
-    { id: 'kerocraft', texto: kerocraft.nombre, nuevo: true, destino: () => window.open(kerocraft.url, '_blank', 'noopener') },
-    { id: 'voybien', texto: 'VoyBien', destino: () => window.open(PRODUCTOS[1].url, '_blank', 'noopener') },
+    ...destacados.map((p, i) => ({
+      id: p.slug,
+      texto: p.nombre,
+      nuevo: i === 0,
+      destino: () => window.open(p.url, '_blank', 'noopener'),
+    })),
     ...ORDEN.slice(1, 7).map((id) => ({ id, texto: PESTANA[id][idioma], destino: () => irA(id) })),
   ];
-  const [elegida, setElegida] = useState('kerocraft');
+  const [elegida, setElegida] = useState(destacados[0].slug);
 
   return (
     <section className="cl-inicio" id="top">
@@ -372,8 +376,8 @@ const Coleccion: React.FC<{ idioma: L }> = ({ idioma }) => {
   const [filtro, setFiltro] = useState<Filtro>('destacados');
   const [pagina, setPagina] = useState(0);
   const [abierto, setAbierto] = useState<Producto | null>(null);
-  const destacados = [PRODUCTOS[0], PRODUCTOS[1], PRODUCTOS[11]];
-  const fichas = [PRODUCTOS[2], PRODUCTOS[3], PRODUCTOS[4], PRODUCTOS[5]];
+  const destacados = [...PRODUCTOS.filter((p) => p.destacado), ...PRODUCTOS.filter((p) => p.ancho)];
+  const fichas = PRODUCTOS.filter((p) => !p.destacado && !p.ancho).slice(0, 4);
   const lista = useMemo(
     () => (filtro === 'destacados' ? [] : filtro === 'todos' ? PRODUCTOS : PRODUCTOS.filter((p) => p.estado.en === filtro)),
     [filtro],
@@ -437,7 +441,7 @@ const Coleccion: React.FC<{ idioma: L }> = ({ idioma }) => {
 
           <div className="cl-franja hx-aparece">
             <b className="cl-franja__marca">
-              167
+              200
               <small>{idioma === 'es' ? 'estrellas' : 'stars'}</small>
             </b>
             <p>

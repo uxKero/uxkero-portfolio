@@ -42,6 +42,7 @@ const T = {
 
 // Glifos planos y monocromos: el cliente no usa íconos a color en la barra.
 export const GLIFOS: Record<string, React.ReactNode> = {
+  bigagent: <path d="M12 2.5l9.5 8.2V21h-7v-6.5h-5V21h-7V10.7z" fill="currentColor" />,
   kerocraft: <path d="M12 2l9 5v10l-9 5l-9-5V7zM12 12l9-5M12 12v10M12 12L3 7" fill="currentColor" stroke="#010a13" strokeWidth="1.4" strokeLinejoin="round" />,
   voybien: <path d="M12 2a7 7 0 0 1 7 7c0 5-7 13-7 13S5 14 5 9a7 7 0 0 1 7-7zm0 4a3 3 0 1 0 0 6a3 3 0 0 0 0-6z" fill="currentColor" fillRule="evenodd" />,
   productos: <path d="M4 8h16l-1.5 13h-13zM8.5 8V6.5a3.5 3.5 0 0 1 7 0V8" fill="currentColor" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />,

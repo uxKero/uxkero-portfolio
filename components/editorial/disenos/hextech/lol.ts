@@ -65,6 +65,26 @@ export const CAMPEON_POR_ORG: Record<string, { campeon: string; motivo: Bi }> = 
 
 /** El ítem de cada producto. */
 export const ITEM_POR_PRODUCTO: Record<string, { id: string } & Bi> = {
+  "bigagent": {
+    "id": "3107",
+    "es": "Redención",
+    "en": "Redemption"
+  },
+  "nameslop": {
+    "id": "4628",
+    "es": "Enfoque al Horizonte",
+    "en": "Horizon Focus"
+  },
+  "opuscut": {
+    "id": "3142",
+    "es": "Espada Fantasma de Youmuu",
+    "en": "Youmuu's Ghostblade"
+  },
+  "badesign": {
+    "id": "3102",
+    "es": "Velo de la Banshee",
+    "en": "Banshee's Veil"
+  },
   "kerocraft": {
     "id": "3078",
     "es": "Fuerza de la Trinidad",
