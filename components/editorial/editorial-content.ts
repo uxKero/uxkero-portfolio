@@ -96,7 +96,7 @@ export const DATOS: { cifra: string; titulo: Bi; contexto: Bi }[] = [
     },
   },
   {
-    cifra: '16',
+    cifra: '19',
     titulo: { es: 'Productos propios', en: 'Products of my own' },
     contexto: {
       es: 'Publicados y en uso, no prototipos de portfolio.',
@@ -237,6 +237,21 @@ export const PRODUCTOS: Producto[] = [
   },
   {
     n: '03',
+    slug: 'kero-stack',
+    nombre: 'Kero-stack',
+    rol: { es: 'Método de diseño para agentes', en: 'Design method for AI agents' },
+    estado: { es: 'Abierto', en: 'Open source' },
+    activo: true,
+    destacado: 'tinta',
+    texto: {
+      es: 'Mi método de diseño y producto, empaquetado como siete skills para agentes de IA: investigar, enlistar, sistematizar, construir, medir cada pantalla en el navegador, juzgar a ciegas y orquestar. Los agentes construyen y nada sale sin medirse.',
+      en: 'My design and product method, packaged as seven skills for AI agents: research, scope, systematize, build, measure every screen in the browser, judge blind and orchestrate. Agents build, and nothing ships unmeasured.',
+    },
+    url: 'https://kerostack.vercel.app',
+    gh: 'https://github.com/uxKero/kero-stack',
+  },
+  {
+    n: '04',
     slug: 'voybien',
     nombre: 'VoyBien',
     rol: { es: 'Fundador · Producto, UX y desarrollo', en: 'Founder · Product, UX and development' },
@@ -251,7 +266,7 @@ export const PRODUCTOS: Producto[] = [
     url: 'https://voybien.com.ar',
   },
   {
-    n: '04',
+    n: '05',
     slug: 'nameslop',
     nombre: 'nameslop',
     rol: { es: 'Producto, UX y desarrollo', en: 'Product, UX and development' },
@@ -265,7 +280,7 @@ export const PRODUCTOS: Producto[] = [
     url: 'https://nameslop.app',
   },
   {
-    n: '05',
+    n: '06',
     slug: 'opuscut',
     nombre: 'OpusCut',
     rol: { es: 'Skill de video', en: 'Video skill' },
@@ -278,7 +293,34 @@ export const PRODUCTOS: Producto[] = [
     gh: 'https://github.com/uxKero/opuscut',
   },
   {
-    n: '06',
+    n: '07',
+    slug: 'aimo',
+    nombre: 'AIMO',
+    rol: { es: 'Editor de video con IA', en: 'AI video editor' },
+    estado: { es: 'Abierto', en: 'Open source' },
+    activo: true,
+    texto: {
+      es: 'Un editor para los videos hechos con código. Un clic sobre el cuadro lleva a la línea que lo dibuja, los números se arrastran en el lugar y Claude lee las notas y cambia el código en vivo.',
+      en: 'An editor for videos made with code. A click on the frame leads to the line that draws it, numbers are dragged in place, and Claude reads your notes and changes the code live.',
+    },
+    gh: 'https://github.com/uxKero/aimo',
+  },
+  {
+    n: '08',
+    slug: 'terrane',
+    nombre: 'Terrane',
+    rol: { es: 'Librería de íconos', en: 'Icon library' },
+    estado: { es: 'Abierto', en: 'Open source' },
+    activo: true,
+    texto: {
+      es: 'Íconos SVG de cada país, región y continente, 972 en total, con relieve real. Se instala desde npm y está pensada para que la usen agentes de IA.',
+      en: 'SVG icons of every country, region and continent, 972 in all, with real relief. Installed from npm and made to be used by AI agents.',
+    },
+    url: 'https://terrane-icons.vercel.app',
+    gh: 'https://github.com/uxKero/terrane',
+  },
+  {
+    n: '09',
     slug: 'badesign',
     nombre: 'BADESIGN',
     rol: { es: 'Skill de criterio de diseño', en: 'Design judgment skill' },
@@ -291,7 +333,7 @@ export const PRODUCTOS: Producto[] = [
     gh: 'https://github.com/uxKero/badesign-skill',
   },
   {
-    n: '07',
+    n: '10',
     slug: 'clow',
     nombre: 'Clow',
     rol: { es: 'Librería de componentes y sistema de diseño', en: 'Component library and design system' },
@@ -305,7 +347,7 @@ export const PRODUCTOS: Producto[] = [
     gh: 'https://github.com/uxKero/clow',
   },
   {
-    n: '08',
+    n: '11',
     slug: 'anydesign',
     nombre: 'anydesign',
     rol: { es: 'Skill de sistema de diseño', en: 'Design system skill' },
@@ -319,7 +361,7 @@ export const PRODUCTOS: Producto[] = [
     gh: 'https://github.com/uxKero/anydesign',
   },
   {
-    n: '09',
+    n: '12',
     slug: 'lastmemory',
     nombre: 'lastmemory',
     rol: { es: 'Memoria para agentes de código', en: 'Memory for coding agents' },
@@ -332,7 +374,7 @@ export const PRODUCTOS: Producto[] = [
     gh: 'https://github.com/uxKero/lastmemory',
   },
   {
-    n: '10',
+    n: '13',
     slug: 'elcubil',
     nombre: 'El Cubil',
     rol: { es: 'Producto, UX y desarrollo', en: 'Product, UX and development' },
@@ -345,7 +387,7 @@ export const PRODUCTOS: Producto[] = [
     url: 'https://elcubil.fun',
   },
   {
-    n: '11',
+    n: '14',
     slug: 'saga',
     nombre: 'SAGA',
     rol: { es: 'Skill de descubribilidad', en: 'Discoverability skill' },
@@ -358,7 +400,7 @@ export const PRODUCTOS: Producto[] = [
     gh: 'https://github.com/uxKero/optimize-search-answers-agents',
   },
   {
-    n: '12',
+    n: '15',
     slug: 'clawdows',
     nombre: 'clawdows',
     rol: { es: 'Aplicación de escritorio', en: 'Desktop app' },
@@ -371,7 +413,7 @@ export const PRODUCTOS: Producto[] = [
     gh: 'https://github.com/uxKero/clawdows',
   },
   {
-    n: '13',
+    n: '16',
     slug: 'pokialert',
     nombre: 'PokiAlert',
     rol: { es: 'Producto y UX', en: 'Product and UX' },
@@ -383,7 +425,7 @@ export const PRODUCTOS: Producto[] = [
     },
   },
   {
-    n: '14',
+    n: '17',
     slug: 'afondo',
     nombre: 'A Fondo',
     rol: { es: 'Simulador de carrera deportiva', en: 'Career simulator' },
@@ -396,7 +438,7 @@ export const PRODUCTOS: Producto[] = [
     url: 'https://afondo.run',
   },
   {
-    n: '15',
+    n: '18',
     slug: 'kanau',
     nombre: 'Kanau',
     rol: { es: 'Citas y vida nocturna', en: 'Dating and nightlife' },
@@ -408,7 +450,7 @@ export const PRODUCTOS: Producto[] = [
     },
   },
   {
-    n: '16',
+    n: '19',
     slug: 'prodegame',
     nombre: 'PRODEGAME',
     rol: { es: 'Fundador · Producto, UX y desarrollo', en: 'Founder · Product, UX and development' },

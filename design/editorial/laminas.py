@@ -34,9 +34,12 @@ ANCHO, ALTO = 720, 378  # 1200x630 a escala, que es lo que mide una og:image
 LAMINAS = {
     "bigagent": "bigagent.jpg",
     "kerocraft": "kerocraft.jpg",
+    "kero-stack": "kero-stack.png",
     "voybien": "voybien.jpg",
     "nameslop": "nameslop.png",
     "opuscut": "opuscut.jpg",
+    "aimo": "aimo.jpg",
+    "terrane": "terrane.jpg",
     "badesign": "gh-badesign-skill.png",
     "clow": "clow.png",
     "anydesign": "gh-anydesign.png",

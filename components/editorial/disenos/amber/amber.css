@@ -507,6 +507,7 @@ body.ed-page.ed-diseno-amber ::-webkit-scrollbar-thumb {
     [src$='/kerocraft.jpg'],
     [src$='/opuscut.jpg'],
     [src$='/prodegame.jpg'],
+    [src$='/terrane.jpg'],
     [src$='/voybien.jpg']
   ) {
   filter: grayscale(1) contrast(1.2);

@@ -111,6 +111,16 @@ export const DISENOS: Diseno[] = [
       'https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&family=DotGothic16&display=swap',
     cargar: () => import('./disenos/typesafe/TypeSafe'),
   },
+  {
+    id: 'agua',
+    nombre: 'Bajo el agua',
+    descripcion: { es: 'El mar de Mar del Plata, con física', en: 'The sea of Mar del Plata, with physics' },
+    muestra: ['#06201D', '#2E7D6F', '#F2A65A'],
+    familia: "'Instrument Serif', Georgia, serif",
+    fuentes:
+      'https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Instrument+Sans:wght@400;500;600&display=swap',
+    cargar: () => import('./disenos/agua/Agua'),
+  },
 ];
 
 const CLAVE = 'uxkero:diseno';

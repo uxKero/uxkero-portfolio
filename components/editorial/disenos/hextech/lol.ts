@@ -80,6 +80,21 @@ export const ITEM_POR_PRODUCTO: Record<string, { id: string } & Bi> = {
     "es": "Espada Fantasma de Youmuu",
     "en": "Youmuu's Ghostblade"
   },
+  "kero-stack": {
+    "id": "3157",
+    "es": "Reloj de Arena de Zhonya",
+    "en": "Zhonya's Hourglass"
+  },
+  "aimo": {
+    "id": "3046",
+    "es": "Bailarín Espectral",
+    "en": "Phantom Dancer"
+  },
+  "terrane": {
+    "id": "3865",
+    "es": "Mapamundi",
+    "en": "World Atlas"
+  },
   "badesign": {
     "id": "3102",
     "es": "Velo de la Banshee",

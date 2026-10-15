@@ -26,3 +26,11 @@ dist-ssr
 # Python
 __pycache__/
 *.pyc
+
+# Modelos en crudo del diseño Bajo el agua: pesan cientos de MB. Lo que usa
+# el sitio ya está optimizado en public/agua.
+design/agua/**/*.glb
+design/agua/**/*.gltf
+design/agua/**/*.bin
+design/agua/lobo/r_*.json
+design/agua/lobo/t?.json

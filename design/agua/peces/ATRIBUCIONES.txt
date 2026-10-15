@@ -1,0 +1,25 @@
+public/agua/peces
+
+sardina.glb  CC BY 4.0
+  "Sardine Swim" by Drake (https://sketchfab.com/dlp14c), licensed under CC BY 4.0
+  https://sketchfab.com/3d-models/sardine-swim-1c006b4427184eaba81d95d55ccf343b
+  Changes: optimized (meshopt, WebP 512).
+
+caballa.glb  CC BY 4.0
+  "Atlantic Mackerel" by NewViStudios (https://sketchfab.com/newvistudios), licensed under CC BY 4.0
+  https://sketchfab.com/3d-models/atlantic-mackerel-e4a92741c16448e38a0be59845ab369b
+  Changes: reoriented, rescaled, optimized (meshopt, WebP 512), material set to non-metallic.
+
+lisa.glb  CC0 (no attribution required)
+  "Flathead Mullet, Mugil cephalus" by ffish.asia / floraZia.com
+  https://sketchfab.com/3d-models/cc0-flathead-mullet-mugil-cephalus-f95a53553ed64737ac83ec43fde0e75b
+
+corvina.glb  CC0 (no attribution required)
+  "Silver Croaker, P. argentata" by ffish.asia / floraZia.com
+  https://sketchfab.com/3d-models/cc0-silver-croaker-p-argentata-8c48fef7b022405a9a98a48ef9b53720
+
+barramundi.glb  CC0 (no attribution required)
+  "Barramundi Fish" by Microsoft, Khronos glTF-Sample-Assets
+  https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models/BarramundiFish
+
+Raw files downloaded without login from the Objaverse mirror (huggingface.co/datasets/allenai/objaverse), same Sketchfab uid.

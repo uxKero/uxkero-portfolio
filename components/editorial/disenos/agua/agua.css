@@ -1,0 +1,651 @@
+/* Bajo el agua. El mar no se va nunca: el portfolio está escrito en la pared
+   del pozo, dentro de la escena. Lo que queda en HTML es lo mínimo: la
+   portada, el profundímetro y la pizarra de buceo de cada producto. La tinta
+   es espuma; el acento, el ámbar del atardecer. */
+
+.ed-root[data-diseno='agua'] {
+  --abismo: #020c0b;
+  --espuma: #e8efe9;
+  --espuma-2: rgb(232 239 233 / 0.7);
+  --espuma-3: rgb(232 239 233 / 0.42);
+  --ambar: #f2a65a;
+  --serif: 'Instrument Serif', Georgia, serif;
+  --sans: 'Instrument Sans', system-ui, sans-serif;
+  --curva: cubic-bezier(0.22, 1, 0.36, 1);
+  background: var(--abismo);
+  color: var(--espuma);
+  font-family: var(--sans);
+}
+
+.ed-root[data-diseno='agua'] .ag {
+  position: relative;
+}
+
+.ed-root[data-diseno='agua'] .ag--encima {
+  cursor: pointer;
+}
+
+.ed-root[data-diseno='agua'] .ag__lienzo {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100svh;
+  display: block;
+  z-index: 0;
+}
+
+/* ── Portada ─────────────────────────────────────────────────────────────── */
+
+.ed-root[data-diseno='agua'] .ag__portada {
+  position: relative;
+  z-index: 2;
+  height: 100svh;
+  padding: clamp(20px, 4vw, 48px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+}
+
+.ed-root[data-diseno='agua'] .ag__firma {
+  align-self: flex-start;
+  display: flex;
+  gap: 14px;
+  align-items: baseline;
+  font-size: 13px;
+  letter-spacing: 0.24em;
+  margin: 0;
+  text-shadow: 0 1px 12px rgb(0 0 0 / 0.35);
+}
+
+.ed-root[data-diseno='agua'] .ag__firma span {
+  letter-spacing: 0.04em;
+  color: var(--espuma-2);
+}
+
+.ed-root[data-diseno='agua'] .ag__centro {
+  margin-top: auto;
+  margin-bottom: auto;
+  transform: translateY(14svh);
+  text-align: center;
+}
+
+.ed-root[data-diseno='agua'] .ag__titular {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: clamp(44px, 7.2vw, 116px);
+  line-height: 0.94;
+  letter-spacing: -0.015em;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  text-shadow: 0 2px 40px rgb(0 20 18 / 0.45);
+}
+
+.ed-root[data-diseno='agua'] .ag__acento {
+  font-style: italic;
+}
+
+/* El antetítulo va justo arriba del título dibujado en la escena, y sube
+   con él cuando la cámara se hunde. */
+.ed-root[data-diseno='agua'] .ag__ante {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: var(--ag-ante-y, 36svh);
+  transform: translateY(calc(-1 * var(--ag-ante-sube, 0px)));
+  margin: 0;
+  text-align: center;
+  font-size: var(--ag-ante-tam, 14px);
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--espuma);
+  text-shadow: 0 1px 14px rgb(0 0 0 / 0.45);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.ed-root[data-diseno='agua'] .ag__bajada {
+  margin: auto auto 18px;
+  text-align: center;
+  max-width: 40ch;
+  font-size: 16px;
+  line-height: 1.5;
+  opacity: 0.9;
+  text-shadow: 0 1px 16px rgb(0 20 18 / 0.6);
+}
+
+.ed-root[data-diseno='agua'] .ag__pista {
+  display: flex;
+  gap: 28px;
+  margin: 0 0 56px;
+  font-size: 12.5px;
+  color: var(--espuma-2);
+  text-shadow: 0 1px 12px rgb(0 0 0 / 0.5);
+}
+
+.ed-root[data-diseno='agua'] .ag__pista span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ed-root[data-diseno='agua'] .ag__bajada-largo {
+  pointer-events: none;
+}
+
+/* Todo el texto del portfolio, fuera de la vista y al alcance de buscadores
+   y lectores de pantalla. */
+.ed-root[data-diseno='agua'] .ag-oculto {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ── Profundímetro: la cinta de una computadora de buceo ─────────────────
+   La regla de metros corre por detrás de un índice fijo; la lectura va al
+   lado, grande. Las secciones están marcadas en la cinta, a su metro. */
+
+.ed-root[data-diseno='agua'] .ag-prof {
+  position: fixed;
+  z-index: 4;
+  right: clamp(14px, 2vw, 28px);
+  top: 60%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 16px;
+}
+
+.ed-root[data-diseno='agua'] .ag-prof__cinta {
+  position: relative;
+  width: 210px;
+  height: 34svh;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 22%, #000 78%, transparent);
+  mask-image: linear-gradient(to bottom, transparent, #000 22%, #000 78%, transparent);
+}
+
+.ed-root[data-diseno='agua'] .ag-prof__regla {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  width: 100%;
+  will-change: transform;
+}
+
+.ed-root[data-diseno='agua'] .ag-prof__raya {
+  position: absolute;
+  right: 0;
+  width: 8px;
+  height: 1px;
+  background: rgb(232 239 233 / 0.35);
+}
+
+.ed-root[data-diseno='agua'] .ag-prof__raya--cinco {
+  width: 12px;
+  background: rgb(232 239 233 / 0.5);
+}
+
+.ed-root[data-diseno='agua'] .ag-prof__raya i {
+  position: absolute;
+  right: 22px;
+  top: -7px;
+  font-style: normal;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: var(--espuma-3);
+}
+
+.ed-root[data-diseno='agua'] .ag-prof__marca {
+  all: unset;
+  position: absolute;
+  right: 112px;
+  transform: translateY(-50%);
+  font-size: 12px;
+  white-space: nowrap;
+  cursor: pointer;
+  color: var(--espuma-2);
+  text-shadow: 0 1px 10px rgb(0 0 0 / 0.6);
+  transition: color 160ms ease;
+}
+
+.ed-root[data-diseno='agua'] .ag-prof__marca::after {
+  content: '';
+  position: absolute;
+  right: -94px;
+  top: 50%;
+  width: 86px;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.6;
+}
+
+.ed-root[data-diseno='agua'] .ag-prof__marca:hover,
+.ed-root[data-diseno='agua'] .ag-prof__marca:focus-visible {
+  color: var(--espuma);
+}
+
+.ed-root[data-diseno='agua'] .ag-prof__marca--activa {
+  color: var(--ambar);
+}
+
+/* El índice: una línea fija con la lectura al costado. */
+.ed-root[data-diseno='agua'] .ag-prof__indice {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: baseline;
+  gap: 3px;
+  padding: 0 24px 0 0;
+  pointer-events: none;
+}
+
+.ed-root[data-diseno='agua'] .ag-prof__indice::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 50%;
+  width: 18px;
+  height: 1px;
+  background: var(--ambar);
+  opacity: 0.8;
+}
+
+.ed-root[data-diseno='agua'] .ag-prof__lectura {
+  font-size: 13px;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+  color: var(--espuma-2);
+  min-width: 3.4ch;
+  text-align: right;
+}
+
+.ed-root[data-diseno='agua'] .ag-prof__unidad {
+  font-size: 11px;
+  color: var(--espuma-3);
+}
+
+/* Discreto mientras se baja; se despierta al acercar el mouse. */
+.ed-root[data-diseno='agua'] .ag-prof {
+  opacity: 0.55;
+  transition: opacity 260ms var(--curva);
+}
+
+.ed-root[data-diseno='agua'] .ag-prof:hover,
+.ed-root[data-diseno='agua'] .ag-prof:focus-within {
+  opacity: 1;
+}
+
+.ed-root[data-diseno='agua'] .ag-prof__marca {
+  opacity: 0;
+  transition: opacity 200ms var(--curva), color 160ms ease;
+}
+
+.ed-root[data-diseno='agua'] .ag-prof:hover .ag-prof__marca,
+.ed-root[data-diseno='agua'] .ag-prof:focus-within .ag-prof__marca {
+  opacity: 1;
+}
+
+.ed-root[data-diseno='agua'] .ag-prof__pie {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.ed-root[data-diseno='agua'] .ag-prof__idioma {
+  all: unset;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--espuma-2);
+  transition: color 160ms ease;
+}
+
+.ed-root[data-diseno='agua'] .ag-prof__idioma:hover {
+  color: var(--espuma);
+}
+
+.ed-root[data-diseno='agua'] .ag-prof__info {
+  position: relative;
+  display: grid;
+  place-items: center;
+  color: var(--espuma-2);
+  cursor: help;
+  outline: none;
+}
+
+.ed-root[data-diseno='agua'] .ag-prof__globo {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 10px);
+  width: 230px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: var(--espuma);
+  background: rgb(3 16 15 / 0.86);
+  box-shadow: 0 0 0 1px rgb(232 239 233 / 0.12), 0 10px 30px rgb(0 0 0 / 0.35);
+  opacity: 0;
+  transform: translateY(4px);
+  pointer-events: none;
+  transition: opacity 180ms var(--curva), transform 180ms var(--curva);
+}
+
+.ed-root[data-diseno='agua'] .ag-prof__info:hover .ag-prof__globo,
+.ed-root[data-diseno='agua'] .ag-prof__info:focus-visible .ag-prof__globo {
+  opacity: 1;
+  transform: none;
+}
+
+/* ── La placa en la mano ───────────────────────────────────────────────── */
+
+.ed-root[data-diseno='agua'] .ag-mano {
+  position: fixed;
+  inset: 0;
+  z-index: 6;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: clamp(24px, 6vh, 56px);
+  cursor: zoom-out;
+}
+
+.ed-root[data-diseno='agua'] .ag-mano__barra {
+  display: flex;
+  gap: 8px;
+  padding: 6px;
+  border-radius: 999px;
+  background: rgb(4 18 17 / 0.72);
+  box-shadow: 0 0 0 1px rgb(232 239 233 / 0.12), 0 12px 40px rgb(0 0 0 / 0.4);
+  cursor: default;
+  animation: ag-barra 420ms var(--curva) 200ms both;
+}
+
+.ed-root[data-diseno='agua'] .ag-mano__barra button {
+  all: unset;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 16px;
+  border-radius: 999px;
+  font-size: 14px;
+  cursor: pointer;
+  color: var(--espuma);
+  transition: background 160ms ease, transform 120ms ease;
+}
+
+.ed-root[data-diseno='agua'] .ag-mano__barra button:hover {
+  background: rgb(232 239 233 / 0.1);
+}
+
+.ed-root[data-diseno='agua'] .ag-mano__barra button:active {
+  transform: scale(0.97);
+}
+
+.ed-root[data-diseno='agua'] .ag-mano__barra button:focus-visible {
+  outline: 2px solid var(--ambar);
+  outline-offset: 2px;
+}
+
+.ed-root[data-diseno='agua'] .ag-mano__barra .ag-mano__principal {
+  background: var(--ambar);
+  color: #1d1308;
+  font-weight: 600;
+}
+
+.ed-root[data-diseno='agua'] .ag-mano__barra .ag-mano__principal:hover {
+  background: #f6b675;
+}
+
+@keyframes ag-barra {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+
+.ed-root[data-diseno='agua'] .ag__barra {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 4;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ed-root[data-diseno='agua'] .ag-mano__barra {
+    animation: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .ed-root[data-diseno='agua'] .ag-prof__cinta {
+    width: 96px;
+    height: 30svh;
+  }
+  .ed-root[data-diseno='agua'] .ag-prof__marca {
+    display: none;
+  }
+}
+
+/* ── Carga y entrada ─────────────────────────────────────────────────────
+   El mismo verde de agua para las dos: la entrada lo sube desde el clic y la
+   carga lo sostiene hasta que el mar está listo, y después lo escurre. */
+
+.ed-root[data-diseno='agua'] .ag-carga {
+  position: fixed;
+  inset: 0;
+  z-index: 8;
+  pointer-events: none;
+}
+
+.ed-root[data-diseno='agua'] .ag-carga__agua,
+.ag-entrada__agua {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(120% 70% at 50% 0%, #1d5a52 0%, #0d332e 45%, #041513 100%);
+  overflow: hidden;
+}
+
+.ed-root[data-diseno='agua'] .ag-carga__brillo {
+  position: absolute;
+  left: -20%;
+  right: -20%;
+  top: -30%;
+  height: 90%;
+  background: repeating-linear-gradient(100deg, transparent 0 7%, rgb(160 230 210 / 0.06) 7% 9%, transparent 9% 15%);
+  filter: blur(18px);
+  transform-origin: 50% 0;
+  animation: ag-brillo 6s ease-in-out infinite alternate;
+}
+
+.ed-root[data-diseno='agua'] .ag-carga__brillo--2 {
+  animation-duration: 8.5s;
+  animation-direction: alternate-reverse;
+  opacity: 0.7;
+}
+
+@keyframes ag-brillo {
+  from {
+    transform: skewX(-8deg) translateX(-4%);
+  }
+  to {
+    transform: skewX(6deg) translateX(4%);
+  }
+}
+
+/* El nivel: una línea fina que sube con lo que va cargando. */
+.ed-root[data-diseno='agua'] .ag-carga__nivel {
+  position: absolute;
+  left: 50%;
+  bottom: 22svh;
+  width: 1px;
+  height: 18svh;
+  margin-left: -0.5px;
+  background: rgb(232 239 233 / 0.14);
+}
+
+.ed-root[data-diseno='agua'] .ag-carga__nivel span {
+  position: absolute;
+  inset: 0;
+  background: var(--ambar);
+  transform-origin: 50% 100%;
+  transition: transform 500ms var(--curva);
+}
+
+/* Al estar listo, el agua del velo se escurre hacia abajo. */
+.ed-root[data-diseno='agua'] .ag-carga--sale .ag-carga__agua {
+  animation: ag-escurre 1200ms cubic-bezier(0.65, 0, 0.35, 1) forwards;
+}
+
+.ed-root[data-diseno='agua'] .ag-carga--sale .ag-carga__nivel {
+  opacity: 0;
+  transition: opacity 240ms ease;
+}
+
+@keyframes ag-escurre {
+  from {
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+  }
+  to {
+    clip-path: polygon(0 100%, 100% 100%, 100% 100%, 0 100%);
+  }
+}
+
+/* La entrada vive fuera de la página: no lleva el prefijo del diseño. */
+.ag-entrada {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  pointer-events: none;
+}
+
+.ag-entrada__agua {
+  clip-path: circle(0 at var(--ox) var(--oy));
+  animation: ag-sube 620ms cubic-bezier(0.55, 0, 0.25, 1) forwards;
+}
+
+@keyframes ag-sube {
+  to {
+    clip-path: circle(150vmax at var(--ox) var(--oy));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ed-root[data-diseno='agua'] .ag-carga__brillo {
+    animation: none;
+  }
+  .ed-root[data-diseno='agua'] .ag-carga--sale .ag-carga__agua {
+    animation-duration: 1ms;
+  }
+}
+
+/* Sin barra de scroll mientras se está bajo el agua. */
+html.ag-sin-barra {
+  scrollbar-width: none;
+}
+
+html.ag-sin-barra::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── El selector de diseños, sobre el agua ─────────────────────────────── */
+
+.ed-root[data-diseno='agua'] .ag__barra {
+  left: clamp(14px, 2vw, 28px);
+  right: auto;
+  bottom: clamp(14px, 2vw, 24px);
+}
+
+.ed-root[data-diseno='agua'] .ed-disenos--barra {
+  position: relative;
+}
+
+.ed-root[data-diseno='agua'] .ed-disenos__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 999px;
+  background: rgb(3 16 15 / 0.55);
+  color: var(--espuma-2);
+  font-family: var(--sans);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  box-shadow: 0 0 0 1px rgb(232 239 233 / 0.14);
+  transition: color 160ms ease, box-shadow 160ms ease;
+}
+
+.ed-root[data-diseno='agua'] .ed-disenos__btn:hover,
+.ed-root[data-diseno='agua'] .ed-disenos__btn[aria-expanded='true'] {
+  color: var(--espuma);
+  box-shadow: 0 0 0 1px rgb(232 239 233 / 0.32);
+}
+
+.ed-root[data-diseno='agua'] .ed-disenos__muestra {
+  border: 0;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.ed-root[data-diseno='agua'] .ed-disenos__panel {
+  left: 0;
+  right: auto;
+  top: auto;
+  bottom: calc(100% + 10px);
+  width: 300px;
+  padding: 6px;
+  border: 0;
+  border-radius: 14px;
+  background: rgb(3 16 15 / 0.9);
+  box-shadow: 0 0 0 1px rgb(232 239 233 / 0.12), 0 18px 50px rgb(0 0 0 / 0.45);
+  color: var(--espuma);
+  transform-origin: 0 100%;
+}
+
+.ed-root[data-diseno='agua'] .ed-disenos__titulo {
+  color: var(--espuma-3);
+  font-family: var(--sans);
+}
+
+.ed-root[data-diseno='agua'] .ed-disenos__item {
+  color: var(--espuma);
+  border-radius: 10px;
+  border-color: transparent;
+}
+
+.ed-root[data-diseno='agua'] .ed-disenos__item:hover {
+  background: rgb(232 239 233 / 0.07);
+}
+
+.ed-root[data-diseno='agua'] .ed-disenos__item.is-activo {
+  background: rgb(242 166 90 / 0.1);
+  border-color: rgb(242 166 90 / 0.3);
+}
+
+.ed-root[data-diseno='agua'] .ed-disenos__n,
+.ed-root[data-diseno='agua'] .ed-disenos__desc {
+  color: var(--espuma-3);
+}
+
+.ed-root[data-diseno='agua'] .ed-disenos__item.is-activo .ed-disenos__n {
+  color: var(--ambar);
+}

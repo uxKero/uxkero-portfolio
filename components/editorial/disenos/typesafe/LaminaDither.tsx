@@ -112,6 +112,18 @@ export const RECETAS: Record<string, [Receta, Receta]> = {
     { patron: 'verticales', tinta: '#1e1e1e', papel: '#dedede', bloque: 2 },
     { patron: 'diagonal', tinta: '#e350b9', papel: '#1e1e1e', bloque: 2 },
   ],
+  'kero-stack': [
+    { patron: 'bayer4', tinta: '#1e1e1e', papel: '#dedede', bloque: 2 },
+    { patron: 'agrupado', tinta: '#f2541b', papel: '#1e1e1e', bloque: 2 },
+  ],
+  aimo: [
+    { patron: 'cruzado', tinta: '#28292b', papel: '#dedede', bloque: 2 },
+    { patron: 'bayer4', tinta: '#09aea0', papel: '#1e1e1e', bloque: 2 },
+  ],
+  terrane: [
+    { patron: 'ruido', tinta: '#fefefe', papel: '#1e1e1e', bloque: 2 },
+    { patron: 'agrupado', tinta: '#1e1e1e', papel: '#d9efff', bloque: 3 },
+  ],
   badesign: [
     { patron: 'lineas', tinta: '#3c2d31', papel: '#d9efff', bloque: 2 },
     { patron: 'ondas', tinta: '#1e1e1e', papel: '#09aea0', bloque: 2 },
