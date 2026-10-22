@@ -32,6 +32,10 @@ ANCHO, ALTO = 720, 378  # 1200x630 a escala, que es lo que mide una og:image
 
 # Nombre del archivo de origen por proyecto.
 LAMINAS = {
+    "shacotroll": "shacotroll.jpg",
+    "ai-tycoon": "ai-tycoon.png",
+    "guildbook": "guildbook.png",
+    "aisight": "aisight.png",
     "bigagent": "bigagent.jpg",
     "kerocraft": "kerocraft.jpg",
     "kero-stack": "kero-stack.png",

@@ -266,7 +266,7 @@ const Inicio: React.FC<{ idioma: L; wallpaper: string; irA: (id: string) => void
       id: p.slug,
       texto: p.nombre,
       nuevo: i === 0,
-      destino: () => window.open(p.url, '_blank', 'noopener'),
+      destino: () => (p.url ? window.open(p.url, '_blank', 'noopener') : irA('productos')),
     })),
     ...ORDEN.slice(1, 7).map((id) => ({ id, texto: PESTANA[id][idioma], destino: () => irA(id) })),
   ];
@@ -349,7 +349,7 @@ const Inicio: React.FC<{ idioma: L; wallpaper: string; irA: (id: string) => void
 
 // ── Colección: tienda ───────────────────────────────────────────────────────
 
-const FILTROS = ['destacados', 'Live', 'Open source', 'In progress', 'todos'] as const;
+const FILTROS = ['destacados', 'Live', 'Coming soon', 'Open source', 'In progress', 'todos'] as const;
 type Filtro = (typeof FILTROS)[number];
 
 const Ficha: React.FC<{ p: Producto; idioma: L; onAbrir: (p: Producto) => void }> = ({ p, idioma, onAbrir }) => (
@@ -396,6 +396,7 @@ const Coleccion: React.FC<{ idioma: L }> = ({ idioma }) => {
   const nombres: Record<Filtro, Bi> = {
     destacados: { es: 'Destacados', en: 'Featured' },
     Live: { es: 'En vivo', en: 'Live' },
+    'Coming soon': { es: 'Próximamente', en: 'Coming soon' },
     'Open source': { es: 'Código abierto', en: 'Open source' },
     'In progress': { es: 'En desarrollo', en: 'In progress' },
     todos: { es: 'Todos', en: 'All' },
@@ -592,7 +593,11 @@ const Perfil: React.FC<{ idioma: L; wallpaper: string }> = ({ idioma, wallpaper 
 // ── Carrera: lobby ──────────────────────────────────────────────────────────
 
 const Carrera: React.FC<{ idioma: L }> = ({ idioma }) => {
-  const orden = [TRABAJO[0], TRABAJO[1], TRABAJO[3], TRABAJO[2]];
+  // El puesto propio va al centro del grupo.
+  const propios = TRABAJO.filter((t) => t.org === 'KeroClow');
+  const ajenos = TRABAJO.filter((t) => t.org !== 'KeroClow');
+  const mitad = Math.ceil(ajenos.length / 2);
+  const orden = [...ajenos.slice(0, mitad), ...propios, ...ajenos.slice(mitad)];
   const [retratos] = useState(() => campeonesAlAzar(orden.length));
   return (
     <section className="cl-lobby" id="trabajo">
@@ -605,7 +610,7 @@ const Carrera: React.FC<{ idioma: L }> = ({ idioma }) => {
         </span>
         <span className="cl-lobby__cola">
           <img src={itemIcono(ITEM_POR_PRODUCTO.kerocraft.id)} alt="" />
-          {idioma === 'es' ? 'Carrera · Grupo de 4 · Remoto' : 'Career · Party of 4 · Remote'}
+          {idioma === 'es' ? `Carrera · Grupo de ${orden.length} · Remoto` : `Career · Party of ${orden.length} · Remote`}
         </span>
       </header>
 

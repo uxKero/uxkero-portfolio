@@ -63,8 +63,8 @@ const TXT = {
   derechos: { es: 'Todos los derechos reservados', en: 'All rights reserved' },
   novedad: { es: 'Novedades', en: 'News' },
   novedadTexto: {
-    es: 'BigAgent ya está publicado y en uso',
-    en: 'BigAgent is published and in use',
+    es: 'AI Industry Tycoon llega pronto a Steam',
+    en: 'AI Industry Tycoon is coming soon to Steam',
   },
   leerMas: { es: 'Ver más', en: 'Read More' },
   publicados: {

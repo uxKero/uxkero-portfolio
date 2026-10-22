@@ -150,9 +150,9 @@ const Editorial: React.FC = () => {
   const LaminaExtra = diseno.modulo?.Lamina;
 
   useSEO({
-    title: 'Alan Ponce | AI Experience Designer & Product Lead | UXKERO',
+    title: 'Alan Ponce | Senior Product Builder | UXKERO',
     description:
-      'AI Experience Designer and Product Lead. Product design for systems that decide, and agent assisted development all the way to production. Mar del Plata, Argentina.',
+      'Senior Product Builder and Commercial Manager. From problem to product, in production: product at a software company, commercial lead at a wholesaler and 23 products of my own. Mar del Plata, Argentina.',
     url: typeof window !== 'undefined' ? window.location.origin : '',
     type: 'website',
   });

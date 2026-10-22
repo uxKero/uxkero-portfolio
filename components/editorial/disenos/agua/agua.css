@@ -649,3 +649,14 @@ html.ag-sin-barra::-webkit-scrollbar {
 .ed-root[data-diseno='agua'] .ed-disenos__item.is-activo .ed-disenos__n {
   color: var(--ambar);
 }
+
+/* La etiqueta de rol ocupa dos renglones en el celular: crece hacia arriba
+   para no pisar el título que flota en la línea del agua. */
+@media (max-width: 860px) {
+  .ed-root[data-diseno='agua'] .ag__ante {
+    padding: 0 16px;
+    line-height: 1.5;
+    translate: 0 calc(-100% + 0.4em);
+  }
+}
+

@@ -345,7 +345,7 @@ const VentanaProducto: React.FC<{ p: Producto; idioma: L; i: number }> = ({ p, i
     >
       {principal && (
         <>
-          <span className="y2-sello">{TXT.salio[idioma]}</span>
+          <span className="y2-sello">{p.estado.en === 'Live' ? TXT.salio[idioma] : p.estado[idioma].toUpperCase()}</span>
           <Destello tam={30} className="y2-titila" style={{ position: 'absolute', top: 44, right: 26 }} />
           <Destello tam={16} className="y2-titila y2-titila--2" style={{ position: 'absolute', top: 88, right: 70 }} />
         </>

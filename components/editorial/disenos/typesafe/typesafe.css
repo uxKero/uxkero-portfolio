@@ -2005,6 +2005,15 @@ body.ed-diseno-typesafe {
     min-height: auto;
   }
 
+  /* En el celular la noticia entra en el flujo: flotando tapa el titular. */
+  .ts-noticia {
+    position: relative;
+    top: auto;
+    left: auto;
+    transform: none;
+    margin: 12px auto 0;
+  }
+
   .ts-portada__cielo {
     min-height: 46svh;
   }

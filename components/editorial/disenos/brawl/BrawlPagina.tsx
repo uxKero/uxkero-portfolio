@@ -69,6 +69,7 @@ const ICONO_SECCION: Record<string, NombreIcono> = {
 // El color de la tienda es vocabulario: cada estado tiene el suyo.
 const CATEGORIA: Record<string, string> = {
   'Launching soon': 'violeta',
+  'Coming soon': 'dorado',
   Live: 'verde',
   'Open source': 'violeta',
   'In progress': 'naranja',

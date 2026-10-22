@@ -57,14 +57,33 @@ export const campeonesAlAzar = (n: number) => {
 
 /** Cada puesto se juega con un campeón que se le parece. */
 export const CAMPEON_POR_ORG: Record<string, { campeon: string; motivo: Bi }> = {
-  Educabot: { campeon: 'Heimerdinger', motivo: { es: 'El inventor que enseña', en: 'The inventor who teaches' } },
-  'Cultura Interactiva': { campeon: 'Viktor', motivo: { es: 'La evolución con IA', en: 'Evolution through AI' } },
+  'Magnora Mayorista': { campeon: 'Gangplank', motivo: { es: 'El que mueve la mercadería', en: 'The one who moves the goods' } },
   'Cronos Cloud S.A.': { campeon: 'Zilean', motivo: { es: 'El guardián del tiempo', en: 'The keeper of time' } },
   KeroClow: { campeon: 'Ornn', motivo: { es: 'El herrero que construye', en: 'The smith who builds' } },
 };
 
 /** El ítem de cada producto. */
 export const ITEM_POR_PRODUCTO: Record<string, { id: string } & Bi> = {
+  "shacotroll": {
+    "id": "3124",
+    "es": "Espadafuria de Guinsoo",
+    "en": "Guinsoo's Rageblade"
+  },
+  "ai-tycoon": {
+    "id": "3031",
+    "es": "Filo del Infinito",
+    "en": "Infinity Edge"
+  },
+  "guildbook": {
+    "id": "3115",
+    "es": "Diente de Nashor",
+    "en": "Nashor's Tooth"
+  },
+  "aisight": {
+    "id": "3814",
+    "es": "Filo de la Noche",
+    "en": "Edge of Night"
+  },
   "bigagent": {
     "id": "3107",
     "es": "Redención",

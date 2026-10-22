@@ -92,6 +92,22 @@ export interface Receta {
 
 // Una receta por producto. El orden sigue al de PRODUCTOS.
 export const RECETAS: Record<string, [Receta, Receta]> = {
+  shacotroll: [
+    { patron: 'agrupado', tinta: '#1e1e1e', papel: '#f386a1', bloque: 3, sesgo: 0.06 },
+    { patron: 'bayer4', tinta: '#e350b9', papel: '#1e1e1e', bloque: 2 },
+  ],
+  'ai-tycoon': [
+    { patron: 'bayer8', tinta: '#28292b', papel: '#f386a1', bloque: 2, sesgo: -0.04 },
+    { patron: 'lineas', tinta: '#f2541b', papel: '#1e1e1e', bloque: 2 },
+  ],
+  guildbook: [
+    { patron: 'cruzado', tinta: '#3c2d31', papel: '#abbab9', bloque: 2 },
+    { patron: 'agrupado', tinta: '#09aea0', papel: '#1e1e1e', bloque: 3 },
+  ],
+  aisight: [
+    { patron: 'bayer4', tinta: '#1e1e1e', papel: '#d9efff', bloque: 2 },
+    { patron: 'diagonal', tinta: '#f386a1', papel: '#1e1e1e', bloque: 2 },
+  ],
   bigagent: [
     { patron: 'agrupado', tinta: '#1e1e1e', papel: '#f386a1', bloque: 3 },
     { patron: 'bayer4', tinta: '#f386a1', papel: '#28292b', bloque: 2 },
