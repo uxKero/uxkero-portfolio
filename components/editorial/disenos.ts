@@ -123,6 +123,7 @@ export const DISENOS: Diseno[] = [
   },
 ];
 
+/** Donde antes se recordaba el elegido; se borra para que nadie quede pegado a uno. */
 const CLAVE = 'uxkero:diseno';
 const PARAMETRO = 'design';
 
@@ -140,17 +141,16 @@ export const pedirFuentes = (d: Diseno) => {
   document.head.appendChild(link);
 };
 
+// Siempre arranca el de la casa; otro diseño solo entra por un link con ?design=.
 const leerInicial = () => {
   if (typeof window === 'undefined') return null;
-  const url = new URLSearchParams(window.location.search).get(PARAMETRO);
-  if (buscar(url)) return url;
   try {
-    const guardado = window.localStorage.getItem(CLAVE);
-    if (buscar(guardado)) return guardado;
+    window.localStorage.removeItem(CLAVE);
   } catch {
-    // Sin almacenamiento arranca el de la casa.
+    // Nada que limpiar.
   }
-  return null;
+  const url = new URLSearchParams(window.location.search).get(PARAMETRO);
+  return buscar(url) ? url : null;
 };
 
 /**
@@ -208,13 +208,6 @@ export const useDiseno = () => {
     setActivo(d);
     setCargando(null);
     if (anunciar && !(Entrada && !quieto)) setCambios((n) => n + 1);
-
-    try {
-      if (d.id === DISENOS[0].id) window.localStorage.removeItem(CLAVE);
-      else window.localStorage.setItem(CLAVE, d.id);
-    } catch {
-      // No se recuerda, pero se aplica igual.
-    }
 
     const url = new URL(window.location.href);
     if (d.id === DISENOS[0].id) url.searchParams.delete(PARAMETRO);
